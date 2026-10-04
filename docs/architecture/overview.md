@@ -1,9 +1,16 @@
 # Architecture Overview
 
-`spod` is a service/application built on Siderust's canonical POD APIs.
-It owns configuration, external interfaces, orchestration, and artifacts;
+`spod` is an application/service built on Siderust's canonical POD APIs.
+Its public boundary is the service runner, which owns configuration,
+workflow dispatch, job/run orchestration, input validation, artifacts,
+and provenance;
 reusable dynamics, observations, estimation, QC, products,
 and run metadata remain in `siderust::pod`.
+
+The current `synthetic` workflow is the deterministic reference/integration
+workflow. Real-data inputs are rejected explicitly until a real-data workflow
+is introduced. Full Vallado SGP4/SDP4 remains a temporary local exception
+while semantic parity is tracked by spod #29 and Siderust #98.
 
 ## Dependency structure
 
@@ -44,6 +51,7 @@ flowchart LR
     POD --> OUT[Service artifacts and manifest]
 ```
 
-The CLI and REST binaries are thin front ends over the service module. The
+The CLI and REST binaries are thin front ends over `spod::service::Runner`.
+They do not assemble pipelines or call scientific components directly.
 Siderust's scientific APIs remain independently testable, while the service
 boundary is covered by synthetic end-to-end execution.

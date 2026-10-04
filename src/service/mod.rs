@@ -15,15 +15,16 @@
 //!
 //! ## Technical scope
 //!
-//! The public surface exposes run configuration, synthetic-arc generation,
-//! the batch pipeline, and the top-level `run` helper. Reusable scientific
-//! types are imported directly from Siderust rather than re-exported through
-//! this service namespace. Inputs are configuration objects and filesystem
-//! roots; outputs are reports and artifact paths.
+//! The public surface is the [`Runner`], [`RunRequest`], and [`RunResult`]
+//! service API. Reusable scientific types are imported directly from Siderust
+//! rather than re-exported through this service namespace. Inputs are
+//! configuration objects and filesystem roots; outputs are structured
+//! artifact and provenance records.
 //!
 //! HTTP transport and command-line dispatch live in the `spod-rest` and
-//! `spod` binaries, while
-//! reusable numerical estimation remains in `siderust::pod::estimation`.
+//! `spod` binaries, while reusable numerical estimation remains in
+//! `siderust::pod::estimation`. The synthetic workflow is a reference
+//! integration workflow, not the definition of the whole service.
 //!
 //! ## References
 //!
@@ -34,15 +35,23 @@
 #![forbid(unsafe_code)]
 #![warn(missing_docs)]
 
+pub mod artifacts;
 pub mod config;
+pub mod error;
+pub mod job;
 pub mod pipeline;
+pub mod provenance;
 pub mod rest;
 pub mod runner;
 pub mod synth;
+pub mod workflow;
 
-pub use config::RunConfig;
-pub use pipeline::{
-    run_synth, ArcEpoch, GpsSatellite, PipelineError, PipelineReport, RunProvenance,
-};
-pub use runner::{run, RunReport};
+pub use artifacts::Artifacts;
+pub use config::{ForcesConfig, InputsConfig, RunConfig};
+pub use error::ServiceError;
+pub use job::{JobId, RunReport, RunRequest, RunResult};
+pub use pipeline::{run_synth, ArcEpoch, GpsSatellite, PipelineError, PipelineReport};
+pub use provenance::RunProvenance;
+pub use runner::{run, Runner};
 pub use synth::{generate, SyntheticArc, SyntheticArcConfig};
+pub use workflow::Workflow;

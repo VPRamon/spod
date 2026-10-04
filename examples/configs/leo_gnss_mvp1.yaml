@@ -1,5 +1,6 @@
 schema_version: "1.0.0"
 run_id: leo-gnss-mvp1-demo
+workflow: synthetic
 output_dir: ./out/leo-gnss-mvp1
 inputs:
   sp3: null

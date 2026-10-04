@@ -34,14 +34,13 @@ use std::fs;
 use std::path::{Path as FsPath, PathBuf};
 use std::sync::{Arc, Mutex};
 
-use crate::service::{generate, run_synth, SyntheticArcConfig};
+use crate::service::{ForcesConfig, InputsConfig, RunConfig, RunRequest, Runner, Workflow};
 use axum::extract::{Path, State};
 use axum::http::StatusCode;
 use axum::response::IntoResponse;
 use axum::routing::{get, post};
 use axum::{Json, Router};
 use serde::{Deserialize, Serialize};
-use siderust::astro::dynamics::{OrbitState, Position, Velocity};
 use siderust::pod::run::dataset::DatasetRef;
 use uuid::Uuid;
 
@@ -150,22 +149,6 @@ fn run_job(state: AppState, id: String, req: JobRequest) {
         let mut t = state.inner.lock().unwrap();
         t.insert(id.clone(), JobStatus::Running);
     }
-    let cfg = SyntheticArcConfig::default();
-    let arc = generate(&cfg);
-    let t0 = arc.truth_states[0];
-    let init = OrbitState::new(
-        t0.epoch,
-        Position::new(
-            t0.position.x().value() + 0.05,
-            t0.position.y().value() - 0.05,
-            t0.position.z().value() + 0.05,
-        ),
-        Velocity::new(
-            t0.velocity.x().value() + 5e-5,
-            t0.velocity.y().value() - 5e-5,
-            t0.velocity.z().value() + 5e-5,
-        ),
-    );
     let out = state.output_root.join(&id);
     let request_ref = match persist_request(&out, &req) {
         Ok(request_ref) => request_ref,
@@ -174,22 +157,34 @@ fn run_job(state: AppState, id: String, req: JobRequest) {
             return;
         }
     };
-    let result = run_synth(
-        &arc,
-        init,
-        0.0,
-        &out,
-        &id,
-        req.enable_j2,
-        crate::service::RunProvenance::from_config(request_ref, Vec::new()),
-    );
+    let config = RunConfig {
+        schema_version: "1.0.0".into(),
+        run_id: id.clone(),
+        workflow: Workflow::Synthetic,
+        inputs: InputsConfig {
+            sp3: None,
+            rinex_obs: None,
+            rinex_nav: None,
+            antex: None,
+        },
+        output_dir: out.display().to_string(),
+        forces: ForcesConfig {
+            two_body: true,
+            j2: req.enable_j2,
+            third_body: false,
+        },
+    };
+    let result = Runner.run(RunRequest {
+        config,
+        config_path: request_ref.path,
+    });
     let mut t = state.inner.lock().unwrap();
     match result {
         Ok(report) => {
             t.insert(
                 id,
                 JobStatus::Finished {
-                    manifest_path: report.manifest_path.display().to_string(),
+                    manifest_path: report.artifacts.manifest.path.display().to_string(),
                 },
             );
         }

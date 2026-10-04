@@ -1,53 +1,33 @@
-//! # Run configuration schema
-//!
-//! ## Scientific scope
-//!
-//! A POD run needs a stable description of its input files, selected force
-//! toggles, and output location before any scientific computation begins.
-//! This module defines that configuration envelope for the current MVP
-//! service path.
-//!
-//! The schema is intentionally rigid so integration tests can rely on
-//! deterministic behaviour. Scientific interpretation enters later, when
-//! the selected inputs and force switches are bound into an actual
-//! estimation run.
-//!
-//! ## Technical scope
-//!
-//! The main public types are `RunConfig`, `InputsConfig`, and
-//! `ForcesConfig`, along with `RunConfig::from_yaml_file` and
-//! `RunConfig::validate`. The schema uses filesystem paths and booleans
-//! rather than typed orbit quantities because it describes workflow wiring
-//! rather than physical state.
-//!
-//! It does not execute the pipeline or hash artifacts; those
-//! responsibilities belong to the runner and manifest modules.
-//!
-//! ## References
-//!
-//! - Ben-Kiki, O., Evans, C., & d'Otremont, I. (2021). YAML Ain't Markup
-//!   Language (YAML) Version 1.2.2.
-//! - Bray, T. (2017). The JavaScript Object Notation (JSON) Data
-//!   Interchange Format. RFC 8259.
+//! Stable YAML configuration for service runs.
+
 use serde::{Deserialize, Serialize};
+use std::path::{Path, PathBuf};
+
+use super::error::ServiceError;
+use super::workflow::Workflow;
 
 /// Top-level run configuration.
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct RunConfig {
-    /// Schema version (semver-ish). Must be `"1.0.0"` for MVP-1.
+    /// Schema version. Must be `"1.0.0"` for the current service API.
     pub schema_version: String,
     /// Free-form run identifier.
     pub run_id: String,
-    /// Inputs.
+    /// Workflow selected for this run.
+    #[serde(default)]
+    pub workflow: Workflow,
+    /// Input datasets. Real-data inputs are currently unsupported.
     pub inputs: InputsConfig,
-    /// Output directory (absolute or relative to the config file).
+    /// Output directory, absolute or relative to the configuration file.
     pub output_dir: String,
-    /// Force-model toggles.
+    /// Force-model toggles supported by the selected workflow.
     pub forces: ForcesConfig,
 }
 
 /// Input file paths.
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct InputsConfig {
     /// Precise GNSS satellite ephemeris (SP3).
     pub sp3: Option<String>,
@@ -61,39 +41,64 @@ pub struct InputsConfig {
 
 /// Which forces are enabled.
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct ForcesConfig {
     /// Two-body central gravity.
     pub two_body: bool,
     /// J2 oblateness.
     pub j2: bool,
-    /// Sun + Moon third-body gravity. Currently rejected by the synthetic-only runner.
+    /// Sun + Moon third-body gravity, currently unsupported.
     pub third_body: bool,
 }
 
 impl RunConfig {
-    /// Load from a YAML file.
-    pub fn from_yaml_file(path: &str) -> Result<Self, std::io::Error> {
-        let text = std::fs::read_to_string(path)?;
-        serde_yaml::from_str(&text)
-            .map_err(|e| std::io::Error::new(std::io::ErrorKind::InvalidData, e.to_string()))
+    /// Load and parse a YAML configuration.
+    pub fn from_yaml_file(path: impl AsRef<Path>) -> Result<Self, ServiceError> {
+        let text = std::fs::read_to_string(path).map_err(ServiceError::input)?;
+        serde_yaml::from_str(&text).map_err(|e| ServiceError::configuration(e.to_string()))
     }
 
-    /// Validate semantic invariants (paths exist, schema version known, …).
-    pub fn validate(&self) -> Result<(), String> {
+    /// Validate semantic invariants before scientific execution.
+    pub fn validate(&self) -> Result<(), ServiceError> {
         if self.schema_version != "1.0.0" {
-            return Err(format!(
+            return Err(ServiceError::configuration(format!(
                 "unsupported schema_version: {}",
                 self.schema_version
+            )));
+        }
+        if self.run_id.trim().is_empty() {
+            return Err(ServiceError::configuration("run_id must not be empty"));
+        }
+        if !self.forces.two_body {
+            return Err(ServiceError::configuration(
+                "two_body force must be enabled",
             ));
         }
-        if !(self.forces.two_body) {
-            return Err("two_body force must be enabled".into());
-        }
         if self.forces.third_body {
-            return Err(
-                "third_body force is not implemented in the current synthetic-only service".into(),
-            );
+            return Err(ServiceError::unsupported(
+                "third_body force is not implemented in the current synthetic-only service",
+            ));
+        }
+        if self.workflow != Workflow::Synthetic {
+            return Err(ServiceError::unsupported(format!(
+                "workflow `{}` is not implemented",
+                self.workflow
+            )));
         }
         Ok(())
+    }
+
+    /// Resolve the configured output directory relative to the configuration file.
+    pub fn output_dir_relative_to(&self, config_path: impl AsRef<Path>) -> PathBuf {
+        let output = PathBuf::from(&self.output_dir);
+        if output.is_absolute() {
+            output
+        } else {
+            config_path
+                .as_ref()
+                .parent()
+                .unwrap_or_else(|| Path::new("."))
+                .join(output)
+        }
     }
 }

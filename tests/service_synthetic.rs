@@ -4,7 +4,7 @@ use chrono::DateTime;
 use siderust::pod::run::dataset::DatasetRef;
 use siderust::pod::run::manifest::{RunManifest, RUN_MANIFEST_SCHEMA_V1};
 use spod::service::config::{ForcesConfig, InputsConfig};
-use spod::service::{run, RunConfig};
+use spod::service::{run, RunConfig, ServiceError, Workflow};
 use std::fs;
 use std::path::{Path, PathBuf};
 use std::time::{SystemTime, UNIX_EPOCH};
@@ -13,6 +13,7 @@ fn base_config(output_dir: &Path) -> RunConfig {
     RunConfig {
         schema_version: "1.0.0".into(),
         run_id: "integration-test".into(),
+        workflow: Workflow::Synthetic,
         inputs: InputsConfig {
             sp3: None,
             rinex_obs: None,
@@ -52,8 +53,17 @@ fn synthetic_service_produces_valid_manifest_and_products() {
     let report = run(&config, config_path.to_str().unwrap()).unwrap();
     assert!(report.estimator_iterations > 0);
     assert!(report.reduced_chi2.is_finite());
+    assert_eq!(report.workflow, Workflow::Synthetic);
+    assert_eq!(report.provenance.inputs.len(), 1);
+    for artifact in report.artifacts.all() {
+        assert!(
+            artifact.path.is_file(),
+            "missing {}",
+            artifact.path.display()
+        );
+    }
 
-    let manifest_text = fs::read_to_string(&report.manifest_path).unwrap();
+    let manifest_text = fs::read_to_string(&report.artifacts.manifest.path).unwrap();
     let manifest: RunManifest = serde_json::from_str(&manifest_text).unwrap();
     assert_eq!(manifest.run_id, "integration-test");
     assert_eq!(manifest.config_sha256.len(), 64);
@@ -118,7 +128,7 @@ fn synthetic_service_rejects_every_real_data_input() {
         }
 
         let err = run(&cfg, "unused-config.yaml").unwrap_err();
-        assert_eq!(err.kind(), std::io::ErrorKind::Unsupported);
+        assert!(matches!(err, ServiceError::Unsupported { .. }));
         assert!(
             err.to_string().contains(input_name),
             "diagnostic for {input_name} did not identify the unsupported input: {err}"
@@ -133,7 +143,7 @@ fn synthetic_service_rejects_unsupported_third_body_force() {
     cfg.forces.third_body = true;
 
     let err = run(&cfg, "unused-config.yaml").unwrap_err();
-    assert_eq!(err.kind(), std::io::ErrorKind::InvalidInput);
+    assert!(matches!(err, ServiceError::Unsupported { .. }));
     assert!(
         err.to_string().contains("third_body"),
         "diagnostic did not identify the unsupported third-body force: {err}"

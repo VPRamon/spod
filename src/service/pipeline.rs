@@ -31,6 +31,7 @@
 //!   Determination. Elsevier Academic Press.
 //! - Consultative Committee for Space Data Systems. (2010). Orbit Data
 //!   Messages, CCSDS 502.0-B-2 / 502.0-B-3.
+use super::provenance::RunProvenance;
 use super::synth::SyntheticArc;
 use super::synth::SyntheticProviders;
 use chrono::{SecondsFormat, Utc};
@@ -106,29 +107,6 @@ pub struct PipelineReport {
     pub manifest_path: PathBuf,
     /// Output directory.
     pub output_dir: PathBuf,
-}
-
-/// Service provenance supplied to a synthetic run.
-#[derive(Debug, Clone)]
-pub struct RunProvenance {
-    /// SHA-256 of the configuration document used for the run.
-    pub config_sha256: String,
-    /// Configuration and external input references consumed by the run.
-    pub inputs: Vec<DatasetRef>,
-}
-
-impl RunProvenance {
-    /// Build provenance from the canonical configuration dataset reference.
-    pub fn from_config(config: DatasetRef, inputs: Vec<DatasetRef>) -> Self {
-        let config_sha256 = config.sha256.clone();
-        let mut all_inputs = Vec::with_capacity(inputs.len() + 1);
-        all_inputs.push(config);
-        all_inputs.extend(inputs);
-        Self {
-            config_sha256,
-            inputs: all_inputs,
-        }
-    }
 }
 
 /// Run MVP-1 against a synthetic arc and write all artifacts to `output_dir`.
