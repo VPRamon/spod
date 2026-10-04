@@ -27,9 +27,9 @@ only the orbital mechanics layer?
 
 The LISA POC (`E2E-12`) covers **only**:
 
-1. Heliocentric orbit propagation of three spacecraft using `siderust-pod-dynamics`.
+1. Heliocentric orbit propagation of three spacecraft using `siderust::pod::propagation`.
 2. Simulated MOSA inter-spacecraft range measurements (`InterSatRange` observation
-   model in `siderust-pod-observations`).
+   model in `siderust::pod::observation`).
 3. A batch-LS or EKF POD run that estimates the three spacecraft states from the
    range measurements, using orbits from `esa/lisa-orbit-files` as truth
    reference.
@@ -54,7 +54,7 @@ sufficient to validate `spod` at the FocusPOD M6 milestone.
 
 ## Consequences
 
-- `siderust-pod-observations` implements `InterSatRange` as a first-class
+- `siderust::pod::observation` implements `InterSatRange` as a first-class
   observation model alongside GNSS pseudorange and SLR normal points.
 - The LISA POC is implemented as a **configuration** of existing primitives
   (a `LisaEphemerisProvider` reading `esa/lisa-orbit-files` and an
