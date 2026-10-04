@@ -4,7 +4,7 @@
 //! Programmatic constructor for [`Tle`] records.
 //!
 //! [`TleBuilder`] is the synthesis counterpart of the parser in
-//! [`crate::parse_tle`]. It is used by `siderust-sgp4` tests and by any
+//! [`crate::parse_tle`]. It is used by `spod::sgp4` tests and by any
 //! caller that needs to fabricate plausible TLEs (regression suites,
 //! property tests, scenario generators).
 //!
