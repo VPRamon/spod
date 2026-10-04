@@ -33,6 +33,7 @@ use spod::service::rest::{router, AppState};
 fn resolve_setting(
     new: Result<String, std::env::VarError>,
     legacy: Result<String, std::env::VarError>,
+    internal_default: Result<String, std::env::VarError>,
     default: &str,
     new_name: &str,
     legacy_name: &str,
@@ -41,7 +42,13 @@ fn resolve_setting(
         Ok(value) => Ok((value, false)),
         Err(std::env::VarError::NotPresent) => match legacy {
             Ok(value) => Ok((value, true)),
-            Err(std::env::VarError::NotPresent) => Ok((default.to_owned(), false)),
+            Err(std::env::VarError::NotPresent) => match internal_default {
+                Ok(value) => Ok((value, false)),
+                Err(std::env::VarError::NotPresent) => Ok((default.to_owned(), false)),
+                Err(std::env::VarError::NotUnicode(_)) => {
+                    anyhow::bail!("internal REST default is not valid Unicode")
+                }
+            },
             Err(std::env::VarError::NotUnicode(_)) => {
                 anyhow::bail!("{legacy_name} is not valid Unicode")
             }
@@ -56,7 +63,8 @@ async fn main() -> anyhow::Result<()> {
     let (bind, bind_legacy) = resolve_setting(
         std::env::var("SPOD_REST_BIND"),
         std::env::var("SIDERUST_POD_REST_BIND"),
-        "0.0.0.0:8080",
+        std::env::var("SPOD_REST_DEFAULT_BIND"),
+        "127.0.0.1:8080",
         "SPOD_REST_BIND",
         "SIDERUST_POD_REST_BIND",
     )?;
@@ -66,6 +74,7 @@ async fn main() -> anyhow::Result<()> {
     let (out, out_legacy) = resolve_setting(
         std::env::var("SPOD_REST_OUT"),
         std::env::var("SIDERUST_POD_REST_OUT"),
+        Err(std::env::VarError::NotPresent),
         &std::env::temp_dir().join("spod-rest").display().to_string(),
         "SPOD_REST_OUT",
         "SIDERUST_POD_REST_OUT",
@@ -99,6 +108,7 @@ mod tests {
         let result = resolve_setting(
             present("new"),
             present("legacy"),
+            Err(std::env::VarError::NotPresent),
             "default",
             "NEW",
             "LEGACY",
@@ -112,6 +122,7 @@ mod tests {
         let result = resolve_setting(
             Err(std::env::VarError::NotPresent),
             present("legacy"),
+            Err(std::env::VarError::NotPresent),
             "default",
             "NEW",
             "LEGACY",
@@ -123,6 +134,7 @@ mod tests {
     #[test]
     fn default_is_used_when_variables_are_absent() {
         let result = resolve_setting(
+            Err(std::env::VarError::NotPresent),
             Err(std::env::VarError::NotPresent),
             Err(std::env::VarError::NotPresent),
             "default",
@@ -141,6 +153,7 @@ mod tests {
                 0xff,
             ]))),
             present("legacy"),
+            Err(std::env::VarError::NotPresent),
             "default",
             "NEW",
             "LEGACY",
@@ -156,10 +169,25 @@ mod tests {
             Err(std::env::VarError::NotUnicode(OsString::from_vec(vec![
                 0xff,
             ]))),
+            Err(std::env::VarError::NotPresent),
             "default",
             "NEW",
             "LEGACY",
         );
         assert!(result.is_err());
+    }
+
+    #[test]
+    fn internal_default_is_used_after_public_variables() {
+        let result = resolve_setting(
+            Err(std::env::VarError::NotPresent),
+            Err(std::env::VarError::NotPresent),
+            present("docker-default"),
+            "native-default",
+            "NEW",
+            "LEGACY",
+        )
+        .unwrap();
+        assert_eq!(result, ("docker-default".to_owned(), false));
     }
 }

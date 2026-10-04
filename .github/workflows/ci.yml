@@ -96,6 +96,19 @@ jobs:
       - run: bash scripts/check_no_todos.sh
       - run: bash scripts/check_legacy_name_refs.sh
 
+  feature-checks:
+    name: Targeted feature checks
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        feature: [lisa, doris, parquet, de440]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo check --workspace --no-default-features --features ${{ matrix.feature }}
+
   msrv:
     name: MSRV (Rust 1.89)
     runs-on: ubuntu-latest
@@ -147,9 +160,18 @@ jobs:
         run: |
           set -euo pipefail
           cleanup() {
-            docker rm -f spod-ci-new spod-ci-legacy >/dev/null 2>&1 || true
+            docker rm -f spod-ci-default spod-ci-new spod-ci-legacy >/dev/null 2>&1 || true
           }
           trap cleanup EXIT
+
+          docker run -d --name spod-ci-default -p 18082:8080 spod:ci >/dev/null
+          for attempt in {1..30}; do
+            if curl --fail --silent "http://127.0.0.1:18082/healthz"; then
+              break
+            fi
+            [[ "$attempt" -eq 30 ]] && exit 1
+            sleep 1
+          done
 
           docker run -d --name spod-ci-new -p 18080:8080 \
             -e SPOD_REST_BIND=0.0.0.0:8080 spod:ci >/dev/null

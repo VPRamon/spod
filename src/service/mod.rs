@@ -1,9 +1,9 @@
 #![allow(clippy::needless_range_loop, clippy::inconsistent_digit_grouping)]
-//! # spod service orchestration
+//! # `spod::service` orchestration
 //!
 //! ## Scientific scope
 //!
-//! This crate is the orchestration layer that turns configuration,
+//! This module is the orchestration layer that turns configuration,
 //! synthetic inputs, estimation kernels, observation models, and product
 //! writers into an end-to-end POD workflow. Its scientific regime is the
 //! currently supported MVP pipeline: deterministic synthetic GNSS
@@ -21,7 +21,8 @@
 //! interfaces. Inputs are configuration objects and filesystem roots;
 //! outputs are reports and artifact paths.
 //!
-//! HTTP transport and command-line dispatch live in sibling crates, while
+//! HTTP transport and command-line dispatch live in the `spod-rest` and
+//! `spod` binaries, while
 //! numerical estimation remains in `spod::estimation`.
 //!
 //! ## References
@@ -46,7 +47,7 @@ pub use pipeline::{run_synth, ArcEpoch, GpsSatellite, PipelineError, PipelineRep
 pub use runner::{run, RunReport};
 pub use synth::{generate, SyntheticArc, SyntheticArcConfig};
 
-// Re-export the core orbit state types so downstream crates (pod-rest)
-// that only depend on this crate can access them without adding siderust directly.
+// Re-export the core orbit state types so the binaries can use the service
+// facade without adding another public dependency surface.
 pub use siderust::astro::dynamics::state::VelocityUnit;
 pub use siderust::astro::dynamics::{OrbitState, Position, Velocity};

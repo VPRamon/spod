@@ -1,6 +1,12 @@
 # spod — Implementation Plan
 
-> **Editable workspace:** `rust/spod/`
+> Historical implementation plan. It describes the pre-consolidation
+> `siderust-pod` workspace and its planned package split. The repository was
+> later renamed to `spod` and consolidated into one crate with modules such
+> as `spod::core`, `spod::service`, and `spod::io`; the commands and paths
+> below are retained as historical context, not current instructions.
+
+> **Editable workspace:** `rust/siderust-pod/`
 > **Untouchable upstream:** `rust/siderust/`, `rust/qtty/`, `rust/tempoch/`, `rust/affn/`, `rust/cheby/`
 > **Modifications to foundational crates:** require a separate branch off `main`, written justification, and must be avoided unless strictly necessary. Always prefer adapter layers, wrapper crates, or public provider traits in `spod` first.
 > **Attribution rule:** never add Copilot as a co-author anywhere (commits, changelogs, files, docs).
@@ -9,9 +15,9 @@
 
 ## 1. Current-state assessment
 
-### 1.1 What exists in `spod/`
+### 1.1 What exists in `siderust-pod/`
 
-`spod/` is currently a **verbatim fork of the `siderust` crate**, not a POD product workspace:
+`siderust-pod/` was then a **verbatim fork of the `siderust` crate**, not a POD product workspace:
 
 - `Cargo.toml` declares `name = "siderust"` (a single-crate package) plus a workspace whose only members are `.` and `siderust-ffi`.
 - `src/` is the `siderust` source tree (`astro`, `bodies`, `atmosphere`, `calculus`, `coordinates`, `targets`, `archive`, `provenance`, `observatories`, `time.rs`, `interp.rs`, `spectra`, `tables`, etc.). None of it is POD-domain code.
@@ -23,7 +29,7 @@
 - `examples/`, `benches/`, `tests/` are upstream-shaped, not POD-shaped.
 - No POD crate exists yet (`siderust-pod-core`, `-dynamics`, `-io`, `-observations`, `-estimation`, `-qc`, `-products`, `-service`, `-cli` are all absent).
 
-**Conclusion:** the M0 milestone must *reset* `spod/` into a real Cargo workspace whose members are the new POD crates, depending on upstream `siderust`/`affn`/`qtty`/`tempoch`/`cheby` as external crates. The cloned `src/` is to be deleted (decision locked with user).
+**Conclusion:** the M0 milestone was to *reset* `siderust-pod/` into a real Cargo workspace whose members were the new POD crates, depending on upstream `siderust`/`affn`/`qtty`/`tempoch`/`cheby` as external crates. The cloned `src/` was to be deleted (decision locked with user).
 
 ### 1.2 Reusable foundation (no modification)
 
@@ -82,7 +88,7 @@ rust/spod/
     check_dep_graph.sh             # CI dependency-direction enforcement
 ```
 
-The upstream `siderust-ffi` crate that currently lives under `spod/siderust-ffi` is removed from this workspace (it belongs in `rust/siderust/`). POD's own future FFI lives in `crates/spod-ffi/` and is **not** part of MVP-1.
+The upstream `siderust-ffi` crate that currently lives under `spod/siderust-ffi` is removed from this workspace (it belongs in `rust/siderust/`). POD's own future FFI lives in `crates/siderust-pod-ffi/` and is **not** part of MVP-1.
 
 ### 2.2 Crate responsibilities
 
@@ -250,7 +256,7 @@ Milestones are numbered M0–M7. Each lists *goal*, *crates touched*, *concrete 
 ### M7 — Productization
 
 - **Goal:** Python bindings (PyO3), REST job API, container image, public-data benchmark corpus, performance dashboards.
-- **Crates touched:** new `crates/spod-py/`, `crates/spod-rest/`; `pod-service` worker model.
+- **Crates touched:** new `crates/siderust-pod-py/`, `crates/siderust-pod-rest/`; `pod-service` worker model.
 - **Concrete tasks:** PyO3 wrappers calling the same library APIs; `axum` REST over `pod-service::Runner`; OCI image with deterministic build; public LEO GNSS arc benchmark.
 - **Definition of done:** API parity test (CLI ≡ Rust API ≡ Python ≡ REST) green; documented commercial-readiness checklist.
 
@@ -321,7 +327,7 @@ All inputs are SHA-256-hashed and recorded in `run.manifest.json`.
 
 - **MVP-1:** synthetic only (deterministic, fully reproducible, no licensing risk).
 - **MVP-2:** add one frozen, redistributable LEO GNSS arc + IGS final products (24 h) committed under `examples/fixtures/public/` with explicit license/source notes.
-- **MVP-3+:** publish a separate `spod-benchmarks` repo with curated multi-day public arcs and CI-published results dashboards.
+- **MVP-3+:** publish a separate `siderust-pod-benchmarks` repo with curated multi-day public arcs and CI-published results dashboards.
 
 ### 5.3 Minimum tolerances (initial)
 
@@ -475,7 +481,7 @@ No feature gates change *numerical results*. CI matrix tests `--no-default-featu
 ## 9. Branching and change policy
 
 - `rust/siderust/`, `rust/qtty/`, `rust/tempoch/`, `rust/affn/`, `rust/cheby/`, `rust/NSB/` — **untouched** by the POD plan. CI on the POD branch fails if any file under those paths changes.
-- `rust/spod/` — the **only** editable workspace for this plan. All POD work lands here.
+- `rust/siderust-pod/` — the **only** editable workspace for this plan. All POD work lands here.
 - Any change required in a foundational crate must:
   1. Be created on a **separate branch** off `main`, named `foundational/<crate>/<reason>`.
   2. Carry an **ADR** under `rust/spod/docs/adrs/` justifying why an adapter/provider trait was insufficient.
