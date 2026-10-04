@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Vallés Puig, Ramon
 
-//! `siderust-tle` — Two-Line Element / 3LE / OMM parser & writer.
+//! `spod::tle` — Two-Line Element / 3LE / OMM parser & writer.
 //!
 //! This crate models the canonical NORAD TLE format and the CCSDS
 //! Orbit Mean-elements Message (OMM) in three encodings — KVN, XML, and
@@ -17,7 +17,7 @@
 //!   fractional-day) encoding via `chrono`,
 //! * round-trip OMM-KVN / OMM-XML / OMM-JSON parity through [`omm::Omm`],
 //! * a programmatic [`TleBuilder`] for synthesising TLEs (used by
-//!   `siderust-sgp4` regression tests),
+//!   `spod::sgp4` regression tests),
 //! * single error taxonomy via [`TleError`] (no `anyhow`).
 //!
 //! ## Design notes
@@ -37,7 +37,7 @@
 //!
 //! Out-of-scope:
 //!
-//! * SGP4/SDP4 propagation lives in `siderust-sgp4`.
+//! * SGP4/SDP4 propagation lives in `spod::sgp4`.
 //!
 //! # Examples
 //!
