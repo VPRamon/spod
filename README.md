@@ -31,6 +31,7 @@ persistence from the reusable POD implementation in Siderust.
 ```text
 src/
   service/       Configuration, orchestration, REST/CLI and artifact handling
+  sgp4/          Temporary full Vallado SGP4/SDP4 compatibility layer (#29)
   bin/           CLI and experimental REST entry points
 ```
 
