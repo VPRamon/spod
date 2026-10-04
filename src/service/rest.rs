@@ -30,7 +30,8 @@
 #![warn(missing_docs)]
 
 use std::collections::HashMap;
-use std::path::PathBuf;
+use std::fs;
+use std::path::{Path as FsPath, PathBuf};
 use std::sync::{Arc, Mutex};
 
 use crate::service::{generate, run_synth, SyntheticArcConfig};
@@ -41,6 +42,7 @@ use axum::routing::{get, post};
 use axum::{Json, Router};
 use serde::{Deserialize, Serialize};
 use siderust::astro::dynamics::{OrbitState, Position, Velocity};
+use siderust::pod::run::dataset::DatasetRef;
 use uuid::Uuid;
 
 /// Job status snapshot.
@@ -125,6 +127,24 @@ async fn job_status(State(state): State<AppState>, Path(id): Path<String>) -> im
     }
 }
 
+fn persist_request(output_dir: &FsPath, req: &JobRequest) -> std::io::Result<DatasetRef> {
+    fs::create_dir_all(output_dir)?;
+    let request_path = output_dir.join("request.json");
+    let request_bytes = serde_json::to_vec(req).map_err(std::io::Error::other)?;
+    fs::write(&request_path, request_bytes)?;
+    DatasetRef::from_file(request_path, "configuration")
+}
+
+fn fail_job(state: &AppState, id: &str, error: impl ToString) {
+    let mut table = state.inner.lock().unwrap();
+    table.insert(
+        id.to_owned(),
+        JobStatus::Failed {
+            error: error.to_string(),
+        },
+    );
+}
+
 fn run_job(state: AppState, id: String, req: JobRequest) {
     {
         let mut t = state.inner.lock().unwrap();
@@ -147,24 +167,13 @@ fn run_job(state: AppState, id: String, req: JobRequest) {
         ),
     );
     let out = state.output_root.join(&id);
-    let request_bytes = match serde_json::to_vec(&req) {
-        Ok(bytes) => bytes,
-        Err(e) => {
-            let mut t = state.inner.lock().unwrap();
-            t.insert(
-                id,
-                JobStatus::Failed {
-                    error: e.to_string(),
-                },
-            );
+    let request_ref = match persist_request(&out, &req) {
+        Ok(request_ref) => request_ref,
+        Err(error) => {
+            fail_job(&state, &id, error);
             return;
         }
     };
-    let request_ref = siderust::pod::run::dataset::DatasetRef::from_bytes(
-        format!("requests/{id}.json"),
-        "configuration",
-        &request_bytes,
-    );
     let result = run_synth(
         &arc,
         init,
@@ -202,4 +211,40 @@ pub fn router(state: AppState) -> Router {
         .route("/jobs", post(submit_job))
         .route("/jobs/:id", get(job_status))
         .with_state(state)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::time::{SystemTime, UNIX_EPOCH};
+
+    #[test]
+    fn persisted_request_is_a_real_hashed_manifest_input() {
+        let suffix = SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .unwrap()
+            .as_nanos();
+        let root = std::env::temp_dir().join(format!(
+            "spod-rest-request-test-{}-{suffix}",
+            std::process::id()
+        ));
+        let req = JobRequest { enable_j2: true };
+
+        let dataset = persist_request(&root, &req).unwrap();
+        let request_path = root.join("request.json");
+
+        assert_eq!(dataset.path, request_path);
+        assert_eq!(dataset.kind, "configuration");
+        assert!(dataset.path.is_file());
+
+        let actual = DatasetRef::from_file(&dataset.path, "configuration").unwrap();
+        assert_eq!(dataset.bytes, actual.bytes);
+        assert_eq!(dataset.sha256, actual.sha256);
+
+        let persisted: JobRequest =
+            serde_json::from_slice(&fs::read(&dataset.path).unwrap()).unwrap();
+        assert_eq!(persisted.enable_j2, req.enable_j2);
+
+        fs::remove_dir_all(root).unwrap();
+    }
 }
