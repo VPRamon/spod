@@ -337,8 +337,8 @@ impl Sgp4Propagator {
 }
 
 fn jd_offset_minutes(epoch: JulianDate<UTC>, minutes: f64) -> JulianDate<UTC> {
+    use qtty::time::Day;
     use qtty::Quantity;
-    use qtty_core::units::time::Day;
     let days = minutes / 1_440.0;
     let raw = epoch.raw().value() + days;
     JulianDate::<UTC>::try_new(Quantity::<Day>::new(raw))

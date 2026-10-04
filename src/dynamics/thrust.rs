@@ -14,7 +14,7 @@
 //! Pontryagin, low-thrust optimisation), which lives in future
 //! `siderust-mission-design` / `siderust-low-thrust` crates.
 
-use qtty_core::units::force::Newtons;
+use qtty::force::Newtons;
 use tempoch::{Time, UTC};
 
 /// Standard sea-level gravitational acceleration `g₀` used to relate

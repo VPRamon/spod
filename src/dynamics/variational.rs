@@ -106,7 +106,7 @@ pub struct ParamStmReport {
 /// use siderust::astro::dynamics::{Position, Velocity};
 /// use siderust::coordinates::frames::GCRS;
 /// use siderust::time::JulianDate;
-/// use siderust::qtty::Second;
+/// use qtty::Second;
 /// // Trivial parameter: scale GM (no estimable physical meaning, just a smoke test).
 /// let s0 = OrbitState::new(
 ///     JulianDate::new(2_451_545.0).to_j2000s(),
@@ -173,7 +173,7 @@ where
 /// use siderust::astro::dynamics::forces::TwoBody;
 /// use siderust::astro::dynamics::{DynamicsContext, OrbitState, Position, Velocity};
 /// use siderust::coordinates::frames::GCRS;
-/// use siderust::qtty::Second;
+/// use qtty::Second;
 /// use siderust::time::JulianDate;
 /// use siderust_pod::dynamics::variational::{PropagatedArc, VariationalPropagator};
 ///
@@ -235,7 +235,7 @@ impl PropagatedArc {
 /// use siderust::astro::dynamics::forces::TwoBody;
 /// use siderust::astro::dynamics::{DynamicsContext, OrbitState, Position, Velocity};
 /// use siderust::coordinates::frames::GCRS;
-/// use siderust::qtty::Second;
+/// use qtty::Second;
 /// use siderust::time::JulianDate;
 /// use siderust_pod::dynamics::variational::VariationalPropagator;
 ///

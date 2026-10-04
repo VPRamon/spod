@@ -12,8 +12,8 @@
 
 use affn::cartesian::Position;
 use affn::frames::ICRS;
-use qtty::dynamics::GravitationalParameter;
 use qtty::length::Kilometer;
+use qtty::GravitationalParameter;
 use qtty::Second;
 use siderust_pod::lambert::{lambert, LambertBranch};
 

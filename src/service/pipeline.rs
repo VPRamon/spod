@@ -57,7 +57,7 @@ use crate::products::{
 };
 use crate::qc::ResidualsByGroup;
 use principia::finite_diff_stm_series;
-use siderust::qtty::Second;
+use qtty::Second;
 use std::fs;
 use std::path::{Path, PathBuf};
 use thiserror::Error;

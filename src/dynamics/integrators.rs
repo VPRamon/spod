@@ -81,7 +81,7 @@ pub trait Integrator {
 ///                          DynamicsContext, TwoBody};
 /// use siderust::coordinates::frames::GCRS;
 /// use siderust::time::JulianDate;
-/// use siderust::qtty::Second;
+/// use qtty::Second;
 ///
 /// let s0 = OrbitState::new(
 ///     JulianDate::new(2_451_545.0).to_j2000s(),
@@ -134,7 +134,7 @@ impl Integrator for Rk4Integrator {
 ///
 /// ```
 /// use siderust_pod::dynamics::{Integrator, Dopri5Integrator};
-/// use siderust::qtty::IntegratorTolerances;
+/// use qtty::IntegratorTolerances;
 /// let _ = Dopri5Integrator {
 ///     tolerances: IntegratorTolerances::uniform(1e-9, 1e-6, 1e-9),
 /// };
@@ -167,7 +167,7 @@ impl Integrator for Dopri5Integrator {
 ///
 /// ```
 /// use siderust_pod::dynamics::{Integrator, Dop853Integrator};
-/// use siderust::qtty::IntegratorTolerances;
+/// use qtty::IntegratorTolerances;
 /// let _ = Dop853Integrator {
 ///     tolerances: IntegratorTolerances::uniform(1e-9, 1e-6, 1e-9),
 /// };

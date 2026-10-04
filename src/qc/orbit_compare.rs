@@ -28,7 +28,7 @@
 //!   (4th ed.). Microcosm Press.
 use affn::cartesian::Displacement;
 use affn::frames::GCRS;
-use qtty::units::Kilometer;
+use qtty::unit::Kilometer;
 use siderust::astro::dynamics::frames::RTN;
 use siderust::astro::dynamics::OrbitState;
 

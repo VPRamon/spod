@@ -26,9 +26,9 @@
 //!   (4th ed.). Microcosm Press.
 use affn::Displacement;
 use faer::Mat;
-use qtty::dynamics::KmPerSeconds;
 use qtty::length::Kilometers;
 use qtty::unit::Kilometer;
+use qtty::KmPerSeconds;
 use siderust::astro::dynamics::covariance::StateCovariance;
 use siderust::astro::dynamics::{OrbitState, Velocity};
 use siderust::coordinates::frames::GCRS;

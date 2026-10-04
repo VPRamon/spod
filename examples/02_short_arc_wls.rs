@@ -14,8 +14,8 @@
 
 #![allow(clippy::print_stdout)]
 
-use qtty::dynamics::KmPerSecond;
 use qtty::length::Kilometer;
+use qtty::KmPerSecond;
 use qtty::Quantity;
 use siderust_pod::estimation::{NormalEquations, ParameterKind};
 

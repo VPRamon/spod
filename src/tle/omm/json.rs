@@ -4,8 +4,8 @@
 //! JSON encoding for OMM, matching Celestrak's flat schema.
 
 use qtty::angular::Degrees;
-use qtty_core::units::{angular::Turn, angular_rate::AngularRate, time::Day};
 use serde::{Deserialize, Serialize};
+use siderust::qtty::{angular::Turn, angular_rate::AngularRate, time::Day};
 
 use super::{format_epoch, parse_epoch, Omm};
 use crate::tle::TleError;

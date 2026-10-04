@@ -14,9 +14,9 @@
 use affn::cartesian::{Position, Velocity};
 use affn::centers::ReferenceCenter;
 use affn::frames::ReferenceFrame;
-use qtty::dynamics::{GravitationalParameter, KmPerSecond};
 use qtty::length::Kilometer;
 use qtty::Second;
+use qtty::{GravitationalParameter, KmPerSecond};
 
 use super::error::LambertError;
 use super::izzo::{
@@ -76,7 +76,7 @@ pub struct TypedLambertSolution<F: ReferenceFrame> {
 /// // no extra center import — () implements ReferenceCenter
 /// use affn::frames::ICRS;
 /// use affn::cartesian::Position;
-/// use qtty::dynamics::GravitationalParameter;
+/// use qtty::GravitationalParameter;
 /// use qtty::length::Kilometer;
 /// use qtty::{Quantity, Second};
 /// use siderust_pod::lambert::{lambert, LambertBranch};
@@ -138,7 +138,7 @@ where
 /// // no extra center import — () implements ReferenceCenter
 /// use affn::frames::ICRS;
 /// use affn::cartesian::Position;
-/// use qtty::dynamics::GravitationalParameter;
+/// use qtty::GravitationalParameter;
 /// use qtty::length::Kilometer;
 /// use qtty::Second;
 /// use siderust_pod::lambert::{lambert_n_rev, LambertBranch, NRevBranch};

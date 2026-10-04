@@ -32,7 +32,7 @@ use super::pod_error::PodDynamicsError;
 /// use siderust::astro::dynamics::{Position, Velocity};
 /// use siderust::coordinates::frames::GCRS;
 /// use siderust::time::JulianDate;
-/// use siderust::qtty::Second;
+/// use qtty::Second;
 ///
 /// let s0 = OrbitState::new(
 ///     JulianDate::new(2_451_545.0).to_j2000s(),
@@ -76,7 +76,7 @@ where
 /// use siderust::astro::dynamics::{Position, Velocity};
 /// use siderust::coordinates::frames::GCRS;
 /// use siderust::time::JulianDate;
-/// use siderust::qtty::Second;
+/// use qtty::Second;
 ///
 /// let orbit = OrbitState::new(
 ///     JulianDate::new(2_451_545.0).to_j2000s(),

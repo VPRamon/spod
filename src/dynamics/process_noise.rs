@@ -33,7 +33,7 @@
 //! All time inputs are typed [`Second`] from `qtty` (the typed time
 //! quantity exposed by both `qtty` and `tempoch`).
 
-use siderust::qtty::{KmPerSecondsSquared, Second};
+use qtty::{KmPerSecondsSquared, Second};
 
 use super::pod_error::PodDynamicsError;
 
@@ -94,7 +94,7 @@ impl GaussMarkovParams {
 ///
 /// ```
 /// use siderust_pod::dynamics::{ProcessNoiseModel, WhiteAccelPsd, GaussMarkovParams};
-/// use siderust::qtty::{KmPerSecondsSquared, Second};
+/// use qtty::{KmPerSecondsSquared, Second};
 /// let m = ProcessNoiseModel {
 ///     position_velocity: WhiteAccelPsd::isotropic(KmPerSecondsSquared::new(1e-9)),
 ///     drag_scale: Some(GaussMarkovParams { sigma: 0.1, tau: Second::new(3600.0) }),
@@ -202,7 +202,7 @@ impl ProcessNoiseModel {
     ///
     /// ```
     /// use siderust_pod::dynamics::{ProcessNoiseModel, WhiteAccelPsd, GaussMarkovParams};
-    /// use siderust::qtty::{KmPerSecondsSquared, Second};
+    /// use qtty::{KmPerSecondsSquared, Second};
     /// let m = ProcessNoiseModel {
     ///     position_velocity: WhiteAccelPsd::isotropic(KmPerSecondsSquared::new(1e-9)),
     ///     drag_scale: Some(GaussMarkovParams { sigma: 0.1, tau: Second::new(3600.0) }),
@@ -272,7 +272,7 @@ fn matrix_is_psd(a: &[Vec<f64>]) -> bool {
 /// # Example
 ///
 /// ```
-/// use siderust::qtty::Second;
+/// use qtty::Second;
 /// use siderust_pod::dynamics::process_noise::PiecewiseSegment;
 ///
 /// let seg = PiecewiseSegment {
@@ -307,7 +307,7 @@ pub struct PiecewiseSegment {
 ///
 /// ```
 /// use siderust_pod::dynamics::process_noise::{PiecewiseSegment, ProcessNoise};
-/// use siderust::qtty::Second;
+/// use qtty::Second;
 ///
 /// // No process noise at all.
 /// let n = ProcessNoise::None;
@@ -385,7 +385,7 @@ impl ProcessNoise {
     ///
     /// ```
     /// use siderust_pod::dynamics::process_noise::{PiecewiseSegment, ProcessNoise};
-    /// use siderust::qtty::Second;
+    /// use qtty::Second;
     ///
     /// let p = ProcessNoise::PiecewiseConstant {
     ///     intervals: vec![

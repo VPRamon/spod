@@ -20,7 +20,7 @@ pub mod xml;
 
 use chrono::{Datelike, TimeZone, Timelike, Utc};
 use qtty::angular::Degrees;
-use qtty_core::units::{angular::Turn, angular_rate::AngularRate, time::Day};
+use siderust::qtty::{angular::Turn, angular_rate::AngularRate, time::Day};
 use tempoch::{Time, UTC};
 
 use crate::tle::TleError;

@@ -13,8 +13,8 @@
 //! still guaranteeing that the registry-level translation is exhaustive
 //! and unit-typed.
 
+use qtty::{AreaToMass, DragCoefficient, KmPerSecondsSquared, Second, SrpCoefficient};
 use siderust::astro::dynamics::forces::ShadowModel;
-use siderust::qtty::{AreaToMass, DragCoefficient, KmPerSecondsSquared, Second, SrpCoefficient};
 use siderust::time::JulianDate;
 
 use super::empirical_periodic::PeriodicHarmonic;

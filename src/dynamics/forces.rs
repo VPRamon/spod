@@ -39,7 +39,7 @@
 //! ```
 //! use std::sync::Arc;
 //! use siderust::astro::dynamics::density::ExponentialAtmosphere;
-//! use siderust::qtty::{AreaToMass, DragCoefficient, SrpCoefficient};
+//! use qtty::{AreaToMass, DragCoefficient, SrpCoefficient};
 //! use siderust_pod::dynamics::forces::{
 //!     DragForce, ForceModelRegistry, J2PerturbationForce, TwoBodyForce,
 //! };
@@ -58,6 +58,7 @@
 
 use std::sync::Arc;
 
+use qtty::{AreaToMass, DragCoefficient, SrpCoefficient};
 use siderust::astro::dynamics::context::DynamicsContextBuilder;
 use siderust::astro::dynamics::density::DensityProvider;
 use siderust::astro::dynamics::forces::{
@@ -67,7 +68,6 @@ use siderust::astro::dynamics::state::{Acceleration, AccelerationUnit, OrbitStat
 use siderust::astro::dynamics::{DynamicsContext, EARTH_J2, GM_EARTH, R_EARTH};
 use siderust::coordinates::centers::Geocentric;
 use siderust::coordinates::frames::GCRS;
-use siderust::qtty::{AreaToMass, DragCoefficient, SrpCoefficient};
 use siderust::time::JulianDate;
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -420,7 +420,7 @@ impl ForceModel for J2PerturbationForce {
 /// ```
 /// use std::sync::Arc;
 /// use siderust::astro::dynamics::density::ExponentialAtmosphere;
-/// use siderust::qtty::{AreaToMass, DragCoefficient};
+/// use qtty::{AreaToMass, DragCoefficient};
 /// use siderust_pod::dynamics::forces::{CartesianState, DragForce, ForceModel};
 /// use siderust::astro::dynamics::{Position, Velocity};
 /// use siderust::coordinates::frames::GCRS;
@@ -569,7 +569,7 @@ fn cylindrical_shadow_nu(r_sat: [f64; 3], r_sun: [f64; 3]) -> f64 {
 /// # Example
 ///
 /// ```
-/// use siderust::qtty::{AreaToMass, SrpCoefficient};
+/// use qtty::{AreaToMass, SrpCoefficient};
 /// use siderust_pod::dynamics::forces::{
 ///     CartesianState, ForceModel, SolarRadiationPressureForce,
 /// };

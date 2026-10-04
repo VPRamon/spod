@@ -5,7 +5,7 @@
 
 use chrono::{Duration, NaiveDate, TimeZone, Utc};
 use qtty::angular::Degrees;
-use qtty_core::units::{angular::Turn, angular_rate::AngularRate, time::Day};
+use siderust::qtty::{angular::Turn, angular_rate::AngularRate, time::Day};
 use tempoch::{Time, UTC};
 
 use super::TleError;

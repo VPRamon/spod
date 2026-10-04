@@ -29,7 +29,7 @@
 //! use affn::cartesian::Position;
 //! use affn::centers::ReferenceCenter;
 //! use affn::frames::ICRS;
-//! use qtty::dynamics::GravitationalParameter;
+//! use qtty::GravitationalParameter;
 //! use qtty::length::Kilometer;
 //! use qtty::Second;
 //! use siderust_pod::lambert::{lambert, LambertBranch};

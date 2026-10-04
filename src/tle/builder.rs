@@ -13,7 +13,7 @@
 
 use chrono::{Datelike, Timelike};
 use qtty::angular::Degrees;
-use qtty_core::units::{angular::Turn, angular_rate::AngularRate, time::Day};
+use siderust::qtty::{angular::Turn, angular_rate::AngularRate, time::Day};
 use tempoch::{Time, UTC};
 
 use super::parse::compute_tle_checksum;
@@ -33,7 +33,7 @@ use crate::tle::{Classification, InternationalDesignator, SatelliteNumber, Tle};
 /// ```
 /// use siderust_pod::tle::{Classification, InternationalDesignator, SatelliteNumber, TleBuilder};
 /// use qtty::angular::Degrees;
-/// use qtty_core::units::{angular::Turn, angular_rate::AngularRate, time::Day};
+/// use siderust::qtty::{angular::Turn, angular_rate::AngularRate, time::Day};
 /// use tempoch::{Time, UTC};
 /// use chrono::{TimeZone, Utc};
 ///
@@ -295,7 +295,7 @@ impl TleBuilder {
     ///
     /// ```
     /// use siderust_pod::tle::TleBuilder;
-    /// use qtty_core::units::{angular::Turn, angular_rate::AngularRate, time::Day};
+    /// use siderust::qtty::{angular::Turn, angular_rate::AngularRate, time::Day};
     /// let _b = TleBuilder::new()
     ///     .mean_motion(AngularRate::<Turn, Day>::new(15.72125391));
     /// ```

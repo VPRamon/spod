@@ -32,12 +32,12 @@ use super::pipeline::{ArcEpoch, GpsSatellite};
 use crate::observations::gnss::{CarrierPhaseObs, GnssCodeModel, PseudorangeObs};
 use crate::observations::model::MeasurementModel;
 use principia::integrators::rk4_propagate_series;
+use qtty::Second;
 use siderust::astro::dynamics::context::DynamicsContext;
 use siderust::astro::dynamics::forces::TwoBody;
 use siderust::astro::dynamics::state::VelocityUnit;
 use siderust::astro::dynamics::{OrbitState, Position, Velocity};
 use siderust::coordinates::frames::GCRS;
-use siderust::qtty::Second;
 use siderust::time::JulianDate;
 
 /// Configuration for a synthetic arc.

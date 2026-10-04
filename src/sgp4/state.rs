@@ -14,15 +14,14 @@
 //! `siderust::coordinates::transform::providers::frames_teme` once Earth
 //! Orientation Parameters are supplied.
 
-use qtty_core::units::{length::Kilometer, time::Second};
-use qtty_core::Per;
 use siderust::coordinates::cartesian::{position, velocity};
+use siderust::qtty::{length::Kilometer, time::Second, Per};
 use tempoch::{JulianDate, UTC};
 
 /// Velocity unit alias used by the SGP4 propagator: kilometres per second.
 ///
 /// SGP4 publishes velocities in km·s⁻¹; we expose them as a typed
-/// [`qtty_core::Per<Kilometer, Second>`] so users cannot accidentally
+/// [`siderust::qtty::Per<Kilometer, Second>`] so users cannot accidentally
 /// mix them with m·s⁻¹ values from other parts of the stack.
 ///
 /// # Examples
