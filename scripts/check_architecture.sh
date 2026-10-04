@@ -21,8 +21,13 @@ mapfile -t source_files < <(
   find src tests -type f -name '*.rs' ! -path "$exception_dir/*" -print
 )
 
+if ((${#source_files[@]} == 0)); then
+  echo "Architecture source-hygiene check passed."
+  exit 0
+fi
+
 if grep -InE \
-    '^[[:space:]]*(pub[[:space:]]+)?(struct|trait)[[:space:]]+(ForceModel|MeasurementModel|Propagator|Integrator|KalmanFilter|GaussNewton|LeastSquares|OrbitComparator)([[:space:]]|<|{|$)' \
+    '^[[:space:]]*(pub(\([^)]*\))?[[:space:]]+)?(struct|trait)[[:space:]]+(ForceModel|MeasurementModel|Propagator|Integrator|KalmanFilter|GaussNewton|LeastSquares|OrbitComparator)([[:space:]]|<|{|$)' \
     "${source_files[@]}"; then
   grep_status=0
 else
