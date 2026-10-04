@@ -1,0 +1,224 @@
+name: Product use case
+description: Specify an end-to-end user outcome that doubles as product documentation and a verification contract.
+title: "[use case] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        A use case is a **living product specification**.
+
+        It should explain why the capability exists, how a user experiences it, what goes in and out, which layer owns each responsibility, and how we can prove the workflow works.
+
+        A use case is not complete when code merely exists. It is complete when the documented outcome is reproducible and verified.
+
+  - type: textarea
+    id: outcome
+    attributes:
+      label: Desired outcome
+      description: State the end-to-end result in one sentence from the user's perspective.
+      placeholder: As a ..., I want ..., so that ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: customer
+    attributes:
+      label: User / customer / actor
+      description: Who performs or benefits from this workflow, and in what operational context?
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem being solved
+      description: What currently costs time, expertise, reliability, or operational risk?
+    validations:
+      required: true
+
+  - type: dropdown
+    id: status
+    attributes:
+      label: Product status
+      description: How should this use case be treated?
+      options:
+        - Core product use case
+        - Product extension
+        - Reference / example use case
+        - Experimental / discovery
+    validations:
+      required: true
+
+  - type: textarea
+    id: trigger
+    attributes:
+      label: Trigger / entry condition
+      description: What causes the workflow to start, and what must already be true?
+      placeholder: A new observation arc becomes available ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: inputs
+    attributes:
+      label: Inputs
+      description: List datasets, configuration, mission metadata, state, credentials, or other required inputs.
+      placeholder: |
+        - Input:
+          - source:
+          - required fields/coverage:
+        - ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: workflow
+    attributes:
+      label: End-to-end workflow
+      description: Document the user-visible sequence, including important branches and failure behavior.
+      placeholder: |
+        1. ...
+        2. ...
+        3. ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: spod_responsibilities
+    attributes:
+      label: spod responsibilities
+      description: What must the product own in this use case? Focus on orchestration, policy, interfaces, artifacts, and operational behavior.
+      placeholder: |
+        - validate ...
+        - resolve ...
+        - orchestrate ...
+        - publish ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: siderust_responsibilities
+    attributes:
+      label: Siderust / upstream responsibilities
+      description: Which reusable scientific, numerical, format, or standards functionality must remain canonical upstream?
+      placeholder: |
+        - format parsing ...
+        - observation model ...
+        - propagation ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: outputs
+    attributes:
+      label: Outputs / artifacts / API results
+      description: List every externally relevant result a successful workflow produces.
+      placeholder: |
+        - orbit product:
+        - QC report:
+        - manifest:
+        - API result:
+    validations:
+      required: true
+
+  - type: textarea
+    id: quality
+    attributes:
+      label: Quality, correctness, and operational gates
+      description: Define what distinguishes a merely completed run from an acceptable result.
+      placeholder: |
+        - convergence:
+        - coverage:
+        - residual/QC thresholds:
+        - latency:
+        - provenance:
+    validations:
+      required: true
+
+  - type: textarea
+    id: failure_modes
+    attributes:
+      label: Expected failure modes
+      description: Define important unsupported, invalid, degraded, or unavailable-data cases and how they should surface.
+      placeholder: |
+        - Missing ...
+        - Unsupported ...
+        - Quality gate ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+      description: These are the functional contract for implementation and review.
+      placeholder: |
+        - [ ] ...
+        - [ ] ...
+        - [ ] ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: verification
+    attributes:
+      label: Verification evidence
+      description: Define the datasets, tests, commands, API calls, artifacts, metrics, or tolerances that prove the use case.
+      placeholder: |
+        Reference data:
+        Commands/API:
+        Expected artifacts:
+        Numerical/QC tolerances:
+        CI/E2E coverage:
+    validations:
+      required: true
+
+  - type: textarea
+    id: observability
+    attributes:
+      label: Observability / supportability
+      description: What should an operator be able to inspect when this use case runs?
+      placeholder: Status, logs, metrics, warnings, artifact metadata, provenance, ...
+
+  - type: textarea
+    id: dependencies
+    attributes:
+      label: Dependencies / related capabilities
+      description: Link prerequisite features, upstream gaps, standards, and related use cases.
+
+  - type: textarea
+    id: non_goals
+    attributes:
+      label: Non-goals
+      description: Define boundaries so the use case does not accidentally expand the product surface.
+      placeholder: |
+        - ...
+        - ...
+
+  - type: textarea
+    id: docs
+    attributes:
+      label: Documentation deliverables
+      description: What user-facing documentation must exist when this use case is implemented?
+      placeholder: |
+        - product/use-case page
+        - runnable example/config
+        - API/CLI documentation
+        - limitations
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: completion
+    attributes:
+      label: Product verification contract
+      description: These conditions should remain true when the issue is closed.
+      options:
+        - label: The implemented workflow matches the documented inputs, outputs, and failure behavior.
+          required: true
+        - label: Reusable science is consumed from Siderust or an explicit upstream-gap issue exists.
+          required: true
+        - label: Product-level integration/E2E verification is defined.
+          required: true
+        - label: The use case can remain as living documentation after implementation.
+          required: true
