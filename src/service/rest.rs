@@ -1,40 +1,22 @@
-//! # REST interface for POD jobs
+//! # REST adapter for POD jobs
 //!
-//! ## Scientific scope
+//! REST is an adapter over the service-owned [`JobStatus`] model. It owns
+//! request parsing, HTTP status mapping, and the temporary in-memory store,
+//! but not lifecycle or scientific execution semantics.
 //!
-//! This module exposes a minimal HTTP surface for launching and querying
-//! POD jobs. It does not change the scientific content of the underlying
-//! pipeline; it only presents that pipeline through a network-facing
-//! control layer suited to local automation and integration tests.
-//!
-//! The current regime is intentionally narrow: in-memory job state,
-//! synthetic job execution, and JSON status payloads. It is not a
-//! distributed scheduler or a general production API.
-//!
-//! ## Technical scope
-//!
-//! The public items are `JobStatus`, `AppState`, and `router`. The router
-//! exposes health and job-submission endpoints, while the worker path
-//! delegates actual arc generation and estimation to `spod::service`.
-//!
-//! Authentication, persistent storage, and arbitrary user-supplied datasets
-//! are out of scope.
-//!
-//! ## References
-//!
-//! - Fielding, R., Nottingham, M., & Reschke, J. (2022). HTTP Semantics.
-//!   RFC 9110.
-//! - Bray, T. (2017). The JavaScript Object Notation (JSON) Data
-//!   Interchange Format. RFC 8259.
+//! The API is intentionally local and experimental: persistence,
+//! authentication, and scheduling are deferred to later issues.
 #![forbid(unsafe_code)]
 #![warn(missing_docs)]
 
-use std::collections::HashMap;
 use std::fs;
 use std::path::{Path as FsPath, PathBuf};
-use std::sync::{Arc, Mutex};
+use std::sync::Arc;
 
-use crate::service::{ForcesConfig, InputsConfig, RunConfig, RunRequest, Runner, Workflow};
+use crate::service::{
+    ForcesConfig, InputsConfig, JobError, JobStatus, JobStore, RunConfig, RunRequest, Runner,
+    Workflow,
+};
 use axum::extract::{Path, State};
 use axum::http::StatusCode;
 use axum::response::IntoResponse;
@@ -44,30 +26,10 @@ use serde::{Deserialize, Serialize};
 use siderust::pod::run::dataset::DatasetRef;
 use uuid::Uuid;
 
-/// Job status snapshot.
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(tag = "state", rename_all = "snake_case")]
-pub enum JobStatus {
-    /// Job has been accepted but not yet started.
-    Pending,
-    /// Job is currently running.
-    Running,
-    /// Job finished successfully.
-    Finished {
-        /// Path to the run manifest.
-        manifest_path: String,
-    },
-    /// Job failed.
-    Failed {
-        /// Error message returned by the worker.
-        error: String,
-    },
-}
-
-/// Shared application state (in-memory job table).
+/// Shared application state for the REST adapter.
 #[derive(Clone)]
 pub struct AppState {
-    inner: Arc<Mutex<HashMap<String, JobStatus>>>,
+    store: JobStore,
     /// Base output directory for produced artefacts.
     pub output_root: Arc<PathBuf>,
 }
@@ -76,7 +38,7 @@ impl AppState {
     /// Create a new state rooted at the given output directory.
     pub fn new(output_root: PathBuf) -> Self {
         Self {
-            inner: Arc::new(Mutex::new(HashMap::new())),
+            store: JobStore::default(),
             output_root: Arc::new(output_root),
         }
     }
@@ -86,11 +48,6 @@ impl AppState {
 struct JobRequest {
     #[serde(default)]
     enable_j2: bool,
-}
-
-#[derive(Debug, Serialize)]
-struct JobAccepted {
-    id: String,
 }
 
 async fn healthz() -> Json<serde_json::Value> {
@@ -105,23 +62,20 @@ async fn submit_job(
     body: Option<Json<JobRequest>>,
 ) -> impl IntoResponse {
     let id = Uuid::new_v4().to_string();
-    let req = body.map(|Json(r)| r).unwrap_or_default();
-    {
-        let mut t = state.inner.lock().unwrap();
-        t.insert(id.clone(), JobStatus::Pending);
-    }
-    let id_clone = id.clone();
+    let req = body.map(|Json(request)| request).unwrap_or_default();
+    let status = JobStatus::pending(id.clone(), Workflow::Synthetic);
+    state.store.insert(status.clone());
+
     let state_clone = state.clone();
-    tokio::task::spawn_blocking(move || {
-        run_job(state_clone, id_clone, req);
-    });
-    (StatusCode::ACCEPTED, Json(JobAccepted { id }))
+    let id_clone = id.clone();
+    tokio::task::spawn_blocking(move || run_job(state_clone, id_clone, req));
+
+    (StatusCode::ACCEPTED, Json(status))
 }
 
 async fn job_status(State(state): State<AppState>, Path(id): Path<String>) -> impl IntoResponse {
-    let table = state.inner.lock().unwrap();
-    match table.get(&id) {
-        Some(s) => (StatusCode::OK, Json(s.clone())).into_response(),
+    match state.store.get(&id) {
+        Some(status) => (StatusCode::OK, Json(status)).into_response(),
         None => (StatusCode::NOT_FOUND, "unknown job id").into_response(),
     }
 }
@@ -134,26 +88,22 @@ fn persist_request(output_dir: &FsPath, req: &JobRequest) -> std::io::Result<Dat
     DatasetRef::from_file(request_path, "configuration")
 }
 
-fn fail_job(state: &AppState, id: &str, error: impl ToString) {
-    let mut table = state.inner.lock().unwrap();
-    table.insert(
-        id.to_owned(),
-        JobStatus::Failed {
-            error: error.to_string(),
-        },
-    );
-}
-
 fn run_job(state: AppState, id: String, req: JobRequest) {
-    {
-        let mut t = state.inner.lock().unwrap();
-        t.insert(id.clone(), JobStatus::Running);
+    if let Err(error) = state.store.transition(&id, |status| status.start()) {
+        log::error!("could not start job {id}: {error:?}");
+        return;
     }
+
     let out = state.output_root.join(&id);
     let request_ref = match persist_request(&out, &req) {
         Ok(request_ref) => request_ref,
         Err(error) => {
-            fail_job(&state, &id, error);
+            let job_error = JobError::from(&crate::service::ServiceError::artifact(error));
+            if let Err(transition_error) =
+                state.store.transition(&id, |status| status.fail(job_error))
+            {
+                log::error!("could not fail persisted job {id}: {transition_error:?}");
+            }
             return;
         }
     };
@@ -178,23 +128,23 @@ fn run_job(state: AppState, id: String, req: JobRequest) {
         config,
         config_path: request_ref.path,
     });
-    let mut t = state.inner.lock().unwrap();
     match result {
         Ok(report) => {
-            t.insert(
-                id,
-                JobStatus::Finished {
-                    manifest_path: report.artifacts.manifest.path.display().to_string(),
-                },
-            );
+            let job_result = crate::service::JobResult::from(&report);
+            if let Err(error) = state
+                .store
+                .transition(&id, |status| status.succeed(job_result))
+            {
+                log::error!("could not complete job {id}: {error:?}");
+            }
         }
-        Err(e) => {
-            t.insert(
-                id,
-                JobStatus::Failed {
-                    error: e.to_string(),
-                },
-            );
+        Err(error) => {
+            let job_error = JobError::from(&error);
+            if let Err(transition_error) =
+                state.store.transition(&id, |status| status.fail(job_error))
+            {
+                log::error!("could not fail job {id}: {transition_error:?}");
+            }
         }
     }
 }
@@ -211,7 +161,11 @@ pub fn router(state: AppState) -> Router {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use axum::body::{to_bytes, Body};
+    use axum::http::Request;
+    use serde_json::Value;
     use std::time::{SystemTime, UNIX_EPOCH};
+    use tower::ServiceExt;
 
     #[test]
     fn persisted_request_is_a_real_hashed_manifest_input() {
@@ -270,5 +224,116 @@ mod tests {
             config.output_dir_relative_to(&request_path),
             root.join("job-id")
         );
+    }
+
+    #[tokio::test]
+    async fn health_endpoint_returns_status_and_version() {
+        let app = router(AppState::new(std::env::temp_dir()));
+        let response = app
+            .oneshot(
+                Request::builder()
+                    .uri("/healthz")
+                    .body(Body::empty())
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
+        assert_eq!(response.status(), StatusCode::OK);
+        let body = to_bytes(response.into_body(), usize::MAX).await.unwrap();
+        let value: Value = serde_json::from_slice(&body).unwrap();
+        assert_eq!(value["status"], "ok");
+        assert_eq!(value["version"], env!("CARGO_PKG_VERSION"));
+    }
+
+    #[tokio::test]
+    async fn submit_returns_pending_and_status_eventually_succeeds() {
+        let root = std::env::temp_dir().join(format!("spod-rest-http-{}", std::process::id()));
+        let app = router(AppState::new(root.clone()));
+        let response = app
+            .clone()
+            .oneshot(
+                Request::builder()
+                    .method("POST")
+                    .uri("/jobs")
+                    .header("content-type", "application/json")
+                    .body(Body::from(r#"{"enable_j2":false}"#))
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
+        assert_eq!(response.status(), StatusCode::ACCEPTED);
+        let body = to_bytes(response.into_body(), usize::MAX).await.unwrap();
+        let accepted: Value = serde_json::from_slice(&body).unwrap();
+        assert_eq!(accepted["state"], "pending");
+        assert!(accepted["result"].is_null());
+        assert!(accepted["error"].is_null());
+        let id = accepted["id"].as_str().unwrap();
+
+        let status = poll_status(&app, id).await;
+        assert_eq!(status["state"], "succeeded");
+        assert!(status["result"]["artifacts"]["manifest"].is_object());
+        fs::remove_dir_all(root).unwrap();
+    }
+
+    #[tokio::test]
+    async fn unknown_job_id_returns_not_found() {
+        let app = router(AppState::new(std::env::temp_dir()));
+        let response = app
+            .oneshot(
+                Request::builder()
+                    .uri("/jobs/missing")
+                    .body(Body::empty())
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
+        assert_eq!(response.status(), StatusCode::NOT_FOUND);
+    }
+
+    #[tokio::test]
+    async fn persistence_failure_reaches_failed_with_artifact_code() {
+        let root = std::env::temp_dir().join(format!("spod-rest-failure-{}", std::process::id()));
+        fs::write(&root, "not a directory").unwrap();
+        let app = router(AppState::new(root.clone()));
+        let response = app
+            .clone()
+            .oneshot(
+                Request::builder()
+                    .method("POST")
+                    .uri("/jobs")
+                    .body(Body::empty())
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
+        assert_eq!(response.status(), StatusCode::ACCEPTED);
+        let body = to_bytes(response.into_body(), usize::MAX).await.unwrap();
+        let accepted: Value = serde_json::from_slice(&body).unwrap();
+        let status = poll_status(&app, accepted["id"].as_str().unwrap()).await;
+        assert_eq!(status["state"], "failed");
+        assert_eq!(status["error"]["code"], "artifact");
+        fs::remove_file(root).unwrap();
+    }
+
+    async fn poll_status(app: &Router, id: &str) -> Value {
+        for _ in 0..100 {
+            let response = app
+                .clone()
+                .oneshot(
+                    Request::builder()
+                        .uri(format!("/jobs/{id}"))
+                        .body(Body::empty())
+                        .unwrap(),
+                )
+                .await
+                .unwrap();
+            let body = to_bytes(response.into_body(), usize::MAX).await.unwrap();
+            let value: Value = serde_json::from_slice(&body).unwrap();
+            if matches!(value["state"].as_str(), Some("succeeded" | "failed")) {
+                return value;
+            }
+            tokio::time::sleep(std::time::Duration::from_millis(10)).await;
+        }
+        panic!("job did not reach a terminal state");
     }
 }

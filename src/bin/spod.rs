@@ -77,17 +77,22 @@ fn main() -> anyhow::Result<()> {
         }
         Cmd::Run { config } => {
             let cfg = spod::service::RunConfig::from_yaml_file(&config)?;
-            let report = spod::service::run(&cfg, &config)?;
-            println!(
-                "OK: ran {} steps, final epoch JD={}, manifest at {}",
-                report.n_steps,
-                report
-                    .final_state
-                    .epoch
-                    .to::<siderust::tempoch::JD>()
-                    .value(),
-                report.artifacts.manifest.path.display()
-            );
+            let status = spod::service::execute(&cfg, &config);
+            match status.state {
+                spod::service::JobState::Succeeded => {
+                    let result = status.result.expect("succeeded status has a result");
+                    println!(
+                        "OK: run {} succeeded, manifest at {}",
+                        result.run_id,
+                        result.artifacts.manifest.path.display()
+                    );
+                }
+                spod::service::JobState::Failed => {
+                    let error = status.error.expect("failed status has an error");
+                    anyhow::bail!("{}: {}", serde_json::to_string(&error.code)?, error.message);
+                }
+                state => anyhow::bail!("run ended in unexpected state: {state:?}"),
+            }
         }
         Cmd::InspectManifest { manifest } => {
             let txt = std::fs::read_to_string(&manifest)?;

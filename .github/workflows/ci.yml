@@ -148,7 +148,7 @@ jobs:
           for attempt in {1..60}; do
             status_json="$(curl --fail --silent "http://127.0.0.1:${port}/jobs/${job_id}")"
             state="$(printf '%s' "$status_json" | python3 -c 'import json,sys; print(json.load(sys.stdin)["state"])')"
-            if [[ "$state" == "finished" ]]; then
+            if [[ "$state" == "succeeded" ]]; then
               break
             fi
             if [[ "$state" == "failed" ]]; then
@@ -159,7 +159,7 @@ jobs:
           done
 
           state="$(printf '%s' "$status_json" | python3 -c 'import json,sys; print(json.load(sys.stdin)["state"])')"
-          [[ "$state" == "finished" ]]
+          [[ "$state" == "succeeded" ]]
 
           run_dir="$SPOD_REST_OUT/$job_id"
           request_path="$run_dir/request.json"
