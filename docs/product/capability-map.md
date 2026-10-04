@@ -73,7 +73,7 @@ Campaign
 Fleet
 ```
 
-and less like a second scientific namespace such as `spod::forces`, `spod::estimation`, `spod::tle`, `spod::spice`, or `spod::lambert`.
+and less like a second namespace of generic force models, estimators, standard-format parsers, SPICE internals, or mission-design algorithms.
 
 ## Important distinction
 
