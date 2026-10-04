@@ -37,6 +37,8 @@ use super::error::PodProductsError;
 use serde::{Deserialize, Serialize};
 use std::io::Write;
 
+pub use siderust::pod::product::residuals_csv::ResidualRecord;
+
 /// One residual row (legacy API).
 ///
 /// For new code prefer [`ResidualRecord`] and [`ResidualCsvWriter`].
@@ -92,42 +94,6 @@ pub fn write_residuals_csv<W: Write>(
 }
 
 // ─── Streaming API ──────────────────────────────────────────────────────────
-
-/// One residual record in the standard POD column format.
-///
-/// The column order in the CSV output is:
-/// `epoch_jd_tt, obs_type, satellite, residual_m, sigma_m, rejected`.
-///
-/// # Examples
-///
-/// ```
-/// use siderust_pod::products::residuals_csv::ResidualRecord;
-///
-/// let r = ResidualRecord {
-///     epoch_jd_tt: 2_451_545.0,
-///     obs_type: "C1C".into(),
-///     satellite: "G01".into(),
-///     residual_m: -0.15,
-///     sigma_m: 0.30,
-///     rejected: false,
-/// };
-/// assert_eq!(r.satellite, "G01");
-/// ```
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct ResidualRecord {
-    /// Epoch expressed as a Julian Date in TT time scale.
-    pub epoch_jd_tt: f64,
-    /// RINEX observation type code, e.g. `"C1C"`, `"L1C"`, `"P2"`.
-    pub obs_type: String,
-    /// Satellite PRN identifier, e.g. `"G01"`, `"R05"`, `"E11"`.
-    pub satellite: String,
-    /// Post-fit residual in metres (positive = observed − computed).
-    pub residual_m: f64,
-    /// Measurement sigma used in the estimator (metres).
-    pub sigma_m: f64,
-    /// Whether this measurement was rejected by the outlier filter.
-    pub rejected: bool,
-}
 
 /// Streaming CSV writer for POD residuals.
 ///

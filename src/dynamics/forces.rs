@@ -109,7 +109,8 @@ pub type Epoch = JulianDate;
 
 /// Three-component inertial acceleration in km/s², GCRS frame.
 ///
-/// Stored as raw `[f64; 3]` (units km/s²) rather than a typed [`affn`] vector
+/// Stored as raw `[f64; 3]` (units km/s²) rather than a typed
+/// [`siderust::affn`] vector
 /// to make it easy to sum contributions from heterogeneous force models.
 ///
 /// # Example

@@ -4,7 +4,7 @@
 //! STM finite-difference validation harness.
 //!
 //! The variational STM produced by
-//! [`principia::propagate_stm`] is the
+//! [`siderust::principia::propagate_stm`] is the
 //! production code path. This module wraps the canonical
 //! "perturb-propagate-compare" validation that asserts
 //! `Φ · δy₀ ≈ y(t; y₀ + δy₀) − y(t; y₀)` to within a tight tolerance.
@@ -19,10 +19,10 @@
 //! [`siderust::astro::dynamics::forces::J2`], or any acceleration model whose
 //! analytic partials are wired up.
 
-use principia::{propagate_stm, rk4_propagate};
-use qtty::Second;
 use siderust::astro::dynamics::{DynamicsContext, OrbitState};
 use siderust::pod::force::SiderustAccelerationModel;
+use siderust::principia::{propagate_stm, rk4_propagate};
+use siderust::qtty::Second;
 
 use super::error::DynamicsError;
 
@@ -32,7 +32,7 @@ use super::error::DynamicsError;
 /// Protocol:
 ///
 /// 1. Compute `Φ` over `dt` using
-///    [`principia::propagate_stm`].
+///    [`siderust::principia::propagate_stm`].
 /// 2. Propagate `state` and `state + δy₀` forward by `dt` with RK4 at
 ///    `step` sub-step.
 /// 3. Compare `y(perturb) − y(nominal)` (the *finite-difference* truth) to

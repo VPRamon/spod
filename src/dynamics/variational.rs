@@ -30,13 +30,13 @@
 //! step `ε`; the test in `tests/` calls it twice (with `ε` and `ε/2`) and
 //! checks that the two estimates agree.
 
-use qtty::Second;
 use siderust::astro::dynamics::{DynamicsContext, OrbitState, StateTransitionMatrix};
 use siderust::coordinates::frames::GCRS;
 use siderust::pod::force::SiderustAccelerationModel;
+use siderust::qtty::Second;
 
 use crate::dynamics::Integrator;
-use affn::matrix6::FrameMatrix6;
+use siderust::affn::matrix6::FrameMatrix6;
 
 use super::pod_error::PodDynamicsError;
 
@@ -225,7 +225,7 @@ impl PropagatedArc {
 /// Propagates an orbit arc step-by-step, accumulating the state-transition
 /// matrix `Φ(tₖ, t₀)` at each step.
 ///
-/// Uses [`principia::propagate_stm`] for each sub-step.
+/// Uses [`siderust::principia::propagate_stm`] for each sub-step.
 /// The cumulative STM is updated by left-multiplying the step STM:
 /// `Φ(tₖ₊₁, t₀) = Φ(tₖ₊₁, tₖ) · Φ(tₖ, t₀)`.
 ///
@@ -282,8 +282,10 @@ impl VariationalPropagator {
         let mut steps = Vec::with_capacity(n_steps);
 
         for _ in 0..n_steps {
-            let (new_state, phi_step) = principia::propagate_stm(force, state, self.step, ctx)
-                .map_err(|e: principia::PrincipiaError| PodDynamicsError::Dynamics(e.into()))?;
+            let (new_state, phi_step) =
+                siderust::principia::propagate_stm(force, state, self.step, ctx).map_err(
+                    |e: siderust::principia::PrincipiaError| PodDynamicsError::Dynamics(e.into()),
+                )?;
             phi_total = phi_step * phi_total;
             steps.push((new_state, phi_total));
             state = new_state;

@@ -30,13 +30,13 @@
 //! - Tapley, B. D., Schutz, B. E., & Born, G. H. (2004). Statistical Orbit
 //!   Determination. Elsevier Academic Press.
 use super::model::{MeasurementModel, Partials, Prediction};
-use qtty::unit::{Kilometer, Second};
-use qtty::velocity::C;
-use qtty::Per;
 use siderust::astro::dynamics::forces::OMEGA_EARTH_RAD_S;
 use siderust::astro::dynamics::state::VelocityUnit;
 use siderust::astro::dynamics::{OrbitState, Position, Velocity};
 use siderust::coordinates::frames::GCRS;
+use siderust::qtty::unit::{Kilometer, Second};
+use siderust::qtty::velocity::C;
+use siderust::qtty::Per;
 
 /// Pseudorange observation between a LEO receiver and a GPS satellite.
 #[derive(Debug, Clone, Copy)]

@@ -26,11 +26,11 @@
 //!   Determination. Elsevier Academic Press.
 //! - Vallado, D. A. (2013). Fundamentals of Astrodynamics and Applications
 //!   (4th ed.). Microcosm Press.
-use affn::cartesian::Displacement;
-use affn::frames::GCRS;
-use qtty::units::Kilometer;
+use siderust::affn::cartesian::Displacement;
+use siderust::affn::frames::GCRS;
 use siderust::astro::dynamics::frames::RTN;
 use siderust::astro::dynamics::OrbitState;
+use siderust::qtty::unit::Kilometer;
 
 /// Per-epoch RTN difference between an estimated and reference state.
 #[derive(Debug, Clone)]
@@ -81,7 +81,7 @@ pub fn rtn_diff(estimated: &[OrbitState], reference: &[OrbitState]) -> Vec<RtnDi
             .expect("RTN frame from reference state");
         let d_rtn = frame.to_local(d_gcrs);
         out.push(RtnDiff {
-            jd_tt: e.epoch.to::<tempoch::JD>().value(),
+            jd_tt: e.epoch.to::<siderust::tempoch::JD>().value(),
             r_m: d_rtn.x().value() * 1000.0,
             t_m: d_rtn.y().value() * 1000.0,
             n_m: d_rtn.z().value() * 1000.0,

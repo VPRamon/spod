@@ -685,8 +685,10 @@ pub fn read_oem_xml<R: std::io::Read>(mut r: R) -> Result<OemFile, PodIoError> {
                 cur_tag = None;
             }
             Event::Text(t) => {
-                let txt = t
-                    .unescape()
+                let decoded = t
+                    .decode()
+                    .map_err(|e| PodIoError::Format(format!("read_oem_xml: xml text: {e}")))?;
+                let txt = quick_xml::escape::unescape(&decoded)
                     .map_err(|e| PodIoError::Format(format!("read_oem_xml: xml text: {e}")))?
                     .to_string();
                 let tag = match &cur_tag {

@@ -37,11 +37,11 @@
 //!   and future prospects. Journal of Geodesy, 93, 2161–2180.
 use super::{FileLocation, ParseMode, PodIoError};
 use chrono::{DateTime, NaiveDate, Utc as ChronoUtc};
-use qtty::length::Meters;
-use qtty::time::Seconds;
+use siderust::qtty::length::Meters;
+use siderust::qtty::time::Seconds;
+use siderust::tempoch::{Time, UTC};
 use std::fs;
 use std::path::Path;
-use tempoch::{Time, UTC};
 
 /// Speed of light in m/s (IAU 2012 definition).
 const SPEED_OF_LIGHT_M_S: f64 = 299_792_458.0;

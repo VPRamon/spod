@@ -30,11 +30,11 @@
 //!   Measurements, and Performance (2nd ed.). Ganga-Jamuna Press.
 use super::PodIoError;
 use chrono::{DateTime, Datelike, NaiveDate, Timelike, Utc as ChronoUtc};
-use qtty::length::Meters;
-use qtty::time::Seconds;
+use siderust::qtty::length::Meters;
+use siderust::qtty::time::Seconds;
+use siderust::tempoch::{Time, UTC};
 use std::collections::HashMap;
 use std::io::{BufRead, BufReader, Read, Write};
-use tempoch::{Time, UTC};
 
 /// One observation epoch.
 #[derive(Debug, Clone, PartialEq)]

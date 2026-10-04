@@ -10,11 +10,11 @@
 
 #![allow(clippy::print_stdout)]
 
-use affn::cartesian::Position;
-use affn::frames::ICRS;
-use qtty::dynamics::GravitationalParameter;
-use qtty::length::Kilometer;
-use qtty::Second;
+use siderust::affn::cartesian::Position;
+use siderust::affn::frames::ICRS;
+use siderust::qtty::unit::Kilometer;
+use siderust::qtty::GravitationalParameter;
+use siderust::qtty::Second;
 use siderust_pod::lambert::{lambert, LambertBranch};
 
 const AU_KM: f64 = 1.495_978_707e8;

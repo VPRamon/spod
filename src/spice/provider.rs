@@ -8,19 +8,19 @@
 //! must pick a typed `affn` reference center (e.g.
 //! `siderust::coordinates::centers::Barycentric`) and the matching NAIF
 //! body id. Every state returned by the provider carries that center on
-//! its typed [`affn::cartesian::Position`], so downstream POD code
+//! its typed [`siderust::affn::cartesian::Position`], so downstream POD code
 //! cannot accidentally mix barycentric and heliocentric vectors.
 
 use std::marker::PhantomData;
 use std::sync::Arc;
 
 use crate::core::providers::EphemerisProvider;
-use affn::cartesian::Position;
-use qtty::unit::Kilometer;
-use qtty::Quantity;
+use siderust::affn::cartesian::Position;
 use siderust::coordinates::centers::ReferenceCenter;
 use siderust::coordinates::frames::ICRS;
-use tempoch::{EncodedTime, J2000s, Time, TDB};
+use siderust::qtty::unit::Kilometer;
+use siderust::qtty::Quantity;
+use siderust::tempoch::{EncodedTime, J2000s, Time, TDB};
 
 use super::error::SpiceError;
 use super::kernel::SpkKernel;
@@ -30,8 +30,8 @@ use super::kernel::SpkKernel;
 /// The position is typed by the construction-time reference center `C`,
 /// so adding a barycentric position to a heliocentric position fails to
 /// compile via `affn`'s affine algebra rules. Velocity is returned as a
-/// raw `[f64; 3]` (km/s) for now; once the workspace `affn::Velocity`
-/// or `qtty::Velocity` types stabilize for the J2000-reference-frame
+/// raw `[f64; 3]` (km/s) for now; once the workspace `siderust::affn::Velocity`
+/// or `siderust::qtty::Velocity` types stabilize for the J2000-reference-frame
 /// case, this can be tightened without breaking the public surface.
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct SpiceState<C: ReferenceCenter<Params = ()>> {
@@ -136,7 +136,7 @@ impl<C: ReferenceCenter<Params = ()>> SpiceEphemerisProvider<C> {
         epoch: Time<TDB>,
     ) -> Result<SpiceState<C>, SpiceError> {
         let encoded: EncodedTime<TDB, J2000s> = epoch.to::<J2000s>();
-        let secs: Quantity<qtty::unit::Second> = encoded.raw();
+        let secs: Quantity<siderust::qtty::unit::Second> = encoded.raw();
         EphemerisProvider::state(self, body_naif_id, secs.value())
     }
 }

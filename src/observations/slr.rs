@@ -32,12 +32,12 @@
 //! - Pearlman, M. R., Noll, C. E., et al. (2019). The ILRS: Current status
 //!   and future prospects. Journal of Geodesy, 93, 2161-2180.
 use super::model::{MeasurementModel, Partials, Prediction};
-use affn::cartesian::Displacement;
-use qtty::unit::{Kilometer, Second};
-use qtty::velocity::C;
-use qtty::Per;
+use siderust::affn::cartesian::Displacement;
 use siderust::astro::dynamics::{OrbitState, Position};
 use siderust::coordinates::frames::GCRS;
+use siderust::qtty::unit::{Kilometer, Second};
+use siderust::qtty::velocity::C;
+use siderust::qtty::Per;
 /// One SLR range observation (two-way time-of-flight converted to metres).
 #[derive(Debug, Clone)]
 pub struct SlrRangeObs {

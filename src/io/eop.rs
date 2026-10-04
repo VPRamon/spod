@@ -29,11 +29,11 @@
 //! - IERS Conventions Centre. (2010). IERS Conventions (2010). Verlag des
 //!   Bundesamts fur Kartographie und Geodasie.
 use super::PodIoError;
-use qtty::angular::{Arcseconds, MilliArcseconds};
-use qtty::time::Seconds;
-use qtty::Day;
+use siderust::qtty::angular::{Arcseconds, MilliArcseconds};
+use siderust::qtty::time::Seconds;
+use siderust::qtty::Days;
+use siderust::tempoch::{ModifiedJulianDate, UTC};
 use std::io::{BufRead, BufReader, Read};
-use tempoch::{ModifiedJulianDate, UTC};
 
 /// Earth-orientation parameters from an IERS C04 record.
 ///
@@ -89,7 +89,7 @@ pub fn read_eop_c04<R: Read>(rdr: R) -> Result<Vec<EopRecord>, PodIoError> {
             Ok(v) => v,
             Err(_) => continue,
         };
-        let mjd = match ModifiedJulianDate::<UTC>::try_new(Day::new(mjd_raw)) {
+        let mjd = match ModifiedJulianDate::<UTC>::try_new(Days::new(mjd_raw)) {
             Ok(m) => m,
             Err(_) => continue,
         };
@@ -180,7 +180,7 @@ mod tests {
         let r = read_eop_c04(SAMPLE.as_bytes()).unwrap();
         let mid = interpolate(
             &r,
-            ModifiedJulianDate::<UTC>::try_new(Day::new(60310.5)).unwrap(),
+            ModifiedJulianDate::<UTC>::try_new(Days::new(60310.5)).unwrap(),
         )
         .unwrap();
         let expect = (0.123456 + 0.124000) / 2.0;

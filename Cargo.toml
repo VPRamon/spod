@@ -17,7 +17,7 @@ homepage     = "https://github.com/Siderust/siderust-pod"
 keywords     = ["satellite", "pod", "orbit-determination", "geodesy", "gnss"]
 categories   = ["science", "aerospace"]
 publish      = false
-description  = "Precise Orbit Determination toolkit (POD) built on siderust, qtty, tempoch, and affn."
+description  = "Precise Orbit Determination toolkit (POD) service built on Siderust."
 
 [lib]
 name = "siderust_pod"
@@ -51,30 +51,25 @@ path = "examples/04_sgp4_from_tle.rs"
 default = ["serde"]
 ## Compatibility feature; serialization support is always available.
 serde   = []
-## DORIS RINEX observation parser in the io module.
-doris   = []
+## DORIS RINEX observation support from Siderust.
+doris   = ["siderust/pod-doris"]
 ## LISA inter-satellite range observation model.
 lisa    = []
 ## Integration tests that load a JPL DE kernel from disk (de440/de441).
 de440   = []
-## Parquet residuals writer in the products module.
-parquet = ["dep:parquet"]
+## Parquet residuals support, shared with Siderust's POD feature.
+parquet = ["siderust/pod-parquet"]
 
 [dependencies]
 # ── Baseline crates ───────────────────────────────────────────────────────────
-qtty-core = "0.8"
-qtty      = { version = "0.8", features = ["astro"] }
-tempoch   = "0.6"
-affn      = { version = "0.8", features = ["astro"] }
-cheby     = "0.4"
-siderust  = { version = "0.11", features = ["pod"] }
-principia = "0.2"
+cheby     = "0.4.2"
+siderust  = { version = "0.12", features = ["pod"] }
 
 # ── SGP4 propagation backend ──────────────────────────────────────────────────
 sgp4 = { version = "2.4", default-features = false, features = ["std"] }
 
 # ── Linear algebra ────────────────────────────────────────────────────────────
-faer = { version = "0.22", default-features = false, features = ["std", "linalg"] }
+faer = { version = "0.24", default-features = false, features = ["std", "linalg"] }
 
 # ── Serialisation ─────────────────────────────────────────────────────────────
 serde      = { version = "1.0", features = ["derive"] }
@@ -94,7 +89,7 @@ hex  = "0.4"
 chrono = "0.4"
 
 # ── XML parsing ────────────────────────────────────────────────────────────────
-quick-xml = "0.36"
+quick-xml = "0.41"
 
 # ── HTTP / REST ────────────────────────────────────────────────────────────────
 axum  = "0.7"
@@ -108,9 +103,6 @@ clap = { version = "4.5", features = ["derive"] }
 # ── Logging ────────────────────────────────────────────────────────────────────
 log        = "0.4"
 env_logger = "0.11"
-
-# ── Optional: Parquet residuals ────────────────────────────────────────────────
-parquet = { version = "52", default-features = false, optional = true }
 
 [dev-dependencies]
 approx   = "0.5"

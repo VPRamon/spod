@@ -6,8 +6,8 @@
 //!
 //! ## Why
 //!
-//! Upstream [`principia`] exposes [`principia::Stepper`] and
-//! [`principia::AdaptiveStepper`] as two
+//! Upstream Siderust exposes [`siderust::principia::Stepper`] and
+//! [`siderust::principia::AdaptiveStepper`] as two
 //! *different* traits, because RK4 needs a fixed sub-step and the adaptive
 //! Hairer-style integrators carry a tolerance configuration. That distinction
 //! matters at the algorithm boundary, but most callers — POD batch windows,
@@ -21,10 +21,12 @@
 //! upstream [`siderust::astro::dynamics::errors::DynamicsError`] through the
 //! crate-local [`DynamicsError`].
 
-use principia::{dop853_propagate, dopri5_propagate, rk4_propagate, IntegratorTolerances};
-use qtty::Second;
 use siderust::astro::dynamics::{DynamicsContext, OrbitState};
 use siderust::pod::force::SiderustAccelerationModel;
+use siderust::principia::{
+    dop853_propagate, dopri5_propagate, rk4_propagate, IntegratorTolerances,
+};
+use siderust::qtty::Second;
 
 use super::error::DynamicsError;
 
@@ -41,8 +43,8 @@ use super::error::DynamicsError;
 ///                          DynamicsContext, TwoBody};
 /// use siderust::coordinates::frames::GCRS;
 /// use siderust::time::JulianDate;
-/// use principia::IntegratorTolerances;
-/// use qtty::Second;
+/// use siderust::principia::IntegratorTolerances;
+/// use siderust::qtty::Second;
 ///
 /// let s0 = OrbitState::new(
 ///     JulianDate::new(2_451_545.0).to_j2000s(),
@@ -68,7 +70,7 @@ pub trait Integrator {
 
 /// Fixed-step classical Runge-Kutta 4th-order integrator.
 ///
-/// Uses [`principia::rk4_propagate`] under the
+/// Uses [`siderust::principia::rk4_propagate`] under the
 /// hood. The configured `step` is treated as a magnitude; the wrapper
 /// computes `n_steps = ceil(|dt| / step)` so the *effective* sub-step never
 /// exceeds `step` in absolute value. Forward propagation is supported (RK4
@@ -126,7 +128,7 @@ impl Integrator for Rk4Integrator {
 
 /// Adaptive Dormand-Prince 5(4) integrator (DOPRI5).
 ///
-/// Wraps [`principia::dopri5_propagate`].
+/// Wraps [`siderust::principia::dopri5_propagate`].
 /// Suitable for general-purpose LEO/MEO propagation when 5th-order accuracy
 /// is enough.
 ///
@@ -159,7 +161,7 @@ impl Integrator for Dopri5Integrator {
 
 /// Adaptive Hairer DOP853 8th-order integrator.
 ///
-/// Wraps [`principia::dop853_propagate`]. This
+/// Wraps [`siderust::principia::dop853_propagate`]. This
 /// is the high-precision choice for POD batch windows and finite-burn
 /// integration where 1e-9 relative tolerance is the working point.
 ///

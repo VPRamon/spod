@@ -8,28 +8,27 @@
 //! together with the UTC instant the prediction is valid for.
 //!
 //! The state lives in the **TEME** (True Equator, Mean Equinox) frame defined
-//! by `affn::frames::TEME`, geocentric, with positions in
-//! [`qtty::length::Kilometer`] and velocities in [`KilometerPerSecond`].
+//! by `siderust::affn::frames::TEME`, geocentric, with positions in
+//! [`siderust::qtty::unit::Kilometer`] and velocities in [`KilometerPerSecond`].
 //! Downstream conversion to ITRF / GCRF / ECEF is provided by
 //! `siderust::coordinates::transform::providers::frames_teme` once Earth
 //! Orientation Parameters are supplied.
 
-use qtty_core::units::{length::Kilometer, time::Second};
-use qtty_core::Per;
 use siderust::coordinates::cartesian::{position, velocity};
-use tempoch::{JulianDate, UTC};
+use siderust::qtty::{length::Kilometer, time::Second, Per};
+use siderust::tempoch::{JulianDate, UTC};
 
 /// Velocity unit alias used by the SGP4 propagator: kilometres per second.
 ///
 /// SGP4 publishes velocities in km·s⁻¹; we expose them as a typed
-/// [`qtty_core::Per<Kilometer, Second>`] so users cannot accidentally
+/// [`siderust::qtty::Per<Kilometer, Second>`] so users cannot accidentally
 /// mix them with m·s⁻¹ values from other parts of the stack.
 ///
 /// # Examples
 ///
 /// ```
 /// use siderust_pod::sgp4::KilometerPerSecond;
-/// use qtty::Quantity;
+/// use siderust::qtty::Quantity;
 /// let v: Quantity<KilometerPerSecond> = Quantity::new(7.5);
 /// assert!((v.value() - 7.5).abs() < 1e-12);
 /// ```
@@ -38,7 +37,7 @@ pub type KilometerPerSecond = Per<Kilometer, Second>;
 /// Geocentric **TEME** Cartesian position with kilometre units.
 ///
 /// Re-export of [`siderust::coordinates::cartesian::position::TEME`] specialised
-/// to [`qtty::length::Kilometer`].
+/// to [`siderust::qtty::unit::Kilometer`].
 pub type TemePositionKm = position::TEME<Kilometer>;
 
 /// **TEME** Cartesian velocity with km·s⁻¹ units.
@@ -84,14 +83,14 @@ impl TemeState {
     ///
     /// ```
     /// use siderust_pod::sgp4::TemeState;
-    /// use tempoch::{JulianDate, Time, UTC};
+    /// use siderust::tempoch::{JulianDate, Time, UTC};
     /// use chrono::{TimeZone, Utc};
     ///
     /// let t = Time::<UTC>::try_from_chrono(
     ///     Utc.with_ymd_and_hms(2000, 1, 1, 12, 0, 0).unwrap(),
     /// )
     /// .unwrap();
-    /// let jd = t.to::<tempoch::JD>();
+    /// let jd = t.to::<siderust::tempoch::JD>();
     /// let s = TemeState::from_arrays(
     ///     jd,
     ///     [7000.0, 0.0, 0.0],
@@ -105,7 +104,7 @@ impl TemeState {
         position_km: [f64; 3],
         velocity_km_per_s: [f64; 3],
     ) -> Self {
-        use qtty::Quantity;
+        use siderust::qtty::Quantity;
         let p = TemePositionKm::new(
             Quantity::<Kilometer>::new(position_km[0]),
             Quantity::<Kilometer>::new(position_km[1]),

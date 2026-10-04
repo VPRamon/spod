@@ -3,8 +3,8 @@
 
 //! Keyword-Value-Notation (KVN) encoding for OMM.
 
-use qtty::angular::Degrees;
-use qtty_core::units::{angular::Turn, angular_rate::AngularRate, time::Day};
+use siderust::qtty::angular::Degrees;
+use siderust::qtty::{angular::Turn, angular_rate::AngularRate, time::Day};
 
 use super::{format_epoch, parse_epoch, Omm};
 use crate::tle::TleError;

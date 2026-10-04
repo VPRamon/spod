@@ -31,12 +31,12 @@
 use super::pipeline::{ArcEpoch, GpsSatellite};
 use crate::observations::gnss::{CarrierPhaseObs, GnssCodeModel, PseudorangeObs};
 use crate::observations::model::MeasurementModel;
-use principia::integrators::rk4_propagate_series;
 use siderust::astro::dynamics::context::DynamicsContext;
 use siderust::astro::dynamics::forces::TwoBody;
 use siderust::astro::dynamics::state::VelocityUnit;
 use siderust::astro::dynamics::{OrbitState, Position, Velocity};
 use siderust::coordinates::frames::GCRS;
+use siderust::principia::integrators::rk4_propagate_series;
 use siderust::qtty::Second;
 use siderust::time::JulianDate;
 
@@ -170,8 +170,11 @@ pub fn generate(cfg: &SyntheticArcConfig) -> SyntheticArc {
         let mut code = Vec::new();
         let mut carrier = Vec::new();
         for sat in &gps_sats {
-            let (gps_pos, gps_vel) =
-                gps_state_at(s.epoch.to::<tempoch::JD>(), sat.slot, cfg.n_gps_sats);
+            let (gps_pos, gps_vel) = gps_state_at(
+                s.epoch.to::<siderust::tempoch::JD>(),
+                sat.slot,
+                cfg.n_gps_sats,
+            );
             // Use the analytic prediction at *truth* state and add noise +
             // truth clock bias to obtain the synthetic measurement.
             let geom = code_truth_m(s, gps_pos, gps_vel) + cfg.clock_bias_m;

@@ -12,9 +12,9 @@
 //! entry point for fields that have a typed representation.
 
 use chrono::{Datelike, Timelike};
-use qtty::angular::Degrees;
-use qtty_core::units::{angular::Turn, angular_rate::AngularRate, time::Day};
-use tempoch::{Time, UTC};
+use siderust::qtty::angular::Degrees;
+use siderust::qtty::{angular::Turn, angular_rate::AngularRate, time::Day};
+use siderust::tempoch::{Time, UTC};
 
 use super::parse::compute_tle_checksum;
 use super::TleError;
@@ -32,9 +32,9 @@ use crate::tle::{Classification, InternationalDesignator, SatelliteNumber, Tle};
 ///
 /// ```
 /// use siderust_pod::tle::{Classification, InternationalDesignator, SatelliteNumber, TleBuilder};
-/// use qtty::angular::Degrees;
-/// use qtty_core::units::{angular::Turn, angular_rate::AngularRate, time::Day};
-/// use tempoch::{Time, UTC};
+/// use siderust::qtty::angular::Degrees;
+/// use siderust::qtty::{angular::Turn, angular_rate::AngularRate, time::Day};
+/// use siderust::tempoch::{Time, UTC};
 /// use chrono::{TimeZone, Utc};
 ///
 /// let dt = Utc.with_ymd_and_hms(2008, 9, 20, 12, 25, 40).unwrap();
@@ -146,7 +146,7 @@ impl TleBuilder {
     ///
     /// ```
     /// use siderust_pod::tle::TleBuilder;
-    /// use tempoch::{Time, UTC};
+    /// use siderust::tempoch::{Time, UTC};
     /// use chrono::Utc;
     /// let _b = TleBuilder::new().epoch(Time::<UTC>::from_chrono(Utc::now()));
     /// ```
@@ -226,7 +226,7 @@ impl TleBuilder {
     ///
     /// ```
     /// use siderust_pod::tle::TleBuilder;
-    /// use qtty::angular::Degrees;
+    /// use siderust::qtty::angular::Degrees;
     /// let _b = TleBuilder::new().inclination(Degrees::new(51.6416));
     /// ```
     pub fn inclination(mut self, v: Degrees) -> Self {
@@ -240,7 +240,7 @@ impl TleBuilder {
     ///
     /// ```
     /// use siderust_pod::tle::TleBuilder;
-    /// use qtty::angular::Degrees;
+    /// use siderust::qtty::angular::Degrees;
     /// let _b = TleBuilder::new().raan(Degrees::new(247.4627));
     /// ```
     pub fn raan(mut self, v: Degrees) -> Self {
@@ -267,7 +267,7 @@ impl TleBuilder {
     ///
     /// ```
     /// use siderust_pod::tle::TleBuilder;
-    /// use qtty::angular::Degrees;
+    /// use siderust::qtty::angular::Degrees;
     /// let _b = TleBuilder::new().argument_of_perigee(Degrees::new(130.5360));
     /// ```
     pub fn argument_of_perigee(mut self, v: Degrees) -> Self {
@@ -281,7 +281,7 @@ impl TleBuilder {
     ///
     /// ```
     /// use siderust_pod::tle::TleBuilder;
-    /// use qtty::angular::Degrees;
+    /// use siderust::qtty::angular::Degrees;
     /// let _b = TleBuilder::new().mean_anomaly(Degrees::new(325.0288));
     /// ```
     pub fn mean_anomaly(mut self, v: Degrees) -> Self {
@@ -295,7 +295,7 @@ impl TleBuilder {
     ///
     /// ```
     /// use siderust_pod::tle::TleBuilder;
-    /// use qtty_core::units::{angular::Turn, angular_rate::AngularRate, time::Day};
+    /// use siderust::qtty::{angular::Turn, angular_rate::AngularRate, time::Day};
     /// let _b = TleBuilder::new()
     ///     .mean_motion(AngularRate::<Turn, Day>::new(15.72125391));
     /// ```

@@ -11,9 +11,9 @@
 //!   whitespace-separated),
 //! * line-checksum validation,
 //! * Alpha-5 NORAD-ID extension (catalog numbers ≥ 100 000),
-//! * strongly typed angles (`qtty_core::angular::Degrees`) and mean motion
-//!   (`qtty_core::angular_rate::AngularRate<Turn, Day>`),
-//! * `tempoch::Time<UTC>` epochs derived from the (year, day-of-year,
+//! * strongly typed angles (`siderust::qtty::angular::Degrees`) and mean motion
+//!   (`siderust::qtty::unit::AngularRate<Turn, Day>`),
+//! * `siderust::tempoch::Time<UTC>` epochs derived from the (year, day-of-year,
 //!   fractional-day) encoding via `chrono`,
 //! * round-trip OMM-KVN / OMM-XML / OMM-JSON parity through [`omm::Omm`],
 //! * a programmatic [`TleBuilder`] for synthesising TLEs (used by

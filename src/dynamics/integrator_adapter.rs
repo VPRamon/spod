@@ -12,9 +12,9 @@
 //! No new integrator math is invented here — every call delegates to the
 //! upstream propagator.
 
-use qtty::Second;
 use siderust::astro::dynamics::{DynamicsContext, OrbitState, SpacecraftState};
 use siderust::pod::force::SiderustAccelerationModel;
+use siderust::qtty::Second;
 
 use crate::dynamics::Integrator;
 
