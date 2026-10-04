@@ -89,6 +89,12 @@ impl RunConfig {
         if !(self.forces.two_body) {
             return Err("two_body force must be enabled".into());
         }
+        if self.forces.third_body {
+            return Err(
+                "third_body force is not implemented in the current synthetic-only service"
+                    .into(),
+            );
+        }
         Ok(())
     }
 }
