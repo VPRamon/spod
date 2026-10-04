@@ -8,7 +8,8 @@
 
 set -euo pipefail
 
-cd "$(dirname "$0")/.."
+repository_root="${SPOD_ARCH_ROOT:-$(cd "$(dirname "$0")/.." && pwd)}"
+cd "$repository_root"
 
 exception_dir="src/sgp4"
 if [[ ! -d "$exception_dir" ]]; then

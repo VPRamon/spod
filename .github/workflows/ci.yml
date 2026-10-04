@@ -96,6 +96,7 @@ jobs:
       - run: bash scripts/check_no_todos.sh
       - run: bash scripts/check_legacy_name_refs.sh
       - run: bash scripts/check_architecture.sh
+      - run: bash scripts/check_architecture_test.sh
 
   msrv:
     name: MSRV (Rust 1.89)
