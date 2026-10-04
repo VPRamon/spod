@@ -20,6 +20,14 @@ The main foundational dependencies are released versions of `siderust`, `princip
 
 If a change requires unreleased functionality from one of those projects, do not add a local path or git dependency as a permanent workaround. Prefer opening or referencing the corresponding upstream change and keep this repository on released dependencies.
 
+## Opening issues
+
+Use the structured GitHub issue forms for bugs, features, documentation work, and product use cases.
+
+Product use cases are treated as living specifications: they document the user outcome, product/upstream ownership boundary, inputs, outputs, quality gates, acceptance criteria, and the evidence required to verify the workflow.
+
+See [docs/contributing/issues.md](docs/contributing/issues.md) for the issue lifecycle and verification guidelines.
+
 ## Before opening a pull request
 
 Run the same checks expected by CI:
