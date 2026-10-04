@@ -46,6 +46,12 @@ cd spod
 cargo test
 ```
 
+## Product wiki
+
+The product definition, commercial positioning, capability ownership, feature-parity policy, roadmap, and detailed operational use cases live in the [product wiki](docs/product/README.md).
+
+The product North Star is **onboard GNSS observations -> automated precise LEO orbit + QC + standard products + full provenance**.
+
 ## Relationship with the Siderust ecosystem
 
 Foundational astrodynamics, typed quantities, time scales, frames, and reusable numerical mechanics live in the released Siderust ecosystem crates. `spod` is built on top of `siderust::pod`; it does not expose a scientific compatibility facade. Callers needing reusable force, observation, estimation, QC, or product APIs should import Siderust directly.
