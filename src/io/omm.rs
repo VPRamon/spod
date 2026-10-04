@@ -1,4 +1,4 @@
-//! # OMM reader/writer bridging `siderust-tle`
+//! # OMM reader/writer bridging `spod::tle`
 //!
 //! Delegates KVN and XML parsing/writing to [`crate::tle::omm::kvn`] and
 //! [`crate::tle::omm::xml`], exposing them under the unified
@@ -12,7 +12,7 @@ use super::PodIoError;
 use crate::tle::omm::{kvn, xml};
 use std::io::{Read, Write};
 
-/// Re-export of the `siderust-tle` OMM record.
+/// Re-export of the `spod::tle` OMM record.
 ///
 /// See [`crate::tle::omm::Omm`] for field documentation.
 ///
