@@ -2,16 +2,18 @@
 
 This roadmap sequences work by commercial/product dependency rather than by code-module cleanup alone.
 
-## Phase 0 - Protect capability during consolidation
+## Phase 0 - Protect and recover capability during consolidation
 
 Goal: reduce duplicated code without losing product features.
 
 - [#19](https://github.com/VPRamon/spod/issues/19) product capability parity
 - [#9](https://github.com/VPRamon/spod/issues/9) format/orbital-mechanics consolidation under the parity rule
 - [#29](https://github.com/VPRamon/spod/issues/29) preserve full SGP4/SDP4 semantics
-- existing architecture issues #10-#13 continue after product capabilities are classified
+- [#33](https://github.com/VPRamon/spod/issues/33) restore service-owned human-readable QC reporting
+- [#34](https://github.com/VPRamon/spod/issues/34) preserve LISA only as a reference/example use case
+- existing architecture issues #10-#13 continue under the same product guardrails
 
-Exit criterion: every major current capability is KEEP, MIGRATE, UPSTREAM GAP FIRST, or INTENTIONALLY RETIRE.
+Exit criterion: every major current or recently removed capability is KEEP, MIGRATE, UPSTREAM GAP FIRST, INTENTIONALLY RETIRE, or REFERENCE EXAMPLE.
 
 ## Phase 1 - Make the service coherent
 
@@ -34,13 +36,13 @@ Goal: real onboard-GNSS data to precise orbit product.
 - [#23](https://github.com/VPRamon/spod/issues/23) operational QC/run health
 - [#28](https://github.com/VPRamon/spod/issues/28) stable product/artifact API
 
-Exit criterion: a representative LEO mission can run repeatedly from real tracking data and produce standard products, QC, and provenance.
+Exit criterion: a representative LEO mission can run repeatedly from real tracking data and produce standard products, QC, provenance, and a useful human-readable report.
 
 ## Phase 3 - Prove value around the core
 
 Goal: useful commercial workflows that do not require replacing the customer's full operations stack.
 
-- [#24](https://github.com/VPRamon/spod/issues/24) independent orbit validation
+- [#24](https://github.com/VPRamon/spod/issues/24) independent orbit/SLR validation
 - [#30](https://github.com/VPRamon/spod/issues/30) mission commissioning
 
 Exit criterion: `spod Validate`/commissioning can produce actionable reports on representative external datasets.
@@ -55,6 +57,10 @@ Goal: make the product suitable for repeated mission/fleet operations.
 - [#31](https://github.com/VPRamon/spod/issues/31) fleet/constellation orchestration
 
 Exit criterion: many jobs can be operated, inspected, retried, compared, and summarized without bespoke shell automation.
+
+## Reference extensions
+
+Mission-specific demonstrations such as LISA can be maintained as examples that exercise the extension model without enlarging the core product surface.
 
 ## Product metrics
 
