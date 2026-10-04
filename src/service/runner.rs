@@ -55,27 +55,29 @@ pub fn run(cfg: &RunConfig, config_path: &str) -> std::io::Result<RunReport> {
 
     let output_dir = PathBuf::from(&cfg.output_dir);
 
-    if cfg.inputs.sp3.is_some() || cfg.inputs.rinex_obs.is_some() {
-        // Refuse rather than silently propagate-and-ignore.
+    let configured_inputs = [
+        ("sp3", cfg.inputs.sp3.as_ref()),
+        ("rinex_obs", cfg.inputs.rinex_obs.as_ref()),
+        ("rinex_nav", cfg.inputs.rinex_nav.as_ref()),
+        ("antex", cfg.inputs.antex.as_ref()),
+    ]
+    .into_iter()
+    .filter_map(|(name, value)| value.as_ref().map(|_| name))
+    .collect::<Vec<_>>();
+
+    if !configured_inputs.is_empty() {
         return Err(std::io::Error::new(
             std::io::ErrorKind::Unsupported,
-            "not implemented: real GNSS ingestion (SP3 / RINEX OBS → estimator) is scheduled \
-             for milestone M9; see plan.md §13.3. The current build only supports the \
-             synthetic-arc MVP-1 pipeline (`inputs.sp3` and `inputs.rinex_obs` both null).",
+            format!(
+                "real-data ingestion is not implemented in the current synthetic-only service; \
+                 unsupported configured inputs: {}. Set all entries under `inputs` to null.",
+                configured_inputs.join(", ")
+            ),
         ));
     }
 
     let config_ref = DatasetRef::from_file(config_path, "configuration")?;
-    let mut input_refs = Vec::new();
-    for (path, kind) in [
-        (cfg.inputs.rinex_nav.as_deref(), "rinex-nav"),
-        (cfg.inputs.antex.as_deref(), "antex"),
-    ] {
-        if let Some(path) = path {
-            input_refs.push(DatasetRef::from_file(path, kind)?);
-        }
-    }
-    let provenance = RunProvenance::from_config(config_ref, input_refs);
+    let provenance = RunProvenance::from_config(config_ref, Vec::new());
 
     // Synthetic-arc MVP-1 pipeline.
     let synth_cfg = SyntheticArcConfig::default();
