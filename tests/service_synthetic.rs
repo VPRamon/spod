@@ -198,12 +198,15 @@ fn configuration_rejects_unknown_yaml_fields() {
     let config_path = root.join("run.yaml");
     fs::write(
         &config_path,
-        "schema_version: 1.0.0\nrun_id: unknown-field\ninputs: {}\noutput_dir: output\nforces: {}\nunexpected: true\n",
+        "schema_version: 1.0.0\nrun_id: unknown-field\nworkflow: synthetic\ninputs:\n  sp3: null\n  rinex_obs: null\n  rinex_nav: null\n  antex: null\noutput_dir: output\nforces:\n  two_body: true\n  j2: false\n  third_body: false\nunexpected: true\n",
     )
     .unwrap();
 
     let error = RunConfig::from_yaml_file(&config_path).unwrap_err();
     assert!(matches!(error, ServiceError::Configuration { .. }));
+    let diagnostic = error.to_string();
+    assert!(diagnostic.contains("unknown field"));
+    assert!(diagnostic.contains("unexpected"));
     fs::remove_dir_all(root).unwrap();
 }
 

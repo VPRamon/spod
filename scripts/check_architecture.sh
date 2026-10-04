@@ -16,20 +16,34 @@ if [[ ! -d "$exception_dir" ]]; then
   exit 1
 fi
 
-if ! grep -RInE \
-  --include='*.rs' \
-  --exclude-dir=target \
-  --exclude-dir="$exception_dir" \
-  '^[[:space:]]*(pub[[:space:]]+)?(struct|trait)[[:space:]]+(ForceModel|MeasurementModel|Propagator|Integrator|KalmanFilter|GaussNewton|LeastSquares|OrbitComparator)([[:space:]]|<|{|$)' \
-  src tests; then
-  echo "Architecture source-hygiene check passed."
-  exit 0
+mapfile -t source_files < <(
+  find src tests -type f -name '*.rs' ! -path "$exception_dir/*" -print
+)
+
+if grep -InE \
+    '^[[:space:]]*(pub[[:space:]]+)?(struct|trait)[[:space:]]+(ForceModel|MeasurementModel|Propagator|Integrator|KalmanFilter|GaussNewton|LeastSquares|OrbitComparator)([[:space:]]|<|{|$)' \
+    "${source_files[@]}"; then
+  grep_status=0
+else
+  grep_status=$?
 fi
 
-cat >&2 <<'EOF'
+case "$grep_status" in
+  0)
+    cat >&2 <<'EOF'
 Architecture source-hygiene check FAILED.
 New local generic scientific implementations were found outside the
 documented SGP4 exception in src/sgp4/. Reuse Siderust APIs or document a
 temporary upstream-gap exception before adding local science.
 EOF
-exit 1
+    exit 1
+    ;;
+  1)
+      echo "Architecture source-hygiene check passed."
+      exit 0
+    ;;
+  *)
+    echo "Architecture source-hygiene check FAILED: grep exited with status $grep_status." >&2
+    exit "$grep_status"
+    ;;
+esac
