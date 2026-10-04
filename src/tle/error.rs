@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Vallés Puig, Ramon
 
-//! Unified error taxonomy for `siderust-tle`.
+//! Unified error taxonomy for `spod::tle`.
 //!
 //! The crate exposes exactly one error enum, [`TleError`], covering every
 //! parser branch (classic 2LE/3LE, OMM-KVN, OMM-XML, OMM-JSON) as well as
 //! programmatic-construction failures from [`crate::TleBuilder`].
 
-/// Errors produced by every parser, writer and builder in `siderust-tle`.
+/// Errors produced by every parser, writer and builder in `spod::tle`.
 ///
 /// All public APIs return `Result<_, TleError>`; the crate never depends on
 /// `anyhow`. Variants are deliberately structural so callers can react
