@@ -52,7 +52,7 @@ The North Star milestone is tracked in [#20](https://github.com/VPRamon/spod/iss
 - input resolution and acquisition policy;
 - orchestration of Siderust components;
 - artifact layout and publication;
-- operational QC policy;
+- operational QC policy and human-readable reporting;
 - provenance and reproducibility;
 - CLI and REST interfaces;
 - fleet/reprocessing orchestration;
@@ -86,15 +86,17 @@ See [Feature parity policy](feature-parity-policy.md).
 | Historical reprocessing | Science / operations | Reproduce historical products under new baselines | [#25](https://github.com/VPRamon/spod/issues/25) |
 | Multi-latency operations | Operational ground segment | Rapid vs final processing policy | [#26](https://github.com/VPRamon/spod/issues/26) |
 
-## Product enablers
+## Product enablers and recovery work
 
 - product capability parity and migration discipline - [#19](https://github.com/VPRamon/spod/issues/19)
 - dataset resolution and acquisition - [#21](https://github.com/VPRamon/spod/issues/21)
 - mission profiles - [#22](https://github.com/VPRamon/spod/issues/22)
 - operational QC / run health - [#23](https://github.com/VPRamon/spod/issues/23)
+- restore human-readable QC artifact - [#33](https://github.com/VPRamon/spod/issues/33)
 - observability - [#27](https://github.com/VPRamon/spod/issues/27)
 - stable product/artifact API - [#28](https://github.com/VPRamon/spod/issues/28)
 - SGP4/SDP4 parity preservation - [#29](https://github.com/VPRamon/spod/issues/29)
+- LISA reference example rather than core feature - [#34](https://github.com/VPRamon/spod/issues/34)
 
 ## Product principles
 
@@ -105,6 +107,7 @@ See [Feature parity policy](feature-parity-policy.md).
 5. **Operational policy belongs in spod; reusable science belongs in Siderust.**
 6. **Automation is a feature, not an external shell script.**
 7. **Quality is an output.** A generated orbit is not enough; the service must explain whether it is fit for its configured operational purpose.
+8. **Mission-specific demonstrations are examples unless they earn a core product use case.**
 
 ## Current status
 
