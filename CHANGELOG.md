@@ -22,6 +22,10 @@ follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - The service now rejects every real-data input while real-data ingestion is
   not implemented, preventing unused files from being recorded as scientific
   provenance.
+- The synthetic-only configuration rejects unsupported third-body gravity
+  instead of silently ignoring the requested force model.
+- REST jobs persist their canonical request document inside the run directory
+  before hashing it, so every manifest input path names a real auditable file.
 - Reusable scientific types and low-level SPICE parser APIs are imported
   directly from Siderust rather than re-exported through compatibility
   façades.
