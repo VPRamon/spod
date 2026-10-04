@@ -91,8 +91,7 @@ impl RunConfig {
         }
         if self.forces.third_body {
             return Err(
-                "third_body force is not implemented in the current synthetic-only service"
-                    .into(),
+                "third_body force is not implemented in the current synthetic-only service".into(),
             );
         }
         Ok(())
