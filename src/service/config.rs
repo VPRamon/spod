@@ -66,7 +66,7 @@ pub struct ForcesConfig {
     pub two_body: bool,
     /// J2 oblateness.
     pub j2: bool,
-    /// Sun + Moon third-body.
+    /// Sun + Moon third-body gravity. Currently rejected by the synthetic-only runner.
     pub third_body: bool,
 }
 
