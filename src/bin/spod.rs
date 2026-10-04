@@ -72,7 +72,7 @@ fn main() -> anyhow::Result<()> {
     match cli.command {
         Cmd::ValidateConfig { config } => {
             let cfg = spod::service::RunConfig::from_yaml_file(&config)?;
-            cfg.validate().map_err(|e| anyhow::anyhow!(e))?;
+            cfg.validate()?;
             println!("OK: {} validates", config);
         }
         Cmd::Run { config } => {
@@ -86,7 +86,7 @@ fn main() -> anyhow::Result<()> {
                     .epoch
                     .to::<siderust::tempoch::JD>()
                     .value(),
-                report.manifest_path.display()
+                report.artifacts.manifest.path.display()
             );
         }
         Cmd::InspectManifest { manifest } => {

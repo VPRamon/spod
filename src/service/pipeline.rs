@@ -16,10 +16,8 @@
 //!
 //! ## Technical scope
 //!
-//! The public items are `GpsSatellite`, `ArcEpoch`, `PipelineError`,
-//! `PipelineReport`, and `run_synth`. Inputs are synthetic arc
-//! descriptions, initial orbit guesses, and output paths; outputs are
-//! written artifacts plus a structured run report.
+//! This is an internal implementation module. It assembles the synthetic arc
+//! and Siderust execution after the public runner has validated a request.
 //!
 //! Observation physics, linear algebra, file-format serialization, and
 //! manifest encoding are delegated to their respective crates and only
@@ -31,6 +29,8 @@
 //!   Determination. Elsevier Academic Press.
 //! - Consultative Committee for Space Data Systems. (2010). Orbit Data
 //!   Messages, CCSDS 502.0-B-2 / 502.0-B-3.
+use super::artifacts::ArtifactLayout;
+use super::provenance::RunProvenance;
 use super::synth::SyntheticArc;
 use super::synth::SyntheticProviders;
 use chrono::{SecondsFormat, Utc};
@@ -51,30 +51,29 @@ use siderust::pod::run::dataset::DatasetRef;
 use siderust::pod::run::manifest::RunManifest;
 use siderust::qtty::Second;
 use std::fs;
-use std::path::{Path, PathBuf};
 use thiserror::Error;
 
 /// Identifier for a simulated GPS satellite.
 #[derive(Debug, Clone)]
-pub struct GpsSatellite {
+pub(super) struct GpsSatellite {
     /// Three-character ID (e.g. `G01`).
-    pub id: String,
+    pub(super) id: String,
     /// Slot index used by the synthetic ephemeris.
-    pub slot: usize,
+    pub(super) slot: usize,
 }
 
 /// Per-epoch bundle of observations.
 #[derive(Debug, Clone)]
-pub struct ArcEpoch {
+pub(super) struct ArcEpoch {
     /// Index of the corresponding state in the propagated series.
-    pub state_index: usize,
+    pub(super) state_index: usize,
     /// Code observations.
-    pub code: Vec<(
+    pub(super) code: Vec<(
         GpsSatellite,
         siderust::pod::observation::gnss_obs::GnssPseudorangeObs,
     )>,
     /// Carrier observations.
-    pub carrier: Vec<(
+    pub(super) carrier: Vec<(
         GpsSatellite,
         siderust::pod::observation::gnss_obs::GnssCarrierPhaseObs,
     )>,
@@ -82,61 +81,36 @@ pub struct ArcEpoch {
 
 /// Pipeline errors.
 #[derive(Debug, Error)]
-pub enum PipelineError {
-    /// I/O failure.
+pub(super) enum PipelineError {
+    /// Filesystem failure while creating or writing service artifacts.
     #[error("I/O error: {0}")]
     Io(#[from] std::io::Error),
     /// Estimation failure.
     #[error("estimation: {0}")]
     Estimation(#[from] NonlinearError),
+    /// Propagation failure.
+    #[error("propagation: {0}")]
+    Propagation(#[from] siderust::pod::propagation::PodDynamicsError),
+    /// Product or manifest serialization failure.
+    #[error("product serialization: {0}")]
+    Product(String),
 }
 
 /// Outcome of an MVP-1 pipeline run.
 #[derive(Debug)]
-pub struct PipelineReport {
+pub(super) struct PipelineReport {
     /// Estimator convergence report.
-    pub estimator: NonlinearReport,
-    /// Estimated initial state (epoch t0).
-    pub estimated_initial: OrbitState,
-    /// Estimated receiver clock bias, metres.
-    pub estimated_clock_bias_m: f64,
+    pub(super) estimator: NonlinearReport,
     /// Final state at end of arc.
-    pub estimated_final: OrbitState,
-    /// Path to the manifest written.
-    pub manifest_path: PathBuf,
-    /// Output directory.
-    pub output_dir: PathBuf,
-}
-
-/// Service provenance supplied to a synthetic run.
-#[derive(Debug, Clone)]
-pub struct RunProvenance {
-    /// SHA-256 of the configuration document used for the run.
-    pub config_sha256: String,
-    /// Configuration and external input references consumed by the run.
-    pub inputs: Vec<DatasetRef>,
-}
-
-impl RunProvenance {
-    /// Build provenance from the canonical configuration dataset reference.
-    pub fn from_config(config: DatasetRef, inputs: Vec<DatasetRef>) -> Self {
-        let config_sha256 = config.sha256.clone();
-        let mut all_inputs = Vec::with_capacity(inputs.len() + 1);
-        all_inputs.push(config);
-        all_inputs.extend(inputs);
-        Self {
-            config_sha256,
-            inputs: all_inputs,
-        }
-    }
+    pub(super) estimated_final: OrbitState,
 }
 
 /// Run MVP-1 against a synthetic arc and write all artifacts to `output_dir`.
-pub fn run_synth(
+pub(super) fn run_synth(
     arc: &SyntheticArc,
     initial_guess: OrbitState,
     initial_clock_guess_m: f64,
-    output_dir: &Path,
+    layout: &ArtifactLayout,
     run_id: &str,
     enable_j2: bool,
     provenance: RunProvenance,
@@ -185,9 +159,7 @@ pub fn run_synth(
             report.parameters[5],
         ),
     );
-    let clk = report.parameters[6];
-    let estimated_arc = propagate_with_stm(&force, estimated_initial, dt_s, n_steps)
-        .map_err(|e| std::io::Error::other(format!("propagation failed: {e}")))?;
+    let estimated_arc = propagate_with_stm(&force, estimated_initial, dt_s, n_steps)?;
     let estimated_states = states_with_initial(estimated_initial, &estimated_arc);
     let estimated_final = *estimated_states.last().unwrap_or(&estimated_initial);
 
@@ -201,31 +173,31 @@ pub fn run_synth(
             .map(|r| (r.obs_type.as_str(), r.residual_m)),
     );
 
-    fs::create_dir_all(output_dir.join("products"))?;
-    fs::create_dir_all(output_dir.join("residuals"))?;
-    fs::create_dir_all(output_dir.join("qc"))?;
+    fs::create_dir_all(layout.root.join("products"))?;
+    fs::create_dir_all(layout.root.join("residuals"))?;
+    fs::create_dir_all(layout.root.join("qc"))?;
 
     // SP3.
     {
-        let mut f = fs::File::create(output_dir.join("products/orbit.sp3"))?;
+        let mut f = fs::File::create(&layout.orbit_sp3)?;
         write_sp3_from_states(&mut f, "L01", &estimated_states)
-            .map_err(|e| PipelineError::Io(std::io::Error::other(e.to_string())))?;
+            .map_err(|e| PipelineError::Product(e.to_string()))?;
     }
     // OEM.
     {
-        let mut f = fs::File::create(output_dir.join("products/orbit.oem"))?;
+        let mut f = fs::File::create(&layout.orbit_oem)?;
         write_oem_from_states(&mut f, "1900-001A", "POD-LEO", &estimated_states)
-            .map_err(|e| PipelineError::Io(std::io::Error::other(e.to_string())))?;
+            .map_err(|e| PipelineError::Product(e.to_string()))?;
     }
     // Residuals CSV.
     {
-        let mut f = fs::File::create(output_dir.join("residuals/residuals.csv"))?;
+        let mut f = fs::File::create(&layout.residuals_csv)?;
         let mut writer =
-            ResidualCsvWriter::new(&mut f).map_err(|e| std::io::Error::other(e.to_string()))?;
+            ResidualCsvWriter::new(&mut f).map_err(|e| PipelineError::Product(e.to_string()))?;
         for row in &residual_rows {
             writer
                 .write_record(row)
-                .map_err(|e| std::io::Error::other(e.to_string()))?;
+                .map_err(|e| PipelineError::Product(e.to_string()))?;
         }
     }
     // qc.json.
@@ -240,8 +212,8 @@ pub fn run_synth(
             iterations: report.iterations,
             residuals: groups,
         };
-        let mut f = fs::File::create(output_dir.join("qc/qc.json"))?;
-        write_qc_json(&mut f, &doc)?;
+        let mut f = fs::File::create(&layout.qc_json)?;
+        write_qc_json(&mut f, &doc).map_err(|e| PipelineError::Product(e.to_string()))?;
     }
 
     // Manifest.
@@ -251,28 +223,25 @@ pub fn run_synth(
         config_sha256: provenance.config_sha256,
         inputs: provenance.inputs,
         outputs: vec![
-            DatasetRef::from_file(output_dir.join("products/orbit.sp3"), "orbit-sp3")?,
-            DatasetRef::from_file(output_dir.join("products/orbit.oem"), "orbit-oem")?,
-            DatasetRef::from_file(output_dir.join("residuals/residuals.csv"), "residuals")?,
-            DatasetRef::from_file(output_dir.join("qc/qc.json"), "qc")?,
+            DatasetRef::from_file(layout.orbit_sp3.clone(), "orbit-sp3")?,
+            DatasetRef::from_file(layout.orbit_oem.clone(), "orbit-oem")?,
+            DatasetRef::from_file(layout.residuals_csv.clone(), "residuals")?,
+            DatasetRef::from_file(layout.qc_json.clone(), "qc")?,
         ],
         started_at,
         finished_at: Utc::now().to_rfc3339_opts(SecondsFormat::Nanos, true),
     };
     manifest.canonicalize();
-    let manifest_path = output_dir.join("run.manifest.json");
     fs::write(
-        &manifest_path,
-        manifest.to_json_pretty().map_err(std::io::Error::other)?,
+        &layout.manifest,
+        manifest
+            .to_json_pretty()
+            .map_err(|e| PipelineError::Product(e.to_string()))?,
     )?;
 
     Ok(PipelineReport {
         estimator: report,
-        estimated_initial,
-        estimated_clock_bias_m: clk,
         estimated_final,
-        manifest_path,
-        output_dir: output_dir.to_path_buf(),
     })
 }
 
