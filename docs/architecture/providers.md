@@ -1,11 +1,9 @@
 # Provider traits
 
-> **Note:** The `spod::core` crate has been eliminated. See
-> [ADR-0004](../adrs/ADR-0004-provider-traits.md) for the rationale.
-> `FrameTransformProvider` (the only trait that was ever a real trait)
-> now lives in `spod::dynamics`. POD crates import other provider
-> types (ephemerides, EOP, gravity, atmosphere) directly from `siderust`.
+`spod::core` and its POD provider facade have been removed. Reusable POD
+provider APIs are consumed from `siderust::pod` or its underlying public
+Siderust APIs.
 
-`FrameTransformProvider` in `spod::dynamics::frame_transform`
-is the seam for ITRF ↔ GCRF frame rotations inside POD. All other
-`siderust` provider types are used directly by each POD crate as needed.
+The service keeps only the small `spod::service::providers::EphemerisProvider`
+trait needed by its SPICE/LISA artifact adapters; it is not a scientific
+compatibility layer.

@@ -19,7 +19,7 @@
 //!   summary, and chains body-relative segments to compute the state of
 //!   any target relative to any kernel-supported center.
 //! * [`SpiceEphemerisProvider`], a typed adapter implementing
-//!   [`crate::core::providers::EphemerisProvider`]. Center selection
+//!   [`crate::service::providers::EphemerisProvider`]. Center selection
 //!   is **explicit** at construction time and is propagated as a typed
 //!   `affn` reference center on the returned [`SpiceState`].
 //!

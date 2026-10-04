@@ -23,7 +23,7 @@
 //!
 //! HTTP transport and command-line dispatch live in the `spod-rest` and
 //! `spod` binaries, while
-//! numerical estimation remains in `spod::estimation`.
+//! reusable numerical estimation remains in `siderust::pod::estimation`.
 //!
 //! ## References
 //!
@@ -35,14 +35,13 @@
 #![warn(missing_docs)]
 
 pub mod config;
-pub mod manifest;
 pub mod pipeline;
+pub mod providers;
 pub mod rest;
 pub mod runner;
 pub mod synth;
 
 pub use config::RunConfig;
-pub use manifest::{canonical_json, DatasetRef, RunManifest};
 pub use pipeline::{run_synth, ArcEpoch, GpsSatellite, PipelineError, PipelineReport};
 pub use runner::{run, RunReport};
 pub use synth::{generate, SyntheticArc, SyntheticArcConfig};

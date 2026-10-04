@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Vallés Puig, Ramon
 
-//! [`SpiceEphemerisProvider`] — typed adapter implementing
-//! [`crate::core::providers::EphemerisProvider`].
+//! [`SpiceEphemerisProvider`] — typed service adapter implementing
+//! [`crate::service::providers::EphemerisProvider`].
 //!
 //! Center selection is **explicit at construction time**: the caller
 //! must pick a typed `affn` reference center (e.g.
@@ -14,7 +14,7 @@
 use std::marker::PhantomData;
 use std::sync::Arc;
 
-use crate::core::providers::EphemerisProvider;
+use crate::service::providers::EphemerisProvider;
 use siderust::affn::cartesian::Position;
 use siderust::coordinates::centers::ReferenceCenter;
 use siderust::coordinates::frames::ICRS;
@@ -53,7 +53,7 @@ pub struct SpiceState<C: ReferenceCenter<Params = ()>> {
 /// ```rust,no_run
 /// use spod::spice::{SpkKernel, SpiceEphemerisProvider, well_known};
 /// use siderust::coordinates::centers::Barycentric;
-/// use spod::core::providers::EphemerisProvider;
+/// use spod::service::providers::EphemerisProvider;
 ///
 /// let kernel = SpkKernel::open("de440.bsp")?;
 /// let provider: SpiceEphemerisProvider<Barycentric> =

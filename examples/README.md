@@ -18,16 +18,12 @@ This makes the examples useful as copyable application code while still showing 
 
 | Example | What it demonstrates |
 | --- | --- |
-| `01_typed_two_body_propagation` | Builds a typed GCRS LEO state and propagates it with the siderust two-body model through the common `Integrator` interface |
-| `02_short_arc_wls` | Assembles and solves a small POD-like weighted least-squares problem, then wraps solver-space corrections back into typed quantities |
 | `03_lambert_earth_to_mars` | Solves a typed heliocentric Lambert transfer without unpacking the returned velocities into raw components |
 | `04_sgp4_from_tle` | Parses a TLE and propagates typed TEME position/velocity states with the natural SGP4 minutes-since-epoch API |
 
 Run them with:
 
 ```bash
-cargo run --example 01_typed_two_body_propagation
-cargo run --example 02_short_arc_wls
 cargo run --example 03_lambert_earth_to_mars
 cargo run --example 04_sgp4_from_tle
 ```

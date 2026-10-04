@@ -31,12 +31,22 @@
 //!   Determination. Elsevier Academic Press.
 //! - Consultative Committee for Space Data Systems. (2010). Orbit Data
 //!   Messages, CCSDS 502.0-B-2 / 502.0-B-3.
-use super::manifest::{canonical_json, DatasetRef, RunManifest};
 use super::synth::SyntheticArc;
+use super::synth::SyntheticProviders;
 use siderust::astro::dynamics::context::DynamicsContext;
 use siderust::astro::dynamics::forces::{TwoBody, J2};
 use siderust::astro::dynamics::{OrbitState, Position, Velocity, EARTH_J2, GM_EARTH, R_EARTH};
+use siderust::pod::estimation::{
+    gauss_newton, NonlinearError, NonlinearOptions, NonlinearReport, NormalEquations,
+};
 use siderust::pod::force::{SiderustAccelerationModel, SiderustCompositeModel};
+use siderust::pod::observation::obs_trait::{ObsResidual, Observation};
+use siderust::pod::product::qc_json::{write_qc_json, QcDocument};
+use siderust::pod::product::residuals_csv::{ResidualCsvWriter, ResidualRecord};
+use siderust::pod::product::{write_oem_from_states, write_sp3_from_states};
+use siderust::pod::qc::ResidualsByGroup;
+use siderust::pod::run::dataset::DatasetRef;
+use siderust::pod::run::manifest::RunManifest;
 use siderust::principia::integrators::rk4_propagate_series;
 // `finite_diff_stm_series` is upstream-deprecated in favour of the
 // variational `propagate_stm`, but the latter only returns Φ at the final
@@ -46,16 +56,6 @@ use siderust::principia::integrators::rk4_propagate_series;
 // equivalent ... retained for validation workflows that need the STM at
 // every intermediate step"). Switching to per-step `propagate_stm` calls
 // would re-do the same 12 perturbation propagations per epoch.
-use crate::estimation::{
-    gauss_newton, NonlinearError, NonlinearOptions, NonlinearReport, NormalEquations,
-};
-use crate::observations::gnss::{CarrierPhaseObs, PseudorangeObs};
-use crate::observations::model::{MeasurementModel, Prediction};
-use crate::products::qc_json::QcDocument;
-use crate::products::{
-    write_oem_from_states, write_qc_json, write_residuals_csv, write_sp3_from_states, ResidualRow,
-};
-use crate::qc::ResidualsByGroup;
 use siderust::principia::finite_diff_stm_series;
 use siderust::qtty::Second;
 use std::fs;
@@ -77,9 +77,15 @@ pub struct ArcEpoch {
     /// Index of the corresponding state in the propagated series.
     pub state_index: usize,
     /// Code observations.
-    pub code: Vec<(GpsSatellite, PseudorangeObs)>,
+    pub code: Vec<(
+        GpsSatellite,
+        siderust::pod::observation::gnss_obs::GnssPseudorangeObs,
+    )>,
     /// Carrier observations.
-    pub carrier: Vec<(GpsSatellite, CarrierPhaseObs)>,
+    pub carrier: Vec<(
+        GpsSatellite,
+        siderust::pod::observation::gnss_obs::GnssCarrierPhaseObs,
+    )>,
 }
 
 /// Pipeline errors.
@@ -127,8 +133,7 @@ pub fn run_synth(
 ) -> Result<PipelineReport, PipelineError> {
     let dt_s = step_size(arc);
     let n_steps = arc.epochs.len().saturating_sub(1);
-    let n_sats = arc.gps_sats.len();
-    let n_params = 6 + 1 + n_sats; // state + clock + per-sat float ambiguity
+    let n_params = 7; // state + receiver clock; carrier ambiguity is fixed in the service MVP
 
     let mut params = vec![0.0_f64; n_params];
     params[0] = initial_guess.position.x().value();
@@ -138,7 +143,6 @@ pub fn run_synth(
     params[4] = initial_guess.velocity.y().value();
     params[5] = initial_guess.velocity.z().value();
     params[6] = initial_clock_guess_m;
-    // Ambiguities (params[7..]) start at zero.
 
     let opts = NonlinearOptions {
         max_iter: 20,
@@ -188,7 +192,7 @@ pub fn run_synth(
     let groups = ResidualsByGroup::from_pairs(
         residual_rows
             .iter()
-            .map(|r| (residual_kind(&r.kind), r.residual_m)),
+            .map(|r| (r.obs_type.as_str(), r.residual_m)),
     );
 
     fs::create_dir_all(output_dir.join("products"))?;
@@ -198,17 +202,25 @@ pub fn run_synth(
     // SP3.
     {
         let mut f = fs::File::create(output_dir.join("products/orbit.sp3"))?;
-        write_sp3_from_states(&mut f, "L01", &estimated_states)?;
+        write_sp3_from_states(&mut f, "L01", &estimated_states)
+            .map_err(|e| PipelineError::Io(std::io::Error::other(e.to_string())))?;
     }
     // OEM.
     {
         let mut f = fs::File::create(output_dir.join("products/orbit.oem"))?;
-        write_oem_from_states(&mut f, "1900-001A", "POD-LEO", &estimated_states)?;
+        write_oem_from_states(&mut f, "1900-001A", "POD-LEO", &estimated_states)
+            .map_err(|e| PipelineError::Io(std::io::Error::other(e.to_string())))?;
     }
     // Residuals CSV.
     {
         let mut f = fs::File::create(output_dir.join("residuals/residuals.csv"))?;
-        write_residuals_csv(&mut f, &residual_rows)?;
+        let mut writer =
+            ResidualCsvWriter::new(&mut f).map_err(|e| std::io::Error::other(e.to_string()))?;
+        for row in &residual_rows {
+            writer
+                .write_record(row)
+                .map_err(|e| std::io::Error::other(e.to_string()))?;
+        }
     }
     // qc.json.
     {
@@ -227,30 +239,26 @@ pub fn run_synth(
     }
 
     // Manifest.
-    let mut manifest = RunManifest::new(env!("CARGO_PKG_VERSION"));
-    manifest.config_sha256 = String::new();
-    manifest.outputs.push(DatasetRef::from_path(
-        "orbit-sp3",
-        "SP3",
-        &output_dir.join("products/orbit.sp3").to_string_lossy(),
-    )?);
-    manifest.outputs.push(DatasetRef::from_path(
-        "orbit-oem",
-        "OEM",
-        &output_dir.join("products/orbit.oem").to_string_lossy(),
-    )?);
-    manifest.outputs.push(DatasetRef::from_path(
-        "residuals",
-        "CSV",
-        &output_dir.join("residuals/residuals.csv").to_string_lossy(),
-    )?);
-    manifest.outputs.push(DatasetRef::from_path(
-        "qc",
-        "JSON",
-        &output_dir.join("qc/qc.json").to_string_lossy(),
-    )?);
+    let mut manifest = RunManifest {
+        run_id: run_id.into(),
+        tool_version: env!("CARGO_PKG_VERSION").into(),
+        config_sha256: String::new(),
+        inputs: Vec::new(),
+        outputs: vec![
+            DatasetRef::from_file(output_dir.join("products/orbit.sp3"), "orbit-sp3")?,
+            DatasetRef::from_file(output_dir.join("products/orbit.oem"), "orbit-oem")?,
+            DatasetRef::from_file(output_dir.join("residuals/residuals.csv"), "residuals")?,
+            DatasetRef::from_file(output_dir.join("qc/qc.json"), "qc")?,
+        ],
+        started_at: String::new(),
+        finished_at: String::new(),
+    };
+    manifest.canonicalize();
     let manifest_path = output_dir.join("run.manifest.json");
-    fs::write(&manifest_path, canonical_json(&manifest))?;
+    fs::write(
+        &manifest_path,
+        manifest.to_json_pretty().map_err(std::io::Error::other)?,
+    )?;
 
     Ok(PipelineReport {
         estimator: report,
@@ -291,7 +299,7 @@ fn assemble_normal_equations<F: SiderustAccelerationModel>(
     dt_s: f64,
     n_steps: usize,
     force: &F,
-) -> Result<NormalEquations, crate::estimation::WlsSolverError> {
+) -> Result<NormalEquations, siderust::pod::estimation::WlsSolverError> {
     let s0 = OrbitState::new(
         arc.truth_states[0].epoch,
         Position::new(params[0], params[1], params[2]),
@@ -304,7 +312,9 @@ fn assemble_normal_equations<F: SiderustAccelerationModel>(
         n_steps,
         &DynamicsContext::empty(),
     )
-    .map_err(|e| crate::estimation::WlsSolverError::other(format!("propagation failed: {e:?}")))?;
+    .map_err(|e| {
+        siderust::pod::estimation::WlsSolverError::other(format!("propagation failed: {e:?}"))
+    })?;
     let stms = {
         #[allow(deprecated)]
         finite_diff_stm_series(
@@ -314,63 +324,86 @@ fn assemble_normal_equations<F: SiderustAccelerationModel>(
             n_steps,
             &DynamicsContext::empty(),
         )
-        .map_err(|e| crate::estimation::WlsSolverError::other(format!("STM failed: {e:?}")))?
+        .map_err(|e| {
+            siderust::pod::estimation::WlsSolverError::other(format!("STM failed: {e:?}"))
+        })?
     };
-    let n_sats = arc.gss_count();
-    let n_params = 6 + 1 + n_sats;
+    let n_params = 7;
     let mut ne = NormalEquations::new(n_params);
-    let extras_for_state = &params[6..];
+    let providers = SyntheticProviders {
+        receiver_clock_m: params[6],
+    };
 
     for ep in &arc.epochs {
         let s = &states[ep.state_index];
-        let phi_mat = *stms[ep.state_index].as_array();
-        let phi = &phi_mat;
+        let phi = stms[ep.state_index].as_array();
         for (_sat, obs) in &ep.code {
-            let model = crate::observations::gnss::GnssCodeModel {
-                obs: *obs,
-                clock_bias_index: 0,
-            };
-            let pred = model.predict(s, extras_for_state);
-            let row = chain_row_sparse(&pred, phi);
-            let resid = obs.measured_m - pred.value;
-            ne.add_row(&row, resid, obs.sigma_m)?;
+            let resid = obs
+                .residual(s, &providers)
+                .map_err(|e| siderust::pod::estimation::WlsSolverError::other(e.to_string()))?;
+            let row = observation_row(obs, s, &providers, phi, 6);
+            ne.add_row(&row, resid, obs.sigma.value())?;
         }
-        for (sat, obs) in &ep.carrier {
-            let model = crate::observations::gnss::GnssCarrierModel {
-                obs: *obs,
-                clock_bias_index: 0,
-                ambiguity_index: 1 + sat.slot,
-            };
-            let pred = model.predict(s, extras_for_state);
-            let row = chain_row_sparse(&pred, phi);
-            let resid = obs.measured_m - pred.value;
-            ne.add_row(&row, resid, obs.sigma_m)?;
+        for (_sat, obs) in &ep.carrier {
+            let resid = obs
+                .residual(s, &providers)
+                .map_err(|e| siderust::pod::estimation::WlsSolverError::other(e.to_string()))?
+                .residual_m;
+            let row = observation_row(obs, s, &providers, phi, 6);
+            ne.add_row(&row, resid, obs.sigma.value())?;
         }
     }
     Ok(ne)
 }
 
-fn chain_row_sparse(pred: &Prediction, phi: &[[f64; 6]; 6]) -> Vec<(usize, f64)> {
-    let mut state_partials = [0.0_f64; 6];
-    let mut extras: Vec<(usize, f64)> = Vec::new();
-    for (j, v) in pred.partials.entries.iter() {
-        if *j < 6 {
-            state_partials[*j] = *v;
-        } else {
-            extras.push((*j, *v));
-        }
+fn observation_row<O: Observation>(
+    obs: &O,
+    state: &OrbitState,
+    providers: &SyntheticProviders,
+    phi: &[[f64; 6]; 6],
+    clock_index: usize,
+) -> Vec<(usize, f64)>
+where
+    ObsResidual: From<O::Residual>,
+{
+    let h = [1e-3, 1e-3, 1e-3, 1e-6, 1e-6, 1e-6];
+    let mut local = [0.0; 6];
+    for i in 0..6 {
+        let mut p = *state;
+        let mut q = *state;
+        let mut pv = [
+            p.position.x().value(),
+            p.position.y().value(),
+            p.position.z().value(),
+            p.velocity.x().value(),
+            p.velocity.y().value(),
+            p.velocity.z().value(),
+        ];
+        let mut qv = pv;
+        pv[i] += h[i];
+        qv[i] -= h[i];
+        p = OrbitState::new(
+            p.epoch,
+            Position::new(pv[0], pv[1], pv[2]),
+            Velocity::new(pv[3], pv[4], pv[5]),
+        );
+        q = OrbitState::new(
+            q.epoch,
+            Position::new(qv[0], qv[1], qv[2]),
+            Velocity::new(qv[3], qv[4], qv[5]),
+        );
+        let rp = observation_residual(obs, &p, providers);
+        let rq = observation_residual(obs, &q, providers);
+        local[i] = -(rp - rq) / (2.0 * h[i]);
     }
-    let mut out = Vec::with_capacity(6 + extras.len());
+    let mut out = Vec::with_capacity(7);
     for k in 0..6 {
-        let mut acc = 0.0;
-        for i in 0..6 {
-            acc += state_partials[i] * phi[i][k];
-        }
-        if acc != 0.0 {
-            out.push((k, acc));
+        let value: f64 = (0..6).map(|i| local[i] * phi[i][k]).sum();
+        if value != 0.0 {
+            out.push((k, value));
         }
     }
-    out.extend(extras);
+    out.push((clock_index, 1.0));
     out
 }
 
@@ -378,58 +411,52 @@ fn postfit_residuals(
     arc: &SyntheticArc,
     states: &[OrbitState],
     params: &[f64],
-) -> Vec<ResidualRow> {
-    let extras = &params[6..];
+) -> Vec<ResidualRecord> {
+    let providers = SyntheticProviders {
+        receiver_clock_m: params[6],
+    };
     let mut out = Vec::new();
     for ep in &arc.epochs {
         let s = &states[ep.state_index];
         for (sat, obs) in &ep.code {
-            let model = crate::observations::gnss::GnssCodeModel {
-                obs: *obs,
-                clock_bias_index: 0,
-            };
-            let p = model.predict(s, extras);
-            out.push(ResidualRow {
-                jd_tt: s.epoch.to::<siderust::tempoch::JD>().value(),
-                kind: format!("code-{}", sat.id),
-                measured_m: obs.measured_m,
-                predicted_m: p.value,
-                residual_m: obs.measured_m - p.value,
-                sigma_m: obs.sigma_m,
+            let residual = obs.residual(s, &providers).expect("postfit observation");
+            out.push(ResidualRecord {
+                epoch_jd_tt: s.epoch.to::<siderust::tempoch::JD>().value(),
+                obs_type: "code".into(),
+                satellite: sat.id.clone(),
+                residual_m: residual,
+                sigma_m: obs.sigma.value(),
+                rejected: false,
             });
         }
         for (sat, obs) in &ep.carrier {
-            let model = crate::observations::gnss::GnssCarrierModel {
-                obs: *obs,
-                clock_bias_index: 0,
-                ambiguity_index: 1 + sat.slot,
-            };
-            let p = model.predict(s, extras);
-            out.push(ResidualRow {
-                jd_tt: s.epoch.to::<siderust::tempoch::JD>().value(),
-                kind: format!("phase-{}", sat.id),
-                measured_m: obs.measured_m,
-                predicted_m: p.value,
-                residual_m: obs.measured_m - p.value,
-                sigma_m: obs.sigma_m,
+            let residual = obs
+                .residual(s, &providers)
+                .expect("postfit observation")
+                .residual_m;
+            out.push(ResidualRecord {
+                epoch_jd_tt: s.epoch.to::<siderust::tempoch::JD>().value(),
+                obs_type: "phase".into(),
+                satellite: sat.id.clone(),
+                residual_m: residual,
+                sigma_m: obs.sigma.value(),
+                rejected: false,
             });
         }
     }
     out
 }
 
-fn residual_kind(name: &str) -> &str {
-    if name.starts_with("code-") {
-        "code"
-    } else if name.starts_with("phase-") {
-        "phase"
-    } else {
-        "other"
-    }
-}
-
-impl SyntheticArc {
-    fn gss_count(&self) -> usize {
-        self.gps_sats.len()
+fn observation_residual<O>(obs: &O, state: &OrbitState, providers: &SyntheticProviders) -> f64
+where
+    O: Observation,
+    ObsResidual: From<O::Residual>,
+{
+    match ObsResidual::from(
+        obs.residual(state, providers)
+            .expect("synthetic observation"),
+    ) {
+        ObsResidual::Scalar(value) => value,
+        ObsResidual::Phase(value) => value.residual_m,
     }
 }
