@@ -19,7 +19,7 @@ positions and clocks at user-defined epochs.
 
 ## Owning crate
 
-`spod::io`
+`siderust::formats::rinex::nav`
 
 ## Supported subset
 

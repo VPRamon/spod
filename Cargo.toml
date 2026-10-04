@@ -2,8 +2,7 @@
 #
 # Reusable POD science is provided by Siderust; this package owns service
 # orchestration, interfaces, format adapters, and application-specific
-# functionality. The [workspace] block is kept only so target-sgp4-test/probe
-# can inherit package metadata.
+# functionality.
 
 [package]
 name         = "spod"
@@ -19,34 +18,13 @@ categories   = ["science", "aerospace"]
 publish      = false
 description  = "Precise Orbit Determination service application built on Siderust."
 
-[[example]]
-name = "03_lambert_earth_to_mars"
-path = "examples/03_lambert_earth_to_mars.rs"
-
-[[example]]
-name = "04_sgp4_from_tle"
-path = "examples/04_sgp4_from_tle.rs"
-
 [features]
 default = ["serde"]
 ## Compatibility feature; serialization support is always available.
 serde   = []
-## DORIS RINEX observation support from Siderust.
-doris   = ["siderust/pod-doris"]
-## LISA inter-satellite range observation model.
-lisa    = []
-## Integration tests that load a JPL DE kernel from disk (de440/de441).
-de440   = []
-## Parquet residuals support, shared with Siderust's POD feature.
-parquet = ["siderust/pod-parquet"]
 
 [dependencies]
-# ── Baseline crates ───────────────────────────────────────────────────────────
-cheby     = "0.4.2"
 siderust  = { version = "0.12", features = ["pod"] }
-
-# ── SGP4 propagation backend ──────────────────────────────────────────────────
-sgp4 = { version = "2.4", default-features = false, features = ["std"] }
 
 # ── Linear algebra ────────────────────────────────────────────────────────────
 # ── Serialisation ─────────────────────────────────────────────────────────────
@@ -62,9 +40,6 @@ anyhow    = "1.0"
 # ── Time ──────────────────────────────────────────────────────────────────────
 chrono = "0.4"
 
-# ── XML parsing ────────────────────────────────────────────────────────────────
-quick-xml = "0.41"
-
 # ── HTTP / REST ────────────────────────────────────────────────────────────────
 axum  = "0.7"
 tokio = { version = "1.39", features = ["macros", "rt-multi-thread"] }
@@ -79,15 +54,10 @@ log        = "0.4"
 env_logger = "0.11"
 
 [dev-dependencies]
-approx   = "0.5"
-trybuild = "1.0"
 serde    = { version = "1.0", features = ["derive"] }
-toml     = "0.8"
 
-# ── Workspace (minimal — only for the sgp4-probe fixture) ─────────────────────
 [workspace]
 resolver = "2"
-members  = ["target-sgp4-test/probe"]
 
 [workspace.package]
 version      = "0.1.0"

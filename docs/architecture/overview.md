@@ -1,8 +1,8 @@
 # Architecture Overview
 
 `spod` is a service/application built on Siderust's canonical POD APIs.
-It owns configuration, external interfaces, format adapters, orchestration,
-and artifacts; reusable dynamics, observations, estimation, QC, products,
+It owns configuration, external interfaces, orchestration, and artifacts;
+reusable dynamics, observations, estimation, QC, products,
 and run metadata remain in `siderust::pod`.
 
 ## Dependency structure
@@ -22,7 +22,6 @@ flowchart TD
     PRINCIPIA[principia] --> POD
     SIDERUST[siderust] --> POD
 
-    POD --> IO[io / formats]
     POD --> SVC[service / CLI / REST]
     SIDERUST --> SCIENCE[siderust::pod]
     SCIENCE --> SVC
@@ -40,8 +39,7 @@ artefacts.
 
 ```mermaid
 flowchart LR
-    RAW[Raw observations and auxiliary data] --> IO[Parsing and providers]
-    IO --> SVC[Service translation and orchestration]
+    RAW[Raw observations and auxiliary data] --> SVC[Service orchestration]
     SVC --> POD[siderust::pod execution]
     POD --> OUT[Service artifacts and manifest]
 ```

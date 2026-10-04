@@ -18,14 +18,12 @@ This makes the examples useful as copyable application code while still showing 
 
 | Example | What it demonstrates |
 | --- | --- |
-| `03_lambert_earth_to_mars` | Solves a typed heliocentric Lambert transfer without unpacking the returned velocities into raw components |
-| `04_sgp4_from_tle` | Parses a TLE and propagates typed TEME position/velocity states with the natural SGP4 minutes-since-epoch API |
+| `configs/leo_gnss_mvp1.yaml` | Runs the synthetic LEO/GNSS POD reference workflow |
 
-Run them with:
+Run it with:
 
 ```bash
-cargo run --example 03_lambert_earth_to_mars
-cargo run --example 04_sgp4_from_tle
+cargo run --bin spod -- run examples/configs/leo_gnss_mvp1.yaml
 ```
 
 ## Synthetic POD pipeline

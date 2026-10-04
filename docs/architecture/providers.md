@@ -3,6 +3,5 @@
 The former local POD provider facade has been removed. Reusable POD provider
 APIs are consumed from `siderust::pod` or its underlying public Siderust APIs.
 
-The service keeps only the small `spod::service::providers::EphemerisProvider`
-trait needed by its SPICE/LISA artifact adapters; it is not a scientific
-compatibility layer.
+The service does not define a provider compatibility layer. Service workflows
+use the provider interfaces exposed by Siderust directly.

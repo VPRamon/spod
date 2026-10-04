@@ -10,7 +10,7 @@ Public types end in the role they play, not in implementation detail:
 | Suffix      | Meaning                                                | Example                       |
 |-------------|--------------------------------------------------------|-------------------------------|
 | `*State`    | Mutable / time-evolving snapshot of an entity          | `EkfState`, `OrbitState`      |
-| `*Provider` | Trait or struct that supplies data on demand           | `EphemerisProvider`           |
+| `*Provider` | Trait or struct that supplies data on demand           | `ObservationProvider`        |
 | `*Error`    | Enum returned from fallible operations                 | `LambertError`, `SpiceError`  |
 | `*Model`    | Pure mathematical model (force, measurement, …)        | `MeasurementModel`            |
 | `*Product`  | Material output of a POD run                           | `Sp3Product`, `OemProduct`    |
@@ -60,8 +60,8 @@ de441                = []
 parquet              = ["dep:arrow", "dep:parquet"]
 ```
 
-The public crate is named `spod`; its internal areas are modules such as
-`spod::io` and `spod::service`. User-facing flags use hyphens.
+The public crate is named `spod`; its application area is `spod::service`.
+Reusable scientific and format APIs are imported directly from Siderust.
 
 ## Tests
 

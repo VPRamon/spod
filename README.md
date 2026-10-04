@@ -18,23 +18,18 @@ Docker builder image.
 | Area | Current scope |
 | --- | --- |
 | POD science | Provided by `siderust::pod` (forces, propagation, observations, estimation, QC and products) |
-| Orbit mechanics | Lambert solver, TLE/3LE/OMM handling, SGP4/SDP4 propagation, SPICE ephemerides |
-| Formats | SP3, RINEX, ANTEX, EOP, CRD, CPF and CCSDS OEM support at the currently implemented subsets |
+| Scientific backend | Siderust 0.12 |
 | Products & QC | Residuals, orbit products, manifests, comparison/QC utilities |
 | Interfaces | Rust library, command-line interface, experimental Axum REST API |
 
-The project separates service orchestration, external interfaces, persistence and format adapters from the reusable POD implementation in Siderust.
+The project separates service orchestration, external interfaces, and
+persistence from the reusable POD implementation in Siderust.
 
 ## Repository structure
 
 ```text
 src/
-  io/            Space/geodesy format readers and writers
   service/       Configuration, orchestration, REST/CLI and artifact handling
-  lambert/       Lambert solver
-  sgp4/          SGP4 integration
-  spice/         SPICE helpers/providers
-  tle/           TLE/3LE/OMM handling
   bin/           CLI and experimental REST entry points
 ```
 
@@ -67,20 +62,15 @@ docker run --rm -p 8080:8080 spod:dev
 The service listens on `SPOD_REST_BIND` and writes job output below
 `SPOD_REST_OUT`.
 
-The remaining Rust examples cover Lambert transfer and SGP4 integration:
-
-```bash
-cargo run --example 03_lambert_earth_to_mars
-cargo run --example 04_sgp4_from_tle
-```
-
-See [examples/README.md](examples/README.md) for the purpose of each example and the typed-API conventions they follow.
+See [examples/README.md](examples/README.md) for the service workflow.
 
 ## Design principles
 
 - **Type safety for physical quantities.** Units, epochs, frames and states should be difficult to mix accidentally.
 - **Traceable numerical behaviour.** Scientific algorithms should have explicit assumptions and validation tests.
-- **Separation of concerns.** Reusable dynamics, observations, estimation, and QC remain independently testable in Siderust; `spod` keeps format adapters and service orchestration at the application boundary.
+- **Separation of concerns.** Reusable dynamics, observations, estimation,
+  formats, and QC remain independently testable in Siderust; `spod` keeps
+  service orchestration at the application boundary.
 - **No unsafe Rust.** The library forbids `unsafe_code`.
 - **Standards-oriented interoperability.** Common astrodynamics and geodesy formats are treated as first-class interfaces.
 

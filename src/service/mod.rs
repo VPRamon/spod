@@ -36,7 +36,6 @@
 
 pub mod config;
 pub mod pipeline;
-pub mod providers;
 pub mod rest;
 pub mod runner;
 pub mod synth;

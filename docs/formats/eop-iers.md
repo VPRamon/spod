@@ -20,7 +20,7 @@ frame transform.
 
 ## Owning crate
 
-`spod::io`
+`siderust::formats::iers::eop`
 
 ## Supported subset
 

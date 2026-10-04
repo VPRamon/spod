@@ -19,7 +19,7 @@ electrical phase centre on a per-frequency basis.
 
 ## Owning crate
 
-`spod::io`
+`siderust::formats::igs::antex`
 
 ## Supported subset
 

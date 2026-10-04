@@ -19,7 +19,7 @@ interoperable input format for trajectory ingest.
 
 ## Owning crate
 
-`spod::io`
+`siderust::formats::ccsds::oem`
 
 ## Supported on read
 

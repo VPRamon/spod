@@ -8,6 +8,9 @@ follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Changed
 
+- Removed duplicated generic format, TLE, SGP4, Lambert, and SPICE
+  implementations. These capabilities remain owned by Siderust and its
+  upstream ecosystem; `spod` now exposes the service layer only.
 - Renamed the project and Cargo package to `spod`, including the `spod` and
   `spod-rest` binaries, repository metadata, Docker examples, and REST
   configuration variables.

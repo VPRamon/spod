@@ -19,7 +19,7 @@ and target visibility planning.
 
 ## Owning crate
 
-`spod::io`
+`siderust::formats::ilrs::cpf`
 
 ## Supported record subset
 

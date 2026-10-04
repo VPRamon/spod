@@ -22,7 +22,7 @@ Planned for **Phase 5** alongside the SINEX coordinate-frame extension.
 
 ## Owning crate
 
-`spod::io` (planned).
+`siderust::formats` (when supported upstream).
 
 ## Notes
 

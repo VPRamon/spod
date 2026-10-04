@@ -19,7 +19,7 @@ station, target, and meteorological metadata.
 
 ## Owning crate
 
-`spod::io`
+`siderust::formats::ilrs::crd`
 
 ## Supported record subset
 

@@ -19,7 +19,7 @@ the receiver, antenna, and observation types.
 
 ## Owning crate
 
-`spod::io`
+`siderust::formats::rinex::obs`
 
 ## Supported subset
 
