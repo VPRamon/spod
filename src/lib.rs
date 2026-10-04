@@ -22,3 +22,5 @@
 #![forbid(unsafe_code)]
 
 pub mod service;
+/// Full Vallado-style SGP4/SDP4 retained until upstream semantic parity.
+pub mod sgp4;

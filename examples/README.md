@@ -19,11 +19,13 @@ This makes the examples useful as copyable application code while still showing 
 | Example | What it demonstrates |
 | --- | --- |
 | `configs/leo_gnss_mvp1.yaml` | Runs the synthetic LEO/GNSS POD reference workflow |
+| `04_sgp4_from_tle` | Exercises the temporarily local full Vallado-style SGP4/SDP4 backend |
 
 Run it with:
 
 ```bash
 cargo run --bin spod -- run examples/configs/leo_gnss_mvp1.yaml
+cargo run --example 04_sgp4_from_tle
 ```
 
 ## Synthetic POD pipeline

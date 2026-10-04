@@ -1,8 +1,9 @@
 # spod — service application for Siderust POD workflows.
 #
-# Reusable POD science is provided by Siderust; this package owns service
-# orchestration, interfaces, format adapters, and application-specific
-# functionality.
+# Reusable POD science and standard formats are provided by Siderust. This
+# package owns service orchestration, interfaces, artifacts, provenance, and
+# application-specific adapters. Full Vallado SGP4/SDP4 remains local
+# temporarily because upstream parity is tracked by #29 and Siderust #98.
 
 [package]
 name         = "spod"
@@ -18,6 +19,10 @@ categories   = ["science", "aerospace"]
 publish      = false
 description  = "Precise Orbit Determination service application built on Siderust."
 
+[[example]]
+name = "04_sgp4_from_tle"
+path = "examples/04_sgp4_from_tle.rs"
+
 [features]
 default = ["serde"]
 ## Compatibility feature; serialization support is always available.
@@ -25,6 +30,7 @@ serde   = []
 
 [dependencies]
 siderust  = { version = "0.12", features = ["pod"] }
+sgp4      = { version = "2.4", default-features = false, features = ["std"] }
 
 # ── Linear algebra ────────────────────────────────────────────────────────────
 # ── Serialisation ─────────────────────────────────────────────────────────────
@@ -58,6 +64,7 @@ serde    = { version = "1.0", features = ["derive"] }
 
 [workspace]
 resolver = "2"
+members  = ["target-sgp4-test/probe"]
 
 [workspace.package]
 version      = "0.1.0"

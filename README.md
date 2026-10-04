@@ -19,6 +19,7 @@ Docker builder image.
 | --- | --- |
 | POD science | Provided by `siderust::pod` (forces, propagation, observations, estimation, QC and products) |
 | Scientific backend | Siderust 0.12 |
+| Full SGP4/SDP4 | Local Vallado-style backend retained until upstream parity |
 | Products & QC | Residuals, orbit products, manifests, comparison/QC utilities |
 | Interfaces | Rust library, command-line interface, experimental Axum REST API |
 
@@ -43,7 +44,11 @@ cargo test
 
 ## Relationship with the Siderust ecosystem
 
-Foundational astrodynamics, typed quantities, time scales, frames, and reusable numerical mechanics live in the released Siderust ecosystem crates. `spod` is built on top of `siderust::pod`; it does not expose a scientific compatibility facade. Callers needing reusable force, observation, estimation, QC, or product APIs should import Siderust directly.
+Foundational astrodynamics, typed quantities, time scales, frames, standard
+formats, and reusable numerical mechanics live in the released Siderust
+ecosystem crates. `spod` is built on top of `siderust::pod`; it does not expose
+scientific compatibility facades. Full Vallado SGP4/SDP4 remains a documented
+temporary local exception while parity is tracked by #29 and Siderust #98.
 
 Validate and run the synthetic POD configuration:
 
