@@ -23,7 +23,7 @@
 //!   `siderust::coordinates::transform::providers::frames_teme` once Earth
 //!   Orientation Parameters are supplied.
 //! * It does not implement orbit determination, force models, or estimation;
-//!   those live in the `spod-*` crates.
+//!   those live in Siderust's POD APIs.
 //!
 //! ## Backend
 //!
