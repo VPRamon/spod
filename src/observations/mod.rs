@@ -30,7 +30,7 @@
 //!
 //! | Feature | Adds |
 //! |---------|------|
-//! | `lisa`  | `inter_sat::InterSatRangeObs`, requires `spod-io` |
+//! | `lisa`  | `inter_sat::InterSatRangeObs`, requires `spod::io` |
 //!
 //! ## References
 //!

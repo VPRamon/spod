@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Vallés Puig, Ramon
 
-//! Unified error enum for `spod-dynamics`.
+//! Unified error enum for `spod::dynamics`.
 //!
 //! Wraps the failure surfaces this crate exposes:
 //!
@@ -18,7 +18,7 @@
 
 use thiserror::Error;
 
-/// Top-level error type for `spod-dynamics`.
+/// Top-level error type for `spod::dynamics`.
 ///
 /// # Examples
 ///

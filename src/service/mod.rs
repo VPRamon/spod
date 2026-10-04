@@ -22,7 +22,7 @@
 //! outputs are reports and artifact paths.
 //!
 //! HTTP transport and command-line dispatch live in sibling crates, while
-//! numerical estimation remains in `spod-estimation`.
+//! numerical estimation remains in `spod::estimation`.
 //!
 //! ## References
 //!

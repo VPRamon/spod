@@ -109,7 +109,7 @@ fn gps_state_at(
     let mu = 398_600.441_8_f64;
     let n_mean = (mu / (r * r * r)).sqrt(); // rad/s
     let theta0 = 2.0 * std::f64::consts::PI * (slot as f64) / (n as f64);
-    let inc: f64 = if slot % 2 == 0 { 0.95 } else { 1.05 }; // ~55°
+    let inc: f64 = if slot.is_multiple_of(2) { 0.95 } else { 1.05 }; // ~55°
     let dt = (jd.value() - 2_451_545.0) * 86_400.0;
     let theta = theta0 + n_mean * dt;
     let cos_t = theta.cos();

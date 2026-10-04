@@ -19,7 +19,7 @@ interoperable input format for trajectory ingest.
 
 ## Owning crate
 
-`spod-io`
+`spod::io`
 
 ## Supported on read
 

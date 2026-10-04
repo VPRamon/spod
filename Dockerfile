@@ -12,6 +12,5 @@ RUN apt-get update \
  && rm -rf /var/lib/apt/lists/*
 COPY --from=builder /workspace/target/release/spod /usr/local/bin/spod
 COPY --from=builder /workspace/target/release/spod-rest /usr/local/bin/spod-rest
-ENV SPOD_REST_BIND=0.0.0.0:8080
 EXPOSE 8080
 ENTRYPOINT ["spod-rest"]

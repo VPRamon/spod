@@ -4,7 +4,7 @@
 //!
 //! [`PodProductsError`] is the single unified error type returned by every
 //! public writer in this crate. It wraps lower-layer errors from
-//! `spod-io`, `serde_json`, and `std::io` under a typed enum so
+//! `spod::io`, `serde_json`, and `std::io` under a typed enum so
 //! callers can pattern-match without pulling in lower-layer error types
 //! directly.
 //!
@@ -15,7 +15,7 @@
 
 use thiserror::Error;
 
-/// Unified error returned by all writers in `spod-products`.
+/// Unified error returned by all writers in `spod::products`.
 ///
 /// # Examples
 ///
@@ -32,11 +32,11 @@ pub enum PodProductsError {
     #[error("I/O error: {0}")]
     Io(#[from] std::io::Error),
 
-    /// SP3 serialisation error propagated from `spod-io`.
+    /// SP3 serialisation error propagated from `spod::io`.
     #[error("SP3 error: {0}")]
     Sp3(#[from] crate::io::sp3::Sp3Error),
 
-    /// Generic pod-io error propagated from `spod-io`.
+    /// Generic pod-io error propagated from `spod::io`.
     #[error("pod-io error: {0}")]
     PodIo(#[from] crate::io::PodIoError),
 

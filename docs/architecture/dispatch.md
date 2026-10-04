@@ -6,7 +6,7 @@
   - per-step force evaluation through `CompositeForce`.
 
 - **Dynamic dispatch** (`Box<dyn ForceModel>`, `Box<dyn MeasurementModel>`)
-  is used at *configuration assembly* time inside `spod-service`.
+  is used at *configuration assembly* time inside `spod::service`.
   The boxed objects are converted into a concrete composite type before
   entering the integration / estimation kernels, so the inner loops see a
   monomorphised call.

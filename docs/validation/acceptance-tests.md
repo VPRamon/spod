@@ -8,7 +8,7 @@ a 0.1.0 release tag may be created.
 
 ## E2E-01 — Two-body LEO propagation round-trip
 
-**Crates under test**: `spod-dynamics`, `spod-core`
+**Crates under test**: `spod::dynamics`, `spod::core`
 **Fixture**: synthesised circular LEO orbit (h = 500 km, i = 97°)
 **Procedure**:
 1. Propagate forward 24 h with DOP853.
@@ -21,8 +21,8 @@ a 0.1.0 release tag may be created.
 
 ## E2E-02 — Real GNSS LEO arc (GPS-only)
 
-**Crates under test**: `spod-io`, `spod-observations`,
-`spod-dynamics`, `spod-estimation`
+**Crates under test**: `spod::io`, `spod::observations`,
+`spod::dynamics`, `spod::estimation`
 **Fixture**: 6-h RINEX OBS v3 + RINEX NAV + IGS precise orbits (SP3) for a
 LEO spacecraft (e.g., GRACE-FO or TerraSAR-X epoch)
 **Fixture gate**: `SPOD_E2E02_DIR` (see `fixtures.md`)
@@ -47,8 +47,8 @@ LEO spacecraft (e.g., GRACE-FO or TerraSAR-X epoch)
 
 ## E2E-04 — SLR validation (LEO)
 
-**Crates under test**: `spod-io`, `spod-observations`,
-`spod-qc`
+**Crates under test**: `spod::io`, `spod::observations`,
+`spod::qc`
 **Fixture**: ILRS CRD session file (≥ 20 normal points)
 **Fixture gate**: `SPOD_CRD_FILE`
 **Procedure**: compute SLR residuals against estimated orbit from E2E-03.
@@ -58,7 +58,7 @@ LEO spacecraft (e.g., GRACE-FO or TerraSAR-X epoch)
 
 ## E2E-05 — SGP4 TLE propagation + SP3 comparison
 
-**Crates under test**: `siderust-sgp4`, `siderust-tle`, `spod-io`
+**Crates under test**: `siderust-sgp4`, `siderust-tle`, `spod::io`
 **Fixture**: ISS TLE epoch + IGS SP3 for the same epoch
 **Procedure**: propagate ISS TLE to 6 epochs; compare vs SP3 positions.
 **Pass criterion**: RMS < 1 km (TLE accuracy budget is ~1 km).
@@ -88,7 +88,7 @@ JPL HORIZONS reference values committed in `test-data/de440_ref.json`.
 
 ## E2E-08 — EKF orbit determination
 
-**Crates under test**: `spod-estimation` (EKF), `spod-dynamics`
+**Crates under test**: `spod::estimation` (EKF), `spod::dynamics`
 **Fixture**: synthesised pseudorange measurements with known truth state
 **Procedure**: run EKF for 2 h; run RTS smoother; compare vs truth.
 **Pass criterion**: post-fit 3σ covariance contains truth state; smoother
@@ -108,7 +108,7 @@ positions in the overlap interval.
 
 ## E2E-10 — QC HTML report generation
 
-**Crates under test**: `spod-qc`
+**Crates under test**: `spod::qc`
 **Fixture**: residuals CSV from E2E-03
 **Procedure**: generate QC HTML report; assert all required sections are present
 (residual time series, sky plot, orbit-compare table, SLR validation summary).
@@ -118,7 +118,7 @@ positions in the overlap interval.
 
 ## E2E-11 — REST API end-to-end
 
-**Crates under test**: `spod-rest`, `spod-service`
+**Crates under test**: `spod-rest`, `spod::service`
 **Fixture**: config YAML + small synthesised RINEX OBS fixture
 **Procedure**:
 1. Start `spod-rest` in a background thread.
@@ -131,8 +131,8 @@ positions in the overlap interval.
 
 ## E2E-12 — LISA POC (heliocentric three-spacecraft)
 
-**Crates under test**: `spod-observations` (`InterSatRange`),
-`spod-dynamics`, `spod-estimation`, `spod-io` (LISA orbit reader)
+**Crates under test**: `spod::observations` (`InterSatRange`),
+`spod::dynamics`, `spod::estimation`, `spod::io` (LISA orbit reader)
 **Fixture**: LISA orbit files from `https://github.com/esa/lisa-orbit-files`
 (text/ASCII format); downloaded to `SPOD_LISA_ORBIT_DIR`
 **Scope**: Heliocentric three-spacecraft orbit estimation from simulated MOSA
@@ -154,12 +154,12 @@ inter-spacecraft ranges. No TDI or laser metrology (see
 
 ```bash
 # All non-ignord E2E tests (synthesised fixtures only):
-cargo test -p spod-service --test e2e -- --nocapture
+cargo test -p spod::service --test e2e -- --nocapture
 
 # Unlock fixture-gated tests (all required env vars must be set):
 SPOD_E2E02_DIR=/path/to/e2e02 \
 SPOD_CRD_FILE=/path/to/crd \
 SIDERUST_SPICE_DE_PATH=/path/to/de440.bsp \
 SPOD_LISA_ORBIT_DIR=/path/to/lisa-orbit-files \
-cargo test -p spod-service --test e2e -- --include-ignored --nocapture
+cargo test -p spod::service --test e2e -- --include-ignored --nocapture
 ```

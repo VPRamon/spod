@@ -19,7 +19,7 @@ and target visibility planning.
 
 ## Owning crate
 
-`spod-io`
+`spod::io`
 
 ## Supported record subset
 

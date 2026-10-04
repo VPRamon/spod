@@ -20,7 +20,7 @@ frame transform.
 
 ## Owning crate
 
-`spod-io`
+`spod::io`
 
 ## Supported subset
 

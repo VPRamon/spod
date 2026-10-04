@@ -58,14 +58,14 @@
 | `siderust-sgp4`                | `siderust_sgp4::Error`                    | no                |
 | `siderust-spice`               | `siderust_spice::SpiceError`              | no                |
 | `siderust-tle`                 | `siderust_tle::TleError`                  | no                |
-| `spod-core`            | `spod_core::Error`                | no                |
-| `spod-dynamics`        | `spod_dynamics::Error`            | no                |
-| `spod-io`              | `spod_io::Error`                  | no                |
-| `spod-observations`    | `spod_observations::Error`        | no                |
-| `spod-estimation`      | `spod_estimation::EstimationError`| no                |
-| `spod-qc`              | `spod_qc::Error`                  | no                |
-| `spod-products`        | `spod_products::Error`            | no                |
-| `spod-service`         | `spod_service::PipelineError`     | no                |
+| `spod::core`            | `spod_core::Error`                | no                |
+| `spod::dynamics`        | `spod_dynamics::Error`            | no                |
+| `spod::io`              | `spod::io::Error`                  | no                |
+| `spod::observations`    | `spod_observations::Error`        | no                |
+| `spod::estimation`      | `spod_estimation::EstimationError`| no                |
+| `spod::qc`              | `spod_qc::Error`                  | no                |
+| `spod::products`        | `spod_products::Error`            | no                |
+| `spod::service`         | `spod_service::PipelineError`     | no                |
 | `spod`             | n/a (binary)                              | **yes**           |
 | `spod-rest`            | n/a (binary)                              | **yes**           |
 

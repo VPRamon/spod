@@ -11,7 +11,9 @@ no-default-features = false
 db-path = "~/.cargo/advisory-db"
 db-urls = ["https://github.com/rustsec/advisory-db"]
 yanked = "deny"
-ignore = []
+# `paste` is a transitive dependency of `faer`/`gemm`; no maintained,
+# compatible replacement is available without changing the numerical backend.
+ignore = ["RUSTSEC-2024-0436"]
 
 [licenses]
 confidence-threshold = 0.93
@@ -27,6 +29,7 @@ allow = [
     "Unicode-3.0",
     "MPL-2.0",
     "AGPL-3.0",
+    "AGPL-3.0-only",
     "AGPL-3.0-or-later",
     "CC0-1.0",
     "0BSD",

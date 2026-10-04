@@ -6,6 +6,8 @@ Thanks for contributing to `spod`.
 
 `spod` builds against released crates from the Siderust ecosystem. No sibling repository checkouts are required.
 
+The supported minimum Rust version is 1.89, as declared by `Cargo.toml`.
+
 A standard development setup is enough:
 
 ```bash
@@ -23,15 +25,26 @@ If a change requires unreleased functionality from one of those projects, do not
 Run the same checks expected by CI:
 
 ```bash
-cargo fmt -- --check
+cargo fmt --all -- --check
 cargo check --workspace --all-targets --all-features
 cargo clippy --workspace --all-targets --all-features -- -D warnings
 cargo test --workspace --no-fail-fast
 cargo test --workspace --no-default-features --no-fail-fast
 cargo test --workspace --all-features --no-fail-fast
+cargo test --doc --workspace --all-features
 cargo doc --workspace --no-deps
 bash scripts/check_dep_graph.sh
 bash scripts/check_no_todos.sh
+bash scripts/check_legacy_name_refs.sh
+cargo deny --all-features check
+```
+
+The CLI and REST entry points are `spod` and `spod-rest`. To validate the
+container as well as host builds:
+
+```bash
+docker build -t spod:dev .
+docker run --rm --entrypoint spod spod:dev --help
 ```
 
 Changes to dependency declarations should also preserve the standalone build: a fresh clone must not require neighbouring Siderust repositories, local `[patch]` overrides, or git dependency workarounds.

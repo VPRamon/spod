@@ -19,7 +19,7 @@ crates because:
    searchable.
 3. **`cargo-public-api` snapshots.** A `thiserror` enum is a stable, snapshotted
    API surface. `anyhow::Error` is not.
-4. **Composability.** Downstream crates (e.g., `spod-service`) compose
+4. **Composability.** Downstream crates (e.g., `siderust-pod-service`) compose
    errors from multiple crates; typed enums allow clean `From` impls or
    `?`-compatible conversions.
 

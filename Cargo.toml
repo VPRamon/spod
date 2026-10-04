@@ -9,7 +9,7 @@
 name         = "spod"
 version      = "0.1.0"
 edition      = "2021"
-rust-version = "1.82"
+rust-version = "1.89"
 authors      = ["Siderust authors"]
 license      = "AGPL-3.0-or-later"
 repository   = "https://github.com/VPRamon/spod"
@@ -106,7 +106,7 @@ members  = ["target-sgp4-test/probe"]
 [workspace.package]
 version      = "0.1.0"
 edition      = "2021"
-rust-version = "1.82"
+rust-version = "1.89"
 authors      = ["Siderust authors"]
 license      = "AGPL-3.0-or-later"
 repository   = "https://github.com/VPRamon/spod"

@@ -7,6 +7,9 @@
 
 `spod` is an engineering-oriented toolkit for orbit propagation, observation modelling, state estimation, orbit-product handling, and quality control. It builds on released crates from the wider [Siderust](https://github.com/Siderust) ecosystem and aims to keep physical units, reference frames, time scales, and estimation primitives explicit in the type system.
 
+The current MSRV is Rust 1.89, matching the dependency graph and the
+Docker builder image.
+
 > **Status: engineering preview (pre-1.0).**
 > The synthetic end-to-end POD path is usable for development and validation. Real-data workflows and the REST surface are still evolving. This project is not yet intended for flight-critical or safety-critical operational use.
 
@@ -105,10 +108,26 @@ cargo clippy --workspace --all-targets --all-features -- -D warnings
 cargo test --workspace --no-fail-fast
 cargo test --workspace --no-default-features --no-fail-fast
 cargo test --workspace --all-features --no-fail-fast
+cargo test --doc --workspace --all-features
 cargo doc --workspace --no-deps
 bash scripts/check_dep_graph.sh
 bash scripts/check_no_todos.sh
+bash scripts/check_legacy_name_refs.sh
 ```
+
+Build and exercise the container locally:
+
+```bash
+docker build -t spod:dev .
+docker run --rm --entrypoint spod spod:dev --help
+docker run --rm -p 8080:8080 spod:dev
+```
+
+The REST container defaults to `0.0.0.0:8080`, so the published port is
+reachable from outside the container. `SPOD_REST_BIND` and `SPOD_REST_OUT`
+take precedence over the deprecated `SIDERUST_POD_REST_BIND` and
+`SIDERUST_POD_REST_OUT` aliases; when neither is set, the service uses its
+defaults.
 
 ## Contributing
 

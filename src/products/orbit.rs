@@ -93,7 +93,7 @@ pub fn write_sp3_from_states<W: Write>(
         .iter()
         .map(|s| {
             // Bridge the two tempoch versions (siderust uses crates.io tempoch,
-            // spod-io uses the local path version) via the raw f64 JD.
+            // spod::io uses the local path version) via the raw f64 JD.
             let epoch_utc: Time<UTC> =
                 JulianDate::<TT>::try_new(Days::new(s.epoch.to::<siderust::tempoch::JD>().value()))
                     .expect("OrbitState epoch must be finite")
@@ -122,7 +122,7 @@ pub fn write_sp3_from_states<W: Write>(
 /// Write an OEM product from an `OrbitState` series.
 ///
 /// Converts each [`OrbitState`] into an [`OemState`] (km/km·s⁻¹, TT Julian
-/// Date) and delegates to `spod-io`'s `write_oem`.
+/// Date) and delegates to `spod::io`'s `write_oem`.
 ///
 /// # Examples
 ///

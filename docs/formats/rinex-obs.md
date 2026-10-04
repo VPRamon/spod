@@ -19,7 +19,7 @@ the receiver, antenna, and observation types.
 
 ## Owning crate
 
-`spod-io`
+`spod::io`
 
 ## Supported subset
 

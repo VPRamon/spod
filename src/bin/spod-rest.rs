@@ -30,41 +30,50 @@ use std::path::PathBuf;
 
 use spod::service::rest::{router, AppState};
 
+fn resolve_setting(
+    new: Result<String, std::env::VarError>,
+    legacy: Result<String, std::env::VarError>,
+    default: &str,
+    new_name: &str,
+    legacy_name: &str,
+) -> anyhow::Result<(String, bool)> {
+    match new {
+        Ok(value) => Ok((value, false)),
+        Err(std::env::VarError::NotPresent) => match legacy {
+            Ok(value) => Ok((value, true)),
+            Err(std::env::VarError::NotPresent) => Ok((default.to_owned(), false)),
+            Err(std::env::VarError::NotUnicode(_)) => {
+                anyhow::bail!("{legacy_name} is not valid Unicode")
+            }
+        },
+        Err(std::env::VarError::NotUnicode(_)) => anyhow::bail!("{new_name} is not valid Unicode"),
+    }
+}
+
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
     env_logger::Builder::from_env(env_logger::Env::default().default_filter_or("info")).init();
-    let bind = match std::env::var("SPOD_REST_BIND") {
-        Ok(value) => value,
-        Err(std::env::VarError::NotPresent) => match std::env::var("SIDERUST_POD_REST_BIND") {
-            Ok(value) => {
-                log::warn!("SIDERUST_POD_REST_BIND is deprecated; use SPOD_REST_BIND instead");
-                value
-            }
-            Err(std::env::VarError::NotPresent) => "127.0.0.1:8080".into(),
-            Err(std::env::VarError::NotUnicode(_)) => {
-                anyhow::bail!("SIDERUST_POD_REST_BIND is not valid Unicode")
-            }
-        },
-        Err(std::env::VarError::NotUnicode(_)) => {
-            anyhow::bail!("SPOD_REST_BIND is not valid Unicode")
-        }
-    };
-    let out = match std::env::var("SPOD_REST_OUT") {
-        Ok(value) => PathBuf::from(value),
-        Err(std::env::VarError::NotPresent) => match std::env::var("SIDERUST_POD_REST_OUT") {
-            Ok(value) => {
-                log::warn!("SIDERUST_POD_REST_OUT is deprecated; use SPOD_REST_OUT instead");
-                PathBuf::from(value)
-            }
-            Err(std::env::VarError::NotPresent) => std::env::temp_dir().join("spod-rest"),
-            Err(std::env::VarError::NotUnicode(_)) => {
-                anyhow::bail!("SIDERUST_POD_REST_OUT is not valid Unicode")
-            }
-        },
-        Err(std::env::VarError::NotUnicode(_)) => {
-            anyhow::bail!("SPOD_REST_OUT is not valid Unicode")
-        }
-    };
+    let (bind, bind_legacy) = resolve_setting(
+        std::env::var("SPOD_REST_BIND"),
+        std::env::var("SIDERUST_POD_REST_BIND"),
+        "0.0.0.0:8080",
+        "SPOD_REST_BIND",
+        "SIDERUST_POD_REST_BIND",
+    )?;
+    if bind_legacy {
+        log::warn!("SIDERUST_POD_REST_BIND is deprecated; use SPOD_REST_BIND instead");
+    }
+    let (out, out_legacy) = resolve_setting(
+        std::env::var("SPOD_REST_OUT"),
+        std::env::var("SIDERUST_POD_REST_OUT"),
+        &std::env::temp_dir().join("spod-rest").display().to_string(),
+        "SPOD_REST_OUT",
+        "SIDERUST_POD_REST_OUT",
+    )?;
+    if out_legacy {
+        log::warn!("SIDERUST_POD_REST_OUT is deprecated; use SPOD_REST_OUT instead");
+    }
+    let out = PathBuf::from(out);
     std::fs::create_dir_all(&out)?;
     let state = AppState::new(out);
     let app = router(state);
@@ -72,4 +81,85 @@ async fn main() -> anyhow::Result<()> {
     log::info!("spod-rest listening on {}", bind);
     axum::serve(listener, app).await?;
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::resolve_setting;
+    use std::ffi::OsString;
+    #[cfg(unix)]
+    use std::os::unix::ffi::OsStringExt;
+
+    fn present(value: &str) -> Result<String, std::env::VarError> {
+        Ok(value.to_owned())
+    }
+
+    #[test]
+    fn new_variable_wins() {
+        let result = resolve_setting(
+            present("new"),
+            present("legacy"),
+            "default",
+            "NEW",
+            "LEGACY",
+        )
+        .unwrap();
+        assert_eq!(result, ("new".to_owned(), false));
+    }
+
+    #[test]
+    fn legacy_variable_is_used_when_new_is_absent() {
+        let result = resolve_setting(
+            Err(std::env::VarError::NotPresent),
+            present("legacy"),
+            "default",
+            "NEW",
+            "LEGACY",
+        )
+        .unwrap();
+        assert_eq!(result, ("legacy".to_owned(), true));
+    }
+
+    #[test]
+    fn default_is_used_when_variables_are_absent() {
+        let result = resolve_setting(
+            Err(std::env::VarError::NotPresent),
+            Err(std::env::VarError::NotPresent),
+            "default",
+            "NEW",
+            "LEGACY",
+        )
+        .unwrap();
+        assert_eq!(result, ("default".to_owned(), false));
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn invalid_new_variable_is_rejected() {
+        let result = resolve_setting(
+            Err(std::env::VarError::NotUnicode(OsString::from_vec(vec![
+                0xff,
+            ]))),
+            present("legacy"),
+            "default",
+            "NEW",
+            "LEGACY",
+        );
+        assert!(result.is_err());
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn invalid_legacy_variable_is_rejected() {
+        let result = resolve_setting(
+            Err(std::env::VarError::NotPresent),
+            Err(std::env::VarError::NotUnicode(OsString::from_vec(vec![
+                0xff,
+            ]))),
+            "default",
+            "NEW",
+            "LEGACY",
+        );
+        assert!(result.is_err());
+    }
 }

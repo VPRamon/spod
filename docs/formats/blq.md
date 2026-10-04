@@ -22,7 +22,7 @@ Planned for **Phase 5** alongside the SINEX coordinate-frame extension.
 
 ## Owning crate
 
-`spod-io` (planned).
+`spod::io` (planned).
 
 ## Notes
 
@@ -30,7 +30,7 @@ Planned for **Phase 5** alongside the SINEX coordinate-frame extension.
   Bohnsdorff loading service and IGS station coordinate processors.
 - Until BLQ ingestion lands, callers must compose their own per-station
   displacement series and inject them through the
-  `StationDisplacementProvider` trait in `spod-observations`
+  `StationDisplacementProvider` trait in `spod::observations`
   (a placeholder API in v0.0.x).
 - Ocean loading is **required** for the SLR validation accuracy gates
   (`PB-008` reference; see also the Mendes-Pavlis tropospheric model).

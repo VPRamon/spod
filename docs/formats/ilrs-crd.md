@@ -19,7 +19,7 @@ station, target, and meteorological metadata.
 
 ## Owning crate
 
-`spod-io`
+`spod::io`
 
 ## Supported record subset
 

@@ -19,7 +19,7 @@ positions and clocks at user-defined epochs.
 
 ## Owning crate
 
-`spod-io`
+`spod::io`
 
 ## Supported subset
 
