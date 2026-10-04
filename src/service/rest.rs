@@ -63,15 +63,13 @@ async fn submit_job(
 ) -> impl IntoResponse {
     let id = Uuid::new_v4().to_string();
     let req = body.map(|Json(request)| request).unwrap_or_default();
-    state
-        .store
-        .insert(JobStatus::pending(id.clone(), Workflow::Synthetic));
+    let status = JobStatus::pending(id.clone(), Workflow::Synthetic);
+    state.store.insert(status.clone());
 
     let state_clone = state.clone();
     let id_clone = id.clone();
     tokio::task::spawn_blocking(move || run_job(state_clone, id_clone, req));
 
-    let status = state.store.get(&id).expect("inserted job must exist");
     (StatusCode::ACCEPTED, Json(status))
 }
 
@@ -91,11 +89,8 @@ fn persist_request(output_dir: &FsPath, req: &JobRequest) -> std::io::Result<Dat
 }
 
 fn run_job(state: AppState, id: String, req: JobRequest) {
-    if state
-        .store
-        .transition(&id, |status| status.start())
-        .is_err()
-    {
+    if let Err(error) = state.store.transition(&id, |status| status.start()) {
+        log::error!("could not start job {id}: {error:?}");
         return;
     }
 
@@ -103,11 +98,12 @@ fn run_job(state: AppState, id: String, req: JobRequest) {
     let request_ref = match persist_request(&out, &req) {
         Ok(request_ref) => request_ref,
         Err(error) => {
-            let job_error = JobError {
-                code: crate::service::JobErrorCode::Input,
-                message: format!("input resolution failed: {error}"),
-            };
-            let _ = state.store.transition(&id, |status| status.fail(job_error));
+            let job_error = JobError::from(&crate::service::ServiceError::artifact(error));
+            if let Err(transition_error) =
+                state.store.transition(&id, |status| status.fail(job_error))
+            {
+                log::error!("could not fail persisted job {id}: {transition_error:?}");
+            }
             return;
         }
     };
@@ -135,13 +131,20 @@ fn run_job(state: AppState, id: String, req: JobRequest) {
     match result {
         Ok(report) => {
             let job_result = crate::service::JobResult::from(&report);
-            let _ = state
+            if let Err(error) = state
                 .store
-                .transition(&id, |status| status.succeed(job_result));
+                .transition(&id, |status| status.succeed(job_result))
+            {
+                log::error!("could not complete job {id}: {error:?}");
+            }
         }
         Err(error) => {
             let job_error = JobError::from(&error);
-            let _ = state.store.transition(&id, |status| status.fail(job_error));
+            if let Err(transition_error) =
+                state.store.transition(&id, |status| status.fail(job_error))
+            {
+                log::error!("could not fail job {id}: {transition_error:?}");
+            }
         }
     }
 }
@@ -158,8 +161,9 @@ pub fn router(state: AppState) -> Router {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use axum::body::Body;
+    use axum::body::{to_bytes, Body};
     use axum::http::Request;
+    use serde_json::Value;
     use std::time::{SystemTime, UNIX_EPOCH};
     use tower::ServiceExt;
 
@@ -222,14 +226,53 @@ mod tests {
         );
     }
 
-    #[test]
-    fn accepted_status_has_stable_shape() {
-        let status = JobStatus::pending("job-id".into(), Workflow::Synthetic);
-        let value = serde_json::to_value(status).unwrap();
-        assert_eq!(value["state"], "pending");
-        assert_eq!(value["workflow"], "synthetic");
-        assert!(value.get("result").is_none());
-        assert!(value.get("error").is_none());
+    #[tokio::test]
+    async fn health_endpoint_returns_status_and_version() {
+        let app = router(AppState::new(std::env::temp_dir()));
+        let response = app
+            .oneshot(
+                Request::builder()
+                    .uri("/healthz")
+                    .body(Body::empty())
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
+        assert_eq!(response.status(), StatusCode::OK);
+        let body = to_bytes(response.into_body(), usize::MAX).await.unwrap();
+        let value: Value = serde_json::from_slice(&body).unwrap();
+        assert_eq!(value["status"], "ok");
+        assert_eq!(value["version"], env!("CARGO_PKG_VERSION"));
+    }
+
+    #[tokio::test]
+    async fn submit_returns_pending_and_status_eventually_succeeds() {
+        let root = std::env::temp_dir().join(format!("spod-rest-http-{}", std::process::id()));
+        let app = router(AppState::new(root.clone()));
+        let response = app
+            .clone()
+            .oneshot(
+                Request::builder()
+                    .method("POST")
+                    .uri("/jobs")
+                    .header("content-type", "application/json")
+                    .body(Body::from(r#"{"enable_j2":false}"#))
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
+        assert_eq!(response.status(), StatusCode::ACCEPTED);
+        let body = to_bytes(response.into_body(), usize::MAX).await.unwrap();
+        let accepted: Value = serde_json::from_slice(&body).unwrap();
+        assert_eq!(accepted["state"], "pending");
+        assert!(accepted["result"].is_null());
+        assert!(accepted["error"].is_null());
+        let id = accepted["id"].as_str().unwrap();
+
+        let status = poll_status(&app, id).await;
+        assert_eq!(status["state"], "succeeded");
+        assert!(status["result"]["artifacts"]["manifest"].is_object());
+        fs::remove_dir_all(root).unwrap();
     }
 
     #[tokio::test]
@@ -247,23 +290,50 @@ mod tests {
         assert_eq!(response.status(), StatusCode::NOT_FOUND);
     }
 
-    #[test]
-    fn execution_failures_are_structured() {
+    #[tokio::test]
+    async fn persistence_failure_reaches_failed_with_artifact_code() {
         let root = std::env::temp_dir().join(format!("spod-rest-failure-{}", std::process::id()));
         fs::write(&root, "not a directory").unwrap();
-        let state = AppState::new(root.clone());
-        let id = "failure-job".to_owned();
-        state
-            .store
-            .insert(JobStatus::pending(id.clone(), Workflow::Synthetic));
-        run_job(state.clone(), id.clone(), JobRequest::default());
-
-        let status = state.store.get(&id).unwrap();
-        assert_eq!(status.state, crate::service::JobState::Failed);
-        assert_eq!(
-            status.error.as_ref().unwrap().code,
-            crate::service::JobErrorCode::Input
-        );
+        let app = router(AppState::new(root.clone()));
+        let response = app
+            .clone()
+            .oneshot(
+                Request::builder()
+                    .method("POST")
+                    .uri("/jobs")
+                    .body(Body::empty())
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
+        assert_eq!(response.status(), StatusCode::ACCEPTED);
+        let body = to_bytes(response.into_body(), usize::MAX).await.unwrap();
+        let accepted: Value = serde_json::from_slice(&body).unwrap();
+        let status = poll_status(&app, accepted["id"].as_str().unwrap()).await;
+        assert_eq!(status["state"], "failed");
+        assert_eq!(status["error"]["code"], "artifact");
         fs::remove_file(root).unwrap();
+    }
+
+    async fn poll_status(app: &Router, id: &str) -> Value {
+        for _ in 0..100 {
+            let response = app
+                .clone()
+                .oneshot(
+                    Request::builder()
+                        .uri(format!("/jobs/{id}"))
+                        .body(Body::empty())
+                        .unwrap(),
+                )
+                .await
+                .unwrap();
+            let body = to_bytes(response.into_body(), usize::MAX).await.unwrap();
+            let value: Value = serde_json::from_slice(&body).unwrap();
+            if matches!(value["state"].as_str(), Some("succeeded" | "failed")) {
+                return value;
+            }
+            tokio::time::sleep(std::time::Duration::from_millis(10)).await;
+        }
+        panic!("job did not reach a terminal state");
     }
 }

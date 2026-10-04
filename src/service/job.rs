@@ -138,6 +138,7 @@ impl JobStatus {
         self.require_running(JobState::Succeeded)?;
         self.state = JobState::Succeeded;
         self.result = Some(result);
+        self.error = None;
         Ok(())
     }
 
@@ -145,6 +146,7 @@ impl JobStatus {
     pub fn fail(&mut self, error: JobError) -> Result<(), JobTransitionError> {
         self.require_running(JobState::Failed)?;
         self.state = JobState::Failed;
+        self.result = None;
         self.error = Some(error);
         Ok(())
     }
@@ -168,13 +170,19 @@ impl JobStatus {
         result: Result<RunResult, ServiceError>,
     ) -> Self {
         let mut status = Self::pending(id, workflow);
-        let _ = status.start();
+        status
+            .start()
+            .expect("newly constructed job must transition to running");
         match result {
             Ok(result) => {
-                let _ = status.succeed(JobResult::from(&result));
+                status
+                    .succeed(JobResult::from(&result))
+                    .expect("running job must transition to succeeded");
             }
             Err(error) => {
-                let _ = status.fail(JobError::from(&error));
+                status
+                    .fail(JobError::from(&error))
+                    .expect("running job must transition to failed");
             }
         }
         status
@@ -295,6 +303,8 @@ mod tests {
             })
             .is_ok());
         assert_eq!(status.state, JobState::Failed);
+        assert!(status.result.is_none());
+        assert!(status.error.is_some());
         assert!(status.start().is_err());
     }
 
