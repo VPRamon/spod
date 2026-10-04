@@ -3,9 +3,9 @@
 [![CI](https://github.com/VPRamon/spod/actions/workflows/ci.yml/badge.svg)](https://github.com/VPRamon/spod/actions/workflows/ci.yml)
 [![License: AGPL-3.0-or-later](https://img.shields.io/badge/license-AGPL--3.0--or--later-blue.svg)](LICENSE)
 
-**Precise Orbit Determination and orbit-analysis tooling in Rust.**
+**A service application for Siderust POD in Rust.**
 
-`spod` is an engineering-oriented toolkit for orbit propagation, observation modelling, state estimation, orbit-product handling, and quality control. It builds on released crates from the wider [Siderust](https://github.com/Siderust) ecosystem and aims to keep physical units, reference frames, time scales, and estimation primitives explicit in the type system.
+`spod` is an engineering-oriented service for configuration, orchestration, artifact handling, and interfaces around the reusable POD APIs in [Siderust](https://github.com/Siderust). It does not maintain a second scientific POD implementation.
 
 The current MSRV is Rust 1.89, matching the dependency graph and the
 Docker builder image.
@@ -17,28 +17,20 @@ Docker builder image.
 
 | Area | Current scope |
 | --- | --- |
-| Orbit dynamics | Two-body, J2, third-body gravity, solar-radiation pressure, atmospheric drag, numerical integration, STM support |
+| POD science | Provided by `siderust::pod` (forces, propagation, observations, estimation, QC and products) |
 | Orbit mechanics | Lambert solver, TLE/3LE/OMM handling, SGP4/SDP4 propagation, SPICE ephemerides |
-| Observations | GNSS code/carrier and SLR building blocks; optional LISA-oriented models |
-| Estimation | Weighted least squares, Gauss-Newton and EKF components |
 | Formats | SP3, RINEX, ANTEX, EOP, CRD, CPF and CCSDS OEM support at the currently implemented subsets |
 | Products & QC | Residuals, orbit products, manifests, comparison/QC utilities |
 | Interfaces | Rust library, command-line interface, experimental Axum REST API |
 
-The project deliberately separates orbital physics, observations, estimation, I/O, quality control, and service orchestration so each layer can be tested and evolved independently.
+The project separates service orchestration, external interfaces, persistence and format adapters from the reusable POD implementation in Siderust.
 
 ## Repository structure
 
 ```text
 src/
-  core/          Domain primitives, parameters, covariance and providers
-  dynamics/      Force models, integration and state transition machinery
-  estimation/    Batch and sequential estimators
   io/            Space/geodesy format readers and writers
-  observations/  Measurement models and corrections
-  products/      Orbit and residual products
-  qc/            Validation and quality-control tooling
-  service/       Configuration-driven pipeline orchestration
+  service/       Configuration, orchestration, REST/CLI and artifact handling
   lambert/       Lambert solver
   sgp4/          SGP4 integration
   spice/         SPICE helpers/providers
@@ -56,7 +48,7 @@ cargo test
 
 ## Relationship with the Siderust ecosystem
 
-Foundational astrodynamics, typed quantities, time scales, frames, and reusable numerical mechanics live in the released Siderust ecosystem crates. `spod` focuses on precise orbit determination: estimation, observations, orbit products, quality control, and service orchestration. Some primitives first explored during POD development have since moved upstream and are consumed here through their public APIs.
+Foundational astrodynamics, typed quantities, time scales, frames, and reusable numerical mechanics live in the released Siderust ecosystem crates. `spod` is built on top of `siderust::pod`; it does not expose a scientific compatibility facade. Callers needing reusable force, observation, estimation, QC, or product APIs should import Siderust directly.
 
 Validate and run the synthetic POD configuration:
 
@@ -73,14 +65,11 @@ docker run --rm -p 8080:8080 spod:dev
 ```
 
 The service listens on `SPOD_REST_BIND` and writes job output below
-`SPOD_REST_OUT`. The former `SIDERUST_POD_REST_BIND` and
-`SIDERUST_POD_REST_OUT` variables remain supported as deprecated fallbacks.
+`SPOD_REST_OUT`.
 
-Four focused Rust examples cover typed propagation, estimation, Lambert transfer, and SGP4:
+The remaining Rust examples cover Lambert transfer and SGP4 integration:
 
 ```bash
-cargo run --example 01_typed_two_body_propagation
-cargo run --example 02_short_arc_wls
 cargo run --example 03_lambert_earth_to_mars
 cargo run --example 04_sgp4_from_tle
 ```
@@ -91,7 +80,7 @@ See [examples/README.md](examples/README.md) for the purpose of each example and
 
 - **Type safety for physical quantities.** Units, epochs, frames and states should be difficult to mix accidentally.
 - **Traceable numerical behaviour.** Scientific algorithms should have explicit assumptions and validation tests.
-- **Separation of concerns.** Dynamics, observations, estimation, formats and orchestration remain independently testable.
+- **Separation of concerns.** Reusable dynamics, observations, estimation, and QC remain independently testable in Siderust; `spod` keeps format adapters and service orchestration at the application boundary.
 - **No unsafe Rust.** The library forbids `unsafe_code`.
 - **Standards-oriented interoperability.** Common astrodynamics and geodesy formats are treated as first-class interfaces.
 
@@ -124,12 +113,8 @@ docker run --rm -p 8080:8080 spod:dev
 ```
 
 The REST container defaults to `0.0.0.0:8080`, so the published port is
-reachable from outside the container. Docker supplies this through the
-internal `SPOD_REST_DEFAULT_BIND` setting; it is not the normal user-facing
-configuration API. `SPOD_REST_BIND` and `SPOD_REST_OUT`
-take precedence over the deprecated `SIDERUST_POD_REST_BIND` and
-`SIDERUST_POD_REST_OUT` aliases; when neither is set, the service uses its
-defaults.
+reachable from outside the container. Set `SPOD_REST_BIND` and
+`SPOD_REST_OUT` to override the defaults.
 
 ## Contributing
 

@@ -1,8 +1,8 @@
-//! `siderust-lambert` — typed 0/N-revolution Lambert solver.
+//! `spod::lambert` — typed 0/N-revolution Lambert solver.
 //!
 //! ## Overview
 //!
-//! This crate solves Lambert's two-point boundary-value problem (find
+//! This module solves Lambert's two-point boundary-value problem (find
 //! the conic transfer connecting two position vectors in a prescribed
 //! time of flight) using Izzo's 2014 reformulation with third-order
 //! Householder iteration. Both the single-revolution branch (`N = 0`)
@@ -48,8 +48,8 @@
 //!
 //! ## Out of scope (kept in higher-level crates)
 //!
-//! * Mission-design optimisation, porkchop search, transfer-window
-//!   enumeration → future `siderust-mission-design`.
+//! * Mission-design optimisation, porkchop search, and transfer-window
+//!   enumeration belong in higher-level mission-design tooling.
 //! * Frame / center bookkeeping at the algorithm boundary beyond what
 //!   the typed entry-points provide.
 //! * Any POD coupling.

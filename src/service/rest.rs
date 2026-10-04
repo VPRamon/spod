@@ -30,16 +30,19 @@
 #![warn(missing_docs)]
 
 use std::collections::HashMap;
-use std::path::PathBuf;
+use std::fs;
+use std::path::{Path as FsPath, PathBuf};
 use std::sync::{Arc, Mutex};
 
-use crate::service::{generate, run_synth, OrbitState, Position, SyntheticArcConfig, Velocity};
+use crate::service::{generate, run_synth, SyntheticArcConfig};
 use axum::extract::{Path, State};
 use axum::http::StatusCode;
 use axum::response::IntoResponse;
 use axum::routing::{get, post};
 use axum::{Json, Router};
 use serde::{Deserialize, Serialize};
+use siderust::astro::dynamics::{OrbitState, Position, Velocity};
+use siderust::pod::run::dataset::DatasetRef;
 use uuid::Uuid;
 
 /// Job status snapshot.
@@ -80,7 +83,7 @@ impl AppState {
     }
 }
 
-#[derive(Debug, Deserialize, Default)]
+#[derive(Debug, Serialize, Deserialize, Default)]
 struct JobRequest {
     #[serde(default)]
     enable_j2: bool,
@@ -111,7 +114,7 @@ async fn submit_job(
     let id_clone = id.clone();
     let state_clone = state.clone();
     tokio::task::spawn_blocking(move || {
-        run_job(state_clone, id_clone, req.enable_j2);
+        run_job(state_clone, id_clone, req);
     });
     (StatusCode::ACCEPTED, Json(JobAccepted { id }))
 }
@@ -124,7 +127,25 @@ async fn job_status(State(state): State<AppState>, Path(id): Path<String>) -> im
     }
 }
 
-fn run_job(state: AppState, id: String, enable_j2: bool) {
+fn persist_request(output_dir: &FsPath, req: &JobRequest) -> std::io::Result<DatasetRef> {
+    fs::create_dir_all(output_dir)?;
+    let request_path = output_dir.join("request.json");
+    let request_bytes = serde_json::to_vec(req).map_err(std::io::Error::other)?;
+    fs::write(&request_path, request_bytes)?;
+    DatasetRef::from_file(request_path, "configuration")
+}
+
+fn fail_job(state: &AppState, id: &str, error: impl ToString) {
+    let mut table = state.inner.lock().unwrap();
+    table.insert(
+        id.to_owned(),
+        JobStatus::Failed {
+            error: error.to_string(),
+        },
+    );
+}
+
+fn run_job(state: AppState, id: String, req: JobRequest) {
     {
         let mut t = state.inner.lock().unwrap();
         t.insert(id.clone(), JobStatus::Running);
@@ -146,7 +167,22 @@ fn run_job(state: AppState, id: String, enable_j2: bool) {
         ),
     );
     let out = state.output_root.join(&id);
-    let result = run_synth(&arc, init, 0.0, &out, &id, enable_j2);
+    let request_ref = match persist_request(&out, &req) {
+        Ok(request_ref) => request_ref,
+        Err(error) => {
+            fail_job(&state, &id, error);
+            return;
+        }
+    };
+    let result = run_synth(
+        &arc,
+        init,
+        0.0,
+        &out,
+        &id,
+        req.enable_j2,
+        crate::service::RunProvenance::from_config(request_ref, Vec::new()),
+    );
     let mut t = state.inner.lock().unwrap();
     match result {
         Ok(report) => {
@@ -175,4 +211,40 @@ pub fn router(state: AppState) -> Router {
         .route("/jobs", post(submit_job))
         .route("/jobs/:id", get(job_status))
         .with_state(state)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::time::{SystemTime, UNIX_EPOCH};
+
+    #[test]
+    fn persisted_request_is_a_real_hashed_manifest_input() {
+        let suffix = SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .unwrap()
+            .as_nanos();
+        let root = std::env::temp_dir().join(format!(
+            "spod-rest-request-test-{}-{suffix}",
+            std::process::id()
+        ));
+        let req = JobRequest { enable_j2: true };
+
+        let dataset = persist_request(&root, &req).unwrap();
+        let request_path = root.join("request.json");
+
+        assert_eq!(dataset.path, request_path);
+        assert_eq!(dataset.kind, "configuration");
+        assert!(dataset.path.is_file());
+
+        let actual = DatasetRef::from_file(&dataset.path, "configuration").unwrap();
+        assert_eq!(dataset.bytes, actual.bytes);
+        assert_eq!(dataset.sha256, actual.sha256);
+
+        let persisted: JobRequest =
+            serde_json::from_slice(&fs::read(&dataset.path).unwrap()).unwrap();
+        assert_eq!(persisted.enable_j2, req.enable_j2);
+
+        fs::remove_dir_all(root).unwrap();
+    }
 }

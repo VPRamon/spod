@@ -2,13 +2,9 @@
 
 | Module | Owns | Does NOT own |
 |---|---|---|
-| `spod::dynamics` | Force models, integrators, propagation, STM, RTN/LVLH/VNC frame helpers, `FrameTransformProvider` trait. | File I/O, observation models, estimator. |
 | `spod::io` | Parsers/writers for SP3, RINEX, ANTEX, EOP, OEM, ... | Numerics, estimation. |
-| `spod::observations` | `MeasurementModel` trait + GNSS / SLR / DORIS / VLBI implementations and corrections. | File parsing, estimator solver. |
-| `spod::estimation` | Parameter blocks, design-matrix assembly, WLS / EKF, robust weighting, covariance extraction. | File parsing, observation modelling. |
-| `spod::qc` | Residual statistics, orbit comparison, QC JSON, HTML reports. | Estimation algorithms, product writing. |
-| `spod::products` | SP3 / OEM writers, residual product packaging, manifest packaging, naming, validation. | Numerics, service runtime. |
-| `spod::service` | Job model (`RunManifest`, `DatasetRef`), config loading/validation, pipeline runner, artifact layout, manifest finalisation. | Numerical algorithms. |
+| `siderust::pod` | Force models, propagation, observations, estimation, QC, products, and run metadata. | Service configuration and transport. |
+| `spod::service` | Configuration loading, job orchestration, service-owned adapters, artifact layout, and manifest finalisation using `siderust::pod`. | Reusable numerical algorithms. |
 | `spod` binaries | `clap`-based commands and the REST server; delegates to `spod::service`. | Any numerical logic. |
 
 The full set of allowed and forbidden dependency edges is in

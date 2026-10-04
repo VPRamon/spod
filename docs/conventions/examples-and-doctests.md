@@ -1,96 +1,79 @@
 # Examples and Doctests
 
-Every public item in `spod` carries an executable example. This is
-non-negotiable: the `missing_docs = deny` lint already requires *some*
-documentation; this convention says that documentation must include
-working code.
+Public APIs should have useful rustdoc examples when an example materially
+clarifies the intended call site. Examples must use the current `spod` and
+Siderust namespaces and should compile under the repository doctest suite.
 
 ## The rule
 
-> Every `pub` type, function, trait, method, and constant has a
-> `# Examples` section in its rustdoc, and that example compiles under
-> `cargo test --doc`.
+For public APIs where a usage example is useful:
 
-This is enforced by:
+1. Prefer a `# Examples` section in rustdoc.
+2. Use typed Siderust/qtty APIs at scientific boundaries.
+3. Keep runnable examples deterministic and independent of network access.
+4. Use `no_run` only when a real external dataset is required.
+5. Keep examples aligned with the current public API rather than preserving
+   old compatibility namespaces.
 
-1. `#![deny(missing_docs)]` (workspace lint).
-2. `#![deny(rustdoc::broken_intra_doc_links)]` (workspace lint).
-3. CI step `cargo test --workspace --doc`.
-4. PR review: a reviewer rejects a PR that adds undocumented public items
-   even if it compiles.
-
-## The shape of a good doctest
-
-```rust
-/// Compute the Lambert transfer between two heliocentric positions.
-///
-/// # Examples
-///
-/// ```
-/// use qtty::si::Length;
-/// use siderust_lambert::{lambert, TransferGeometry};
-///
-/// let r1 = Length::from_metres(1.495_978_707e11);  // 1 AU
-/// let r2 = Length::from_metres(2.279_392_4e11);    // ~Mars distance
-/// let tof = std::time::Duration::from_secs(259 * 86_400);
-///
-/// let solution = lambert(r1, r2, tof, TransferGeometry::Prograde)
-///     .expect("feasible transfer");
-/// assert!(solution.v1.norm().value() > 0.0);
-/// ```
-pub fn lambert(/* ... */) -> Result<Solution, LambertError> { /* ... */ }
-```
-
-Notes:
-
-- The example **uses the typed APIs**. It does not strip down to bare
-  `f64` for the sake of brevity.
-- The example **runs**. Don't fake outputs with comments — assert.
-- The example demonstrates the *intended* call site, not a debugging path.
-
-## When the example needs network access or large files
-
-Some examples genuinely require multi-megabyte SP3 files, the DE441 SPK
-kernel, or a network round-trip. In those cases:
-
-1. Mark the fence with `no_run`:
-
-   ```rust
-   /// # Examples
-   ///
-   /// ```no_run
-   /// # use siderust_spice::SpkKernel;
-   /// let kernel = SpkKernel::open("/data/spk/de441.bsp")?;
-   /// // ... use the kernel ...
-   /// # Ok::<(), siderust_spice::SpiceError>(())
-   /// ```
-   ```
-
-2. Add a `# Notes` section explaining what the example *would* do and
-   how to obtain the inputs:
-
-   ```text
-   /// # Notes
-   ///
-   /// This example requires the JPL DE441 ephemeris kernel
-   /// (`de441.bsp`, ~3 GB). Download from
-   /// <https://naif.jpl.nasa.gov/pub/naif/generic_kernels/spk/planets/>.
-   ```
-
-3. Prefer `compile_fail` for examples whose entire point is type-safety
-   ("`Position + Position` must not compile").
-
-`no_run` is still type-checked, so the typed signatures are still verified.
-
-## The `examples/` directory
-
-Workspace-level runnable examples live in `examples/` at the workspace
-root and are invoked with:
+CI runs:
 
 ```bash
-cargo run --example 01_minimal_leo_run
+cargo test --doc --workspace --all-features
 ```
 
-Each example file maps to a milestone or scenario. The mapping is
-maintained in [`examples/README.md`](../../examples/README.md), which
-also lists fixture requirements and expected runtime per example.
+and builds documentation with broken intra-doc links denied.
+
+## Typed example
+
+The Lambert module exposes its API directly through `spod::lambert`:
+
+```rust
+use siderust::affn::cartesian::Position;
+use siderust::affn::frames::ICRS;
+use siderust::qtty::unit::Kilometer;
+use siderust::qtty::{GravitationalParameter, Second};
+use spod::lambert::{lambert, LambertBranch};
+
+let r1 = Position::<(), ICRS, Kilometer>::new(15_945.34, 0.0, 0.0);
+let r2 = Position::<(), ICRS, Kilometer>::new(12_214.83899, 10_249.46731, 0.0);
+let tof = Second::new(4_560.0);
+let mu = GravitationalParameter::new(398_600.4418);
+
+let solution = lambert(r1, r2, tof, mu, LambertBranch::Prograde).unwrap();
+assert!(solution.v1.x().value().is_finite());
+```
+
+## Examples that need large files
+
+When an example requires a large external kernel or observation file, use a
+`no_run` fence and document the prerequisite:
+
+```rust,no_run
+use spod::spice::SpkKernel;
+
+let kernel = SpkKernel::open("/data/spk/de441.bsp")?;
+let state = kernel.state(399, 0, 0.0)?;
+assert!(state[0].is_finite());
+# Ok::<(), spod::spice::SpiceError>(())
+```
+
+`no_run` examples are still type-checked.
+
+## Runnable examples
+
+The current runnable examples are:
+
+```bash
+cargo run --example 03_lambert_earth_to_mars
+cargo run --example 04_sgp4_from_tle
+```
+
+The larger service demonstration is the synthetic POD configuration:
+
+```bash
+cargo run --bin spod -- validate-config examples/configs/leo_gnss_mvp1.yaml
+cargo run --bin spod -- run examples/configs/leo_gnss_mvp1.yaml
+```
+
+See [`examples/README.md`](../../examples/README.md) for the current example
+inventory and conventions.

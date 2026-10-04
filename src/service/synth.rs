@@ -29,15 +29,18 @@
 //! - Consultative Committee for Space Data Systems. (2010). Orbit Data
 //!   Messages, CCSDS 502.0-B-2 / 502.0-B-3.
 use super::pipeline::{ArcEpoch, GpsSatellite};
-use crate::observations::gnss::{CarrierPhaseObs, GnssCodeModel, PseudorangeObs};
-use crate::observations::model::MeasurementModel;
 use siderust::astro::dynamics::context::DynamicsContext;
 use siderust::astro::dynamics::forces::TwoBody;
 use siderust::astro::dynamics::state::VelocityUnit;
 use siderust::astro::dynamics::{OrbitState, Position, Velocity};
 use siderust::coordinates::frames::GCRS;
+use siderust::pod::observation::gnss_obs::{
+    GnssCarrierPhaseObs, GnssPseudorangeObs, IonoModel, TropModel,
+};
+use siderust::pod::observation::obs_trait::Observation;
+use siderust::pod::observation::provider_bundle::ProviderBundle;
 use siderust::principia::integrators::rk4_propagate_series;
-use siderust::qtty::Second;
+use siderust::qtty::{Hertzs, Meters, Second};
 use siderust::time::JulianDate;
 
 /// Configuration for a synthetic arc.
@@ -57,8 +60,6 @@ pub struct SyntheticArcConfig {
     pub carrier_sigma_m: f64,
     /// Receiver clock bias (truth), metres.
     pub clock_bias_m: f64,
-    /// Carrier float ambiguity per satellite (truth), metres.
-    pub ambiguity_m: f64,
     /// Random seed.
     pub seed: u64,
 }
@@ -79,7 +80,6 @@ impl Default for SyntheticArcConfig {
             code_sigma_m: 0.5,
             carrier_sigma_m: 0.005,
             clock_bias_m: 12_345.6,
-            ambiguity_m: 0.0,
             seed: 0xC0FFEE,
         }
     }
@@ -96,6 +96,30 @@ pub struct SyntheticArc {
     pub gps_sats: Vec<GpsSatellite>,
     /// Truth receiver clock bias used.
     pub truth_clock_bias_m: f64,
+}
+
+#[derive(Clone, Copy)]
+pub(crate) struct SyntheticProviders {
+    pub(crate) receiver_clock_m: f64,
+}
+
+impl ProviderBundle for SyntheticProviders {
+    fn gnss_satellite_state_gcrs(
+        &self,
+        _prn: &str,
+        _epoch: JulianDate,
+    ) -> Option<(Position<GCRS>, Velocity<GCRS, VelocityUnit>)> {
+        None
+    }
+    fn gnss_satellite_clock_m(&self, _prn: &str, _epoch: JulianDate) -> Meters {
+        Meters::new(0.0)
+    }
+    fn receiver_clock_m(&self) -> Meters {
+        Meters::new(self.receiver_clock_m)
+    }
+    fn station_gcrs_km(&self, _station_id: &str, _epoch: JulianDate) -> Option<Position<GCRS>> {
+        None
+    }
 }
 
 fn gps_state_at(
@@ -175,29 +199,46 @@ pub fn generate(cfg: &SyntheticArcConfig) -> SyntheticArc {
                 sat.slot,
                 cfg.n_gps_sats,
             );
-            // Use the analytic prediction at *truth* state and add noise +
-            // truth clock bias to obtain the synthetic measurement.
-            let geom = code_truth_m(s, gps_pos, gps_vel) + cfg.clock_bias_m;
-            let measured_code = geom + cfg.code_sigma_m * rng.normal();
-            let measured_phase = geom + cfg.ambiguity_m + cfg.carrier_sigma_m * rng.normal();
-            code.push((
-                sat.clone(),
-                PseudorangeObs {
-                    gps_pos_km: gps_pos,
-                    gps_vel_km_s: gps_vel,
-                    measured_m: measured_code,
-                    sigma_m: cfg.code_sigma_m,
-                },
-            ));
-            carrier.push((
-                sat.clone(),
-                CarrierPhaseObs {
-                    gps_pos_km: gps_pos,
-                    gps_vel_km_s: gps_vel,
-                    measured_m: measured_phase,
-                    sigma_m: cfg.carrier_sigma_m,
-                },
-            ));
+            let epoch = s.epoch.to::<siderust::tempoch::JD>();
+            let providers = SyntheticProviders {
+                receiver_clock_m: cfg.clock_bias_m,
+            };
+            let mut code_obs = GnssPseudorangeObs {
+                prn: sat.id.clone(),
+                epoch,
+                measured_m: Meters::new(0.0),
+                sigma: Meters::new(cfg.code_sigma_m),
+                sat_pos_gcrs_km: gps_pos,
+                sat_vel_gcrs_km_s: gps_vel,
+                trop: TropModel::None,
+                iono: IonoModel::IonoFree,
+                frequency_hz: Hertzs::new(1_575_420_000.0),
+            };
+            let mut phase_obs = GnssCarrierPhaseObs {
+                prn: sat.id.clone(),
+                epoch,
+                measured_m: Meters::new(0.0),
+                sigma: Meters::new(cfg.carrier_sigma_m),
+                sat_pos_gcrs_km: gps_pos,
+                sat_vel_gcrs_km_s: gps_vel,
+                trop: TropModel::None,
+                iono: IonoModel::IonoFree,
+                frequency_hz: Hertzs::new(1_575_420_000.0),
+                integer_ambiguity: 0,
+            };
+            let code_truth = -code_obs
+                .residual(s, &providers)
+                .expect("synthetic observation");
+            let phase_truth = -phase_obs
+                .residual(s, &providers)
+                .expect("synthetic observation")
+                .residual_m;
+            let measured_code = code_truth + cfg.code_sigma_m * rng.normal();
+            let measured_phase = phase_truth + cfg.carrier_sigma_m * rng.normal();
+            code_obs.measured_m = Meters::new(measured_code);
+            phase_obs.measured_m = Meters::new(measured_phase);
+            code.push((sat.clone(), code_obs));
+            carrier.push((sat.clone(), phase_obs));
         }
         epochs.push(ArcEpoch {
             state_index: epochs.len(),
@@ -211,22 +252,4 @@ pub fn generate(cfg: &SyntheticArcConfig) -> SyntheticArc {
         gps_sats,
         truth_clock_bias_m: cfg.clock_bias_m,
     }
-}
-
-fn code_truth_m(
-    state: &OrbitState,
-    gps_pos: Position<GCRS>,
-    gps_vel: Velocity<GCRS, VelocityUnit>,
-) -> f64 {
-    let model = GnssCodeModel {
-        obs: PseudorangeObs {
-            gps_pos_km: gps_pos,
-            gps_vel_km_s: gps_vel,
-            measured_m: 0.0,
-            sigma_m: 1.0,
-        },
-        clock_bias_index: 0,
-    };
-    let p = model.predict(state, &[0.0]);
-    p.value
 }

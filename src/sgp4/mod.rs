@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Vallés Puig, Ramon
 
-//! `siderust-sgp4` — strongly typed SGP4 / SDP4 propagator producing TEME
+//! `spod::sgp4` — strongly typed SGP4 / SDP4 propagator producing TEME
 //! Cartesian states.
 //!
 //! ## What this crate is

@@ -15,15 +15,15 @@
 //!
 //! ## Technical scope
 //!
-//! The public surface re-exports run configuration, manifest helpers,
-//! synthetic-arc generation, the batch pipeline, and the top-level `run`
-//! helper, along with selected orbit-state types used by downstream
-//! interfaces. Inputs are configuration objects and filesystem roots;
-//! outputs are reports and artifact paths.
+//! The public surface exposes run configuration, synthetic-arc generation,
+//! the batch pipeline, and the top-level `run` helper. Reusable scientific
+//! types are imported directly from Siderust rather than re-exported through
+//! this service namespace. Inputs are configuration objects and filesystem
+//! roots; outputs are reports and artifact paths.
 //!
 //! HTTP transport and command-line dispatch live in the `spod-rest` and
 //! `spod` binaries, while
-//! numerical estimation remains in `spod::estimation`.
+//! reusable numerical estimation remains in `siderust::pod::estimation`.
 //!
 //! ## References
 //!
@@ -35,19 +35,15 @@
 #![warn(missing_docs)]
 
 pub mod config;
-pub mod manifest;
 pub mod pipeline;
+pub mod providers;
 pub mod rest;
 pub mod runner;
 pub mod synth;
 
 pub use config::RunConfig;
-pub use manifest::{canonical_json, DatasetRef, RunManifest};
-pub use pipeline::{run_synth, ArcEpoch, GpsSatellite, PipelineError, PipelineReport};
+pub use pipeline::{
+    run_synth, ArcEpoch, GpsSatellite, PipelineError, PipelineReport, RunProvenance,
+};
 pub use runner::{run, RunReport};
 pub use synth::{generate, SyntheticArc, SyntheticArcConfig};
-
-// Re-export the core orbit state types so the binaries can use the service
-// facade without adding another public dependency surface.
-pub use siderust::astro::dynamics::state::VelocityUnit;
-pub use siderust::astro::dynamics::{OrbitState, Position, Velocity};

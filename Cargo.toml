@@ -1,9 +1,9 @@
-# spod — single-crate Precise Orbit Determination toolkit.
+# spod — service application for Siderust POD workflows.
 #
-# The previous multi-crate workspace has been collapsed: every former
-# sub-crate is now a module inside this single library.  The
-# [workspace] block is kept only to let target-sgp4-test/probe
-# inherit its edition/version metadata.
+# Reusable POD science is provided by Siderust; this package owns service
+# orchestration, interfaces, format adapters, and application-specific
+# functionality. The [workspace] block is kept only so target-sgp4-test/probe
+# can inherit package metadata.
 
 [package]
 name         = "spod"
@@ -17,15 +17,7 @@ homepage     = "https://github.com/VPRamon/spod"
 keywords     = ["satellite", "pod", "orbit-determination", "geodesy", "gnss"]
 categories   = ["science", "aerospace"]
 publish      = false
-description  = "Precise Orbit Determination toolkit (POD) service built on Siderust."
-
-[[example]]
-name = "01_typed_two_body_propagation"
-path = "examples/01_typed_two_body_propagation.rs"
-
-[[example]]
-name = "02_short_arc_wls"
-path = "examples/02_short_arc_wls.rs"
+description  = "Precise Orbit Determination service application built on Siderust."
 
 [[example]]
 name = "03_lambert_earth_to_mars"
@@ -57,8 +49,6 @@ siderust  = { version = "0.12", features = ["pod"] }
 sgp4 = { version = "2.4", default-features = false, features = ["std"] }
 
 # ── Linear algebra ────────────────────────────────────────────────────────────
-faer = { version = "0.24", default-features = false, features = ["std", "linalg"] }
-
 # ── Serialisation ─────────────────────────────────────────────────────────────
 serde      = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
@@ -68,10 +58,6 @@ serde_yaml = "0.9"
 # ── Error handling ────────────────────────────────────────────────────────────
 thiserror = "1.0"
 anyhow    = "1.0"
-
-# ── Hashing ───────────────────────────────────────────────────────────────────
-sha2 = "0.10"
-hex  = "0.4"
 
 # ── Time ──────────────────────────────────────────────────────────────────────
 chrono = "0.4"

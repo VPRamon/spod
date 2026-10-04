@@ -66,7 +66,7 @@ pub struct ForcesConfig {
     pub two_body: bool,
     /// J2 oblateness.
     pub j2: bool,
-    /// Sun + Moon third-body.
+    /// Sun + Moon third-body gravity. Currently rejected by the synthetic-only runner.
     pub third_body: bool,
 }
 
@@ -88,6 +88,11 @@ impl RunConfig {
         }
         if !(self.forces.two_body) {
             return Err("two_body force must be enabled".into());
+        }
+        if self.forces.third_body {
+            return Err(
+                "third_body force is not implemented in the current synthetic-only service".into(),
+            );
         }
         Ok(())
     }

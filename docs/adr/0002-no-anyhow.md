@@ -1,48 +1,33 @@
-# ADR-0002 — Unified per-crate `thiserror` Error enums; no `anyhow`
+# ADR-0002 — Typed library errors; `anyhow` only at application boundaries
 
 ## Status
 
-Accepted (Phase 1, enforced as workspace lint)
+Accepted.
 
 ## Context
 
-Early scaffolding in several crates used `anyhow::Error` as a catch-all return
-type. `anyhow` is an ergonomic choice for application-layer code where callers
-only need to print or propagate opaque errors. It is a poor choice for library
-crates because:
+`anyhow::Error` is useful in binaries where the consumer primarily needs a
+human-readable diagnostic. It is less suitable for reusable library APIs,
+where callers need to match on structured failure modes.
 
-1. **Caller cannot match on variants.** Library users need to inspect errors to
-   decide whether to retry, fall back, or surface diagnostics to their own
-   callers. `anyhow::Error` erases that information.
-2. **Documentation.** `thiserror`-derived enums appear in `rustdoc` with their
-   variant list, making the error contract part of the public API and
-   searchable.
-3. **`cargo-public-api` snapshots.** A `thiserror` enum is a stable, snapshotted
-   API surface. `anyhow::Error` is not.
-4. **Composability.** Downstream crates (e.g., `siderust-pod-service`) compose
-   errors from multiple crates; typed enums allow clean `From` impls or
-   `?`-compatible conversions.
+The current `spod` repository is a single package with library modules plus
+CLI/REST entry points, while reusable POD science comes from Siderust.
 
 ## Decision
 
-Every library crate in `spod` defines exactly **one** error type per
-crate, named `<CratePrefix>Error` (e.g., `PodIoError`, `LambertError`). It is:
-
-- Derived with `thiserror::Error`.
-- Re-exported from the crate's `lib.rs` at the crate root.
-- The **only** error type that appears on public API `Result<_, E>` signatures.
-- `#[non_exhaustive]` where future variants are expected.
-
-`anyhow` must not appear in any library crate dependency. It may be used in
-test binaries and the CLI binary where ergonomic error printing is the only
-requirement.
+- Reusable `spod` library modules expose structured error enums, normally
+  derived with `thiserror::Error`.
+- Errors should preserve useful fields and wrap lower-level typed errors rather
+  than flattening them to strings when a typed boundary is available.
+- `anyhow` is acceptable in the `spod` and `spod-rest` binary entry points,
+  where errors terminate at a human/operator-facing application boundary.
+- Service orchestration may translate external errors into its own structured
+  service error where that adds meaningful context.
 
 ## Consequences
 
-- Library callers get exhaustive match coverage and can inspect error details.
-- Error types are versioned through `api.snapshot` CI gate.
-- Minor code overhead vs `anyhow` in library internals: internal helpers use
-  `Result<_, <CratePrefix>Error>` throughout.
-- The workspace `[workspace.lints]` does not currently auto-ban `anyhow` in
-  libraries; authors rely on code-review and the `api.snapshot` diff to catch
-  regressions.
+- Downstream Rust callers can inspect library failures programmatically.
+- Rustdoc exposes the error contract of reusable APIs.
+- CLI/REST startup and top-level command handling retain ergonomic contextual
+  error reporting without turning `anyhow::Error` into a scientific/library
+  API surface.

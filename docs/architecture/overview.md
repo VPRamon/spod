@@ -1,9 +1,9 @@
 # Architecture Overview
 
-`spod` is a single-crate precise-orbit-determination toolkit. Its
-modules separate domain primitives, dynamics, observations, estimation,
-formats, products, quality control, and application orchestration while
-sharing one released dependency graph.
+`spod` is a service/application built on Siderust's canonical POD APIs.
+It owns configuration, external interfaces, format adapters, orchestration,
+and artifacts; reusable dynamics, observations, estimation, QC, products,
+and run metadata remain in `siderust::pod`.
 
 ## Dependency structure
 
@@ -22,14 +22,10 @@ flowchart TD
     PRINCIPIA[principia] --> POD
     SIDERUST[siderust] --> POD
 
-    POD --> CORE[core]
-    POD --> DYN[dynamics]
     POD --> IO[io / formats]
-    POD --> OBS[observations]
-    POD --> EST[estimation]
-    POD --> PROD[products]
-    POD --> QC[quality control]
     POD --> SVC[service / CLI / REST]
+    SIDERUST --> SCIENCE[siderust::pod]
+    SCIENCE --> SVC
 ```
 
 The dependency check in `scripts/check_dep_graph.sh` rejects path and git
@@ -45,16 +41,11 @@ artefacts.
 ```mermaid
 flowchart LR
     RAW[Raw observations and auxiliary data] --> IO[Parsing and providers]
-    IO --> OBS[Measurement models and corrections]
-    IO --> DYN[Force models and propagation]
-    OBS --> EST[WLS / Gauss-Newton / EKF]
-    DYN --> EST
-    EST --> QC[Residual and orbit checks]
-    EST --> PROD[SP3 / OEM / residual products]
-    QC --> PROD
-    PROD --> OUT[Run artefacts and manifest]
+    IO --> SVC[Service translation and orchestration]
+    SVC --> POD[siderust::pod execution]
+    POD --> OUT[Service artifacts and manifest]
 ```
 
 The CLI and REST binaries are thin front ends over the service module. The
-scientific layers remain independently testable, with typed quantities,
-time scales, centers, and frames preserved at their boundaries.
+Siderust's scientific APIs remain independently testable, while the service
+boundary is covered by synthetic end-to-end execution.

@@ -15,7 +15,7 @@
 //!   typed [`LisaOrbit`].
 //! - [`LisaOrbitSet`]: holds the three loaded spacecraft orbits together.
 //! - [`LisaEphemerisProvider`][]: implements
-//!   [`crate::core::providers::EphemerisProvider`] via **cubic Hermite**
+//!   [`crate::service::providers::EphemerisProvider`] via **cubic Hermite**
 //!   interpolation over the tabulated state vectors.
 //!
 //! ## Interpolation
@@ -48,7 +48,7 @@
 //!   <https://doi.org/10.1007/s40295-021-00263-2>
 
 use super::{oem::read_oem, PodIoError};
-use crate::core::providers::EphemerisProvider;
+use crate::service::providers::EphemerisProvider;
 use siderust::affn::cartesian;
 use siderust::affn::centers::{AffineCenter, ReferenceCenter};
 use siderust::affn::frames::EME2000;
@@ -440,7 +440,7 @@ impl LisaOrbitSet {
 ///
 /// ```
 /// use spod::io::lisa::{LisaOrbitReader, LisaOrbitSet, LisaEphemerisProvider, LisaSpacecraftId};
-/// use spod::core::providers::EphemerisProvider;
+/// use spod::service::providers::EphemerisProvider;
 ///
 /// let root = concat!(env!("CARGO_MANIFEST_DIR"), "/test-data/lisa");
 /// let load = |name: &str, sc: LisaSpacecraftId| {
