@@ -1,0 +1,159 @@
+name: Feature request
+description: Propose a new or expanded spod product capability.
+title: "[feature] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this form for a capability that should become part of the spod product.
+
+        Reusable scientific algorithms, parsers, and numerical primitives normally belong in Siderust. spod should own operational workflows, policy, orchestration, artifacts, interfaces, and product behavior.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem / opportunity
+      description: Describe the user or operational problem before proposing implementation details.
+      placeholder: Operators currently have to ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: user
+    attributes:
+      label: Target user / persona
+      description: Who needs this and in what context?
+      placeholder: LEO operator, flight-dynamics engineer, ground-segment integrator, SRE, ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: capability
+    attributes:
+      label: Proposed capability
+      description: What should spod be able to do when this is complete?
+      placeholder: spod should ...
+    validations:
+      required: true
+
+  - type: dropdown
+    id: ownership
+    attributes:
+      label: Intended ownership
+      description: Where should the implementation primarily live?
+      options:
+        - spod — workflow / orchestration / product behavior
+        - spod — interface / artifact / operational policy
+        - Siderust — reusable scientific or format capability
+        - Upstream gap first — spod needs it but canonical science is missing
+        - Reference example / mission-specific extension
+        - Unsure — requires architecture review
+    validations:
+      required: true
+
+  - type: textarea
+    id: workflow
+    attributes:
+      label: User workflow
+      description: Describe the expected interaction from input/request to result.
+      placeholder: |
+        1. User provides ...
+        2. spod resolves ...
+        3. Siderust computes ...
+        4. spod publishes ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: inputs
+    attributes:
+      label: Inputs / preconditions
+      description: List required datasets, configuration, state, permissions, or preconditions.
+      placeholder: |
+        - ...
+        - ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: outputs
+    attributes:
+      label: Outputs / observable behavior
+      description: What artifacts, API responses, status, reports, or side effects must be produced?
+      placeholder: |
+        - ...
+        - ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: requirements
+    attributes:
+      label: Functional and operational requirements
+      description: Include important semantics, failure behavior, reproducibility, provenance, latency, or quality requirements.
+      placeholder: |
+        - Must ...
+        - Must not silently ...
+        - Unsupported combinations must ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+      description: Write externally verifiable criteria. Prefer checkboxes and observable outcomes over implementation details.
+      placeholder: |
+        - [ ] ...
+        - [ ] ...
+        - [ ] ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: verification
+    attributes:
+      label: Verification strategy
+      description: How will we prove the capability works and remains working?
+      placeholder: |
+        - Unit/integration/E2E coverage:
+        - Reference dataset:
+        - CLI/REST verification:
+        - Numerical/QC tolerances:
+    validations:
+      required: true
+
+  - type: textarea
+    id: dependencies
+    attributes:
+      label: Dependencies / upstream gaps
+      description: Link related spod or Siderust issues and identify blockers.
+
+  - type: textarea
+    id: non_goals
+    attributes:
+      label: Non-goals
+      description: Explicitly state what this feature should not expand into.
+      placeholder: |
+        - ...
+        - ...
+
+  - type: textarea
+    id: value
+    attributes:
+      label: Product value
+      description: Why is this worth building? Describe operational, commercial, reliability, or user value.
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: hygiene
+    attributes:
+      label: Checklist
+      options:
+        - label: I checked that this is not already covered by an existing issue/use case.
+          required: true
+        - label: I considered whether reusable science belongs upstream in Siderust instead of spod.
+          required: true
+        - label: The acceptance criteria describe observable product behavior.
+          required: true

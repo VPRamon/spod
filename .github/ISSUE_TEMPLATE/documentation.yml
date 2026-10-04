@@ -1,0 +1,100 @@
+name: Documentation
+description: Create, correct, or improve product, architecture, operational, or developer documentation.
+title: "[docs] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Documentation is part of the product contract. Use this template when documentation is missing, stale, misleading, or insufficient to verify supported behavior.
+
+  - type: dropdown
+    id: kind
+    attributes:
+      label: Documentation type
+      options:
+        - Product / positioning
+        - Use case / workflow
+        - User guide / operations
+        - CLI / REST API
+        - Configuration / schema
+        - Architecture / ownership boundary
+        - Scientific assumptions / validation
+        - Deployment / observability
+        - Developer / contributing
+        - Examples
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Documentation problem
+      description: What is missing, wrong, stale, ambiguous, or difficult to verify?
+    validations:
+      required: true
+
+  - type: textarea
+    id: audience
+    attributes:
+      label: Audience
+      description: Who should be able to use this documentation?
+      placeholder: Operator, integrator, contributor, flight-dynamics engineer, reviewer, ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: source_of_truth
+    attributes:
+      label: Source of truth
+      description: Which code, issue, schema, use case, standard, or external specification should the documentation agree with?
+      placeholder: |
+        - ...
+        - ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: scope
+    attributes:
+      label: Required content
+      description: List the concepts, workflows, examples, limitations, or decisions the documentation must cover.
+      placeholder: |
+        - ...
+        - ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: examples
+    attributes:
+      label: Examples / evidence
+      description: Include concrete commands, configs, API exchanges, artifacts, or diagrams that should be documented.
+
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+      description: Define how reviewers can verify the documentation is complete and accurate.
+      placeholder: |
+        - [ ] ...
+        - [ ] No stale ownership/API claims remain.
+        - [ ] Commands/examples are executable or covered by tests where practical.
+    validations:
+      required: true
+
+  - type: textarea
+    id: related
+    attributes:
+      label: Related issues / use cases
+      description: Link the product capability or use case this documentation explains.
+
+  - type: checkboxes
+    id: hygiene
+    attributes:
+      label: Checklist
+      options:
+        - label: I checked current documentation for an existing canonical page before proposing a duplicate.
+          required: true
+        - label: This request identifies a source of truth rather than relying on undocumented assumptions.
+          required: true

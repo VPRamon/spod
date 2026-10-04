@@ -1,0 +1,159 @@
+name: Bug report
+description: Report a defect or regression in an existing spod capability.
+title: "[bug] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this form for behavior that is incorrect relative to an existing capability or documented contract.
+
+        Please avoid reporting missing/new capabilities as bugs; use the feature or use-case template instead.
+
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: What is broken? Describe the defect in one or two clear paragraphs.
+      placeholder: The service accepts ... but then ...
+    validations:
+      required: true
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      description: Which part of spod is primarily affected?
+      options:
+        - Service orchestration
+        - CLI
+        - REST API
+        - Configuration / mission profiles
+        - Input resolution / ingestion
+        - POD workflow
+        - Products / artifacts
+        - QC / validation / reporting
+        - Provenance / manifests
+        - Deployment / Docker
+        - Observability
+        - Build / CI / tooling
+        - Documentation
+        - Other
+    validations:
+      required: true
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity
+      description: What is the practical impact?
+      options:
+        - Critical — corrupt/invalid scientific or operational result without an explicit failure
+        - High — supported workflow is unusable or materially wrong
+        - Medium — degraded behavior with a workaround
+        - Low — minor defect or polish issue
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+      description: What should happen according to the supported product behavior or documentation?
+      placeholder: |
+        Given ...
+        When ...
+        Then ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+      description: What happens instead?
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduction steps
+      description: Provide the smallest reliable sequence that reproduces the issue.
+      placeholder: |
+        1. Use config ...
+        2. Run ...
+        3. Inspect ...
+        4. Observe ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: config
+    attributes:
+      label: Relevant configuration or input contract
+      description: Include the minimal relevant configuration. Remove secrets, credentials, and private data.
+      render: yaml
+
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidence
+      description: Add logs, error output, artifact paths, numerical differences, screenshots, or hashes that demonstrate the issue.
+      placeholder: Paste concise evidence here.
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: Include spod version/commit, Siderust version, Rust version, OS, container image, and deployment mode when relevant.
+      placeholder: |
+        spod:
+        Siderust:
+        Rust:
+        OS:
+        Deployment:
+    validations:
+      required: true
+
+  - type: dropdown
+    id: regression
+    attributes:
+      label: Regression?
+      description: Did this capability work previously?
+      options:
+        - "Yes"
+        - "No"
+        - Unknown
+    validations:
+      required: true
+
+  - type: textarea
+    id: capability_impact
+    attributes:
+      label: Product capability impact
+      description: Which documented workflow, use case, artifact, API contract, or product capability is affected?
+      placeholder: This breaks / degrades ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: done
+    attributes:
+      label: Definition of fixed
+      description: State what must be true to close the bug, including the regression test or verification evidence.
+      placeholder: |
+        - [ ] Reproduction fails before the fix and passes after it.
+        - [ ] Existing product-level behavior remains unchanged.
+        - [ ] Relevant integration/E2E coverage is added.
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: hygiene
+    attributes:
+      label: Checklist
+      options:
+        - label: I searched existing issues and did not find an equivalent report.
+          required: true
+        - label: I removed secrets, credentials, and private mission data from the report.
+          required: true
