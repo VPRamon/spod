@@ -127,7 +127,7 @@ jobs:
       - uses: Swatinem/rust-cache@v2
       - run: cargo build --bins
       - run: cargo run --quiet --bin spod -- --help
-      - name: Start REST server and query health
+      - name: Start REST server and verify job provenance
         shell: bash
         run: |
           set -euo pipefail
@@ -135,16 +135,74 @@ jobs:
           cargo run --quiet --bin spod-rest &
           server_pid=$!
           trap 'kill "$server_pid" 2>/dev/null || true' EXIT
+
+          ready=false
           for attempt in {1..30}; do
-            if curl --fail --silent "http://127.0.0.1:${port}/healthz"; then
-              exit 0
+            if curl --fail --silent "http://127.0.0.1:${port}/healthz" >/dev/null; then
+              ready=true
+              break
             fi
             sleep 1
           done
-          echo "REST server did not become ready" >&2
-          exit 1
+          if [[ "$ready" != true ]]; then
+            echo "REST server did not become ready" >&2
+            exit 1
+          fi
+
+          job_id="$(
+            curl --fail --silent \
+              -H 'content-type: application/json' \
+              -d '{"enable_j2":false}' \
+              "http://127.0.0.1:${port}/jobs" \
+              | python3 -c 'import json,sys; print(json.load(sys.stdin)["id"])'
+          )"
+
+          status_json=
+          for attempt in {1..60}; do
+            status_json="$(curl --fail --silent "http://127.0.0.1:${port}/jobs/${job_id}")"
+            state="$(printf '%s' "$status_json" | python3 -c 'import json,sys; print(json.load(sys.stdin)["state"])')"
+            if [[ "$state" == "finished" ]]; then
+              break
+            fi
+            if [[ "$state" == "failed" ]]; then
+              echo "$status_json" >&2
+              exit 1
+            fi
+            sleep 1
+          done
+
+          state="$(printf '%s' "$status_json" | python3 -c 'import json,sys; print(json.load(sys.stdin)["state"])')"
+          [[ "$state" == "finished" ]]
+
+          run_dir="$SPOD_REST_OUT/$job_id"
+          request_path="$run_dir/request.json"
+          manifest_path="$run_dir/run.manifest.json"
+          test -f "$request_path"
+          test -f "$manifest_path"
+
+          python3 - "$manifest_path" "$request_path" <<'PY'
+          import hashlib
+          import json
+          import pathlib
+          import sys
+
+          manifest_path = pathlib.Path(sys.argv[1])
+          request_path = pathlib.Path(sys.argv[2])
+          manifest = json.loads(manifest_path.read_text())
+          payload = request_path.read_bytes()
+
+          assert len(manifest["inputs"]) == 1
+          input_ref = manifest["inputs"][0]
+          assert pathlib.Path(input_ref["path"]) == request_path
+          assert input_ref["kind"] == "configuration"
+          assert input_ref["bytes"] == len(payload)
+          digest = hashlib.sha256(payload).hexdigest()
+          assert input_ref["sha256"] == digest
+          assert manifest["config_sha256"] == digest
+          PY
         env:
           SPOD_REST_BIND: 127.0.0.1:18080
+          SPOD_REST_OUT: ${{ runner.temp }}/spod-rest-smoke
 
   docker:
     name: Docker image and compatibility smoke tests
@@ -160,7 +218,7 @@ jobs:
         run: |
           set -euo pipefail
           cleanup() {
-            docker rm -f spod-ci-default spod-ci-new spod-ci-legacy >/dev/null 2>&1 || true
+            docker rm -f spod-ci-default spod-ci-new >/dev/null 2>&1 || true
           }
           trap cleanup EXIT
 
