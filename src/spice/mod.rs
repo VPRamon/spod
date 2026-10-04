@@ -11,7 +11,7 @@
 //! # Scope
 //!
 //! The module builds on the upstream `siderust::formats::spice::{daf, spk}`
- //! readers and adds:
+//! readers and adds:
 //!
 //! * A unified [`SpkSegment`] enum that supports SPK **Type 2**
 //!   (Chebyshev position) and **Type 3** (Chebyshev position+velocity).
