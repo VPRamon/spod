@@ -26,7 +26,7 @@ use super::pod_error::PodDynamicsError;
 /// # Example
 ///
 /// ```
-/// use siderust_pod::dynamics::{propagate_orbit, Rk4Integrator};
+/// use spod::dynamics::{propagate_orbit, Rk4Integrator};
 /// use siderust::astro::dynamics::forces::TwoBody;
 /// use siderust::astro::dynamics::{OrbitState, DynamicsContext};
 /// use siderust::astro::dynamics::{Position, Velocity};
@@ -68,7 +68,7 @@ where
 /// # Example
 ///
 /// ```
-/// use siderust_pod::dynamics::{propagate_spacecraft, Rk4Integrator};
+/// use spod::dynamics::{propagate_spacecraft, Rk4Integrator};
 /// use siderust::astro::dynamics::forces::TwoBody;
 /// use siderust::astro::dynamics::{
 ///     DynamicsContext, OrbitState, SpacecraftProperties, SpacecraftState,

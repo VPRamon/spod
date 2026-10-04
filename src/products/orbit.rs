@@ -50,7 +50,7 @@ use super::error::PodProductsError;
 /// # Examples
 ///
 /// ```
-/// use siderust_pod::products::orbit::write_sp3_from_states;
+/// use spod::products::orbit::write_sp3_from_states;
 /// use siderust::astro::dynamics::{OrbitState, Position, Velocity};
 /// use siderust::coordinates::frames::GCRS;
 /// use siderust::time::JulianDate;
@@ -87,13 +87,13 @@ pub fn write_sp3_from_states<W: Write>(
         "%f  0.0000000  0.000000000  0.00000000000  0.000000000000000".to_string(),
         "%i    0    0    0    0      0      0      0      0         0".to_string(),
         "%i    0    0    0    0      0      0      0      0         0".to_string(),
-        "/* siderust-pod orbit product".to_string(),
+        "/* spod orbit product".to_string(),
     ];
     let epochs = states
         .iter()
         .map(|s| {
             // Bridge the two tempoch versions (siderust uses crates.io tempoch,
-            // siderust-pod-io uses the local path version) via the raw f64 JD.
+            // spod::io uses the local path version) via the raw f64 JD.
             let epoch_utc: Time<UTC> =
                 JulianDate::<TT>::try_new(Days::new(s.epoch.to::<siderust::tempoch::JD>().value()))
                     .expect("OrbitState epoch must be finite")
@@ -122,12 +122,12 @@ pub fn write_sp3_from_states<W: Write>(
 /// Write an OEM product from an `OrbitState` series.
 ///
 /// Converts each [`OrbitState`] into an [`OemState`] (km/km·s⁻¹, TT Julian
-/// Date) and delegates to `siderust-pod-io`'s `write_oem`.
+/// Date) and delegates to `spod::io`'s `write_oem`.
 ///
 /// # Examples
 ///
 /// ```
-/// use siderust_pod::products::orbit::write_oem_from_states;
+/// use spod::products::orbit::write_oem_from_states;
 /// use siderust::astro::dynamics::{OrbitState, Position, Velocity};
 /// use siderust::coordinates::frames::GCRS;
 /// use siderust::time::JulianDate;
@@ -186,7 +186,7 @@ pub fn write_oem_from_states<W: Write>(
 /// # Examples
 ///
 /// ```
-/// use siderust_pod::products::orbit::write_oem_from_spacecraft_states;
+/// use spod::products::orbit::write_oem_from_spacecraft_states;
 /// use siderust::astro::dynamics::state::{SpacecraftProperties, SpacecraftState};
 /// use siderust::astro::dynamics::{OrbitState, Position, Velocity};
 /// use siderust::coordinates::frames::GCRS;
@@ -223,7 +223,7 @@ pub fn write_oem_from_spacecraft_states<W: Write>(
 /// # Examples
 ///
 /// ```
-/// use siderust_pod::products::orbit::Sp3ProductWriter;
+/// use spod::products::orbit::Sp3ProductWriter;
 ///
 /// let w = Sp3ProductWriter::new("G01");
 /// drop(w);
@@ -240,7 +240,7 @@ impl Sp3ProductWriter {
     /// # Examples
     ///
     /// ```
-    /// use siderust_pod::products::orbit::Sp3ProductWriter;
+    /// use spod::products::orbit::Sp3ProductWriter;
     ///
     /// let w = Sp3ProductWriter::new("G01");
     /// drop(w);
@@ -263,7 +263,7 @@ impl Sp3ProductWriter {
     /// # Examples
     ///
     /// ```no_run
-    /// use siderust_pod::products::orbit::Sp3ProductWriter;
+    /// use spod::products::orbit::Sp3ProductWriter;
     /// use std::path::Path;
     ///
     /// // Given `states: Vec<SpacecraftState>`:
@@ -292,7 +292,7 @@ impl Sp3ProductWriter {
 /// # Examples
 ///
 /// ```
-/// use siderust_pod::products::orbit::OemProductWriter;
+/// use spod::products::orbit::OemProductWriter;
 ///
 /// let w = OemProductWriter::new("2024-001A", "MYSAT");
 /// drop(w);
@@ -308,7 +308,7 @@ impl OemProductWriter {
     /// # Examples
     ///
     /// ```
-    /// use siderust_pod::products::orbit::OemProductWriter;
+    /// use spod::products::orbit::OemProductWriter;
     ///
     /// let w = OemProductWriter::new("2024-001A", "MYSAT");
     /// drop(w);
@@ -332,7 +332,7 @@ impl OemProductWriter {
     /// # Examples
     ///
     /// ```no_run
-    /// use siderust_pod::products::orbit::OemProductWriter;
+    /// use spod::products::orbit::OemProductWriter;
     /// use std::path::Path;
     ///
     /// // Given `states: Vec<SpacecraftState>`:

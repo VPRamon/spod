@@ -236,7 +236,7 @@ pub fn read_rinex_obs<R: Read>(rdr: R) -> Result<RinexObs, PodIoError> {
 /// # Examples
 ///
 /// ```
-/// use siderust_pod::io::rinex_obs::{read_rinex_obs, write_rinex_obs};
+/// use spod::io::rinex_obs::{read_rinex_obs, write_rinex_obs};
 ///
 /// let src = concat!(
 ///     "     3.04           OBSERVATION DATA    M (MIXED)           RINEX VERSION / TYPE\n",

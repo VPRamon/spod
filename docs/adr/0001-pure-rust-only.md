@@ -1,4 +1,4 @@
-# ADR-0001 — Pure Rust only; no Python bindings in siderust-pod
+# ADR-0001 — Pure Rust only; no Python bindings in spod
 
 ## Status
 
@@ -8,7 +8,7 @@ Accepted (2026-05-12)
 
 The siderust ecosystem provides a Python adapter (`python/siderust-py`) that
 wraps `siderust` and `siderust-ffi` via PyO3. When planning the maturity path
-for `siderust-pod`, the option to expose POD functionality directly from this
+for `spod`, the option to expose POD functionality directly from this
 workspace through Python bindings was considered.
 
 However:
@@ -21,23 +21,23 @@ However:
 - Python consumers of POD are better served by consuming the products (SP3, OEM,
   CSV residuals) rather than calling into the estimation pipeline directly.
 - The existing `python/siderust-py` adapter is already maintained separately;
-  duplicating that maintenance burden inside `siderust-pod` would create
+  duplicating that maintenance burden inside `spod` would create
   synchronisation lag.
 
 ## Decision
 
-`siderust-pod` exposes **Rust API only**. No PyO3 crate, no `maturin` build,
+`spod` exposes **Rust API only**. No PyO3 crate, no `maturin` build,
 no Python type stubs generated from this workspace.
 
-Python users interact with siderust-pod outputs through:
+Python users interact with spod outputs through:
 - File formats (SP3, OEM, CSV residuals, JSON manifest).
-- The REST API exposed by `siderust-pod-rest` (OpenAPI-documented).
+- The REST API exposed by `spod-rest` (OpenAPI-documented).
 - The existing `python/siderust-py` adapter for lower-level siderust primitives.
 
 ## Consequences
 
-- The `siderust-pod` workspace stays free of Python build machinery.
+- The `spod` workspace stays free of Python build machinery.
 - No `p9-python` todo exists; this decision is final for the 0.x series.
 - If Python integration becomes a priority in 1.x, a dedicated
-  `siderust-pod-py` adapter crate may be created in the `python/` adapter
+  `spod-py` adapter crate may be created in the `python/` adapter
   tree, not inside this workspace.

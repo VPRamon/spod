@@ -57,10 +57,10 @@ mod inner {
     /// # Examples
     ///
     /// ```no_run
-    /// use siderust_pod::observations::inter_sat::InterSatRangeObs;
-    /// use siderust_pod::observations::obs_trait::{CartesianState, Observation};
-    /// use siderust_pod::observations::provider_bundle::NullProviderBundle;
-    /// use siderust_pod::io::lisa::{LisaEphemerisProvider, LisaOrbitReader, LisaOrbitSet, LisaSpacecraftId};
+    /// use spod::observations::inter_sat::InterSatRangeObs;
+    /// use spod::observations::obs_trait::{CartesianState, Observation};
+    /// use spod::observations::provider_bundle::NullProviderBundle;
+    /// use spod::io::lisa::{LisaEphemerisProvider, LisaOrbitReader, LisaOrbitSet, LisaSpacecraftId};
     /// use siderust::astro::dynamics::{Position, Velocity};
     /// use siderust::coordinates::frames::GCRS;
     /// use siderust::time::JulianDate;

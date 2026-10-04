@@ -16,7 +16,7 @@
 /// # Examples
 ///
 /// ```
-/// use siderust_pod::tle::{parse_tle, TleError};
+/// use spod::tle::{parse_tle, TleError};
 ///
 /// let too_short = "1 25544";
 /// let other     = "2 25544";

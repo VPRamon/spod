@@ -100,7 +100,7 @@ pub struct ParamStmReport {
 /// # Example
 ///
 /// ```
-/// use siderust_pod::dynamics::{param_partials_central_diff, Rk4Integrator};
+/// use spod::dynamics::{param_partials_central_diff, Rk4Integrator};
 /// use siderust::astro::dynamics::forces::TwoBody;
 /// use siderust::astro::dynamics::{OrbitState, DynamicsContext};
 /// use siderust::astro::dynamics::{Position, Velocity};
@@ -175,7 +175,7 @@ where
 /// use siderust::coordinates::frames::GCRS;
 /// use siderust::qtty::Second;
 /// use siderust::time::JulianDate;
-/// use siderust_pod::dynamics::variational::{PropagatedArc, VariationalPropagator};
+/// use spod::dynamics::variational::{PropagatedArc, VariationalPropagator};
 ///
 /// let s0 = OrbitState::new(
 ///     JulianDate::new(2_451_545.0).to_j2000s(),
@@ -237,7 +237,7 @@ impl PropagatedArc {
 /// use siderust::coordinates::frames::GCRS;
 /// use siderust::qtty::Second;
 /// use siderust::time::JulianDate;
-/// use siderust_pod::dynamics::variational::VariationalPropagator;
+/// use spod::dynamics::variational::VariationalPropagator;
 ///
 /// let s0 = OrbitState::new(
 ///     JulianDate::new(2_451_545.0).to_j2000s(),

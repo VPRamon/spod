@@ -1,6 +1,6 @@
 # Error Model
 
-`siderust-pod` follows a single, uniform convention for fallible APIs:
+`spod` follows a single, uniform convention for fallible APIs:
 **one `thiserror`-backed `Error` enum per crate**, re-exported from
 `lib.rs`.
 
@@ -31,8 +31,8 @@
 
 3. **No `anyhow` in library crates.** `anyhow::Error` erases the variant,
    making programmatic error handling impossible for downstream callers.
-   `anyhow` is permitted *only* in the binary crates `siderust-pod-cli` and
-   `siderust-pod-rest`, where the consumer is a human reading a terminal or
+   `anyhow` is permitted *only* in the binary crates `spod` and
+   `spod-rest`, where the consumer is a human reading a terminal or
    an HTTP error body.
 
 4. **Variants must be structured.** A single `String` payload is forbidden
@@ -58,16 +58,16 @@
 | `siderust-sgp4`                | `siderust_sgp4::Error`                    | no                |
 | `siderust-spice`               | `siderust_spice::SpiceError`              | no                |
 | `siderust-tle`                 | `siderust_tle::TleError`                  | no                |
-| `siderust-pod-core`            | `siderust_pod_core::Error`                | no                |
-| `siderust-pod-dynamics`        | `siderust_pod_dynamics::Error`            | no                |
-| `siderust-pod-io`              | `siderust_pod_io::Error`                  | no                |
-| `siderust-pod-observations`    | `siderust_pod_observations::Error`        | no                |
-| `siderust-pod-estimation`      | `siderust_pod_estimation::EstimationError`| no                |
-| `siderust-pod-qc`              | `siderust_pod_qc::Error`                  | no                |
-| `siderust-pod-products`        | `siderust_pod_products::Error`            | no                |
-| `siderust-pod-service`         | `siderust_pod_service::PipelineError`     | no                |
-| `siderust-pod-cli`             | n/a (binary)                              | **yes**           |
-| `siderust-pod-rest`            | n/a (binary)                              | **yes**           |
+| `spod::core`            | `spod_core::Error`                | no                |
+| `spod::dynamics`        | `spod_dynamics::Error`            | no                |
+| `spod::io`              | `spod::io::Error`                  | no                |
+| `spod::observations`    | `spod_observations::Error`        | no                |
+| `spod::estimation`      | `spod_estimation::EstimationError`| no                |
+| `spod::qc`              | `spod_qc::Error`                  | no                |
+| `spod::products`        | `spod_products::Error`            | no                |
+| `spod::service`         | `spod_service::PipelineError`     | no                |
+| `spod`             | n/a (binary)                              | **yes**           |
+| `spod-rest`            | n/a (binary)                              | **yes**           |
 
 ## Example
 

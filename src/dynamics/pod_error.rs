@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Vallés Puig, Ramon
 
-//! Unified error enum for `siderust-pod-dynamics`.
+//! Unified error enum for `spod::dynamics`.
 //!
 //! Wraps the failure surfaces this crate exposes:
 //!
@@ -18,12 +18,12 @@
 
 use thiserror::Error;
 
-/// Top-level error type for `siderust-pod-dynamics`.
+/// Top-level error type for `spod::dynamics`.
 ///
 /// # Examples
 ///
 /// ```
-/// use siderust_pod::dynamics::PodDynamicsError;
+/// use spod::dynamics::PodDynamicsError;
 ///
 /// let err = PodDynamicsError::UnknownModel("nonsense".into());
 /// assert_eq!(err.to_string(), "unknown force model name: 'nonsense'");

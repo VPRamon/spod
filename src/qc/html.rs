@@ -31,7 +31,7 @@ use std::fmt::Write;
 pub fn render_html(qc: &serde_json::Value) -> String {
     let mut s = String::new();
     s.push_str("<!doctype html>\n<html><head><meta charset=\"utf-8\">");
-    s.push_str("<title>Siderust POD — QC report</title><style>");
+    s.push_str("<title>spod — QC report</title><style>");
     s.push_str("body{font-family:system-ui,sans-serif;max-width:880px;margin:2em auto;padding:0 1em;color:#222}");
     s.push_str("h1,h2{border-bottom:1px solid #ccc;padding-bottom:.25em}");
     s.push_str("table{border-collapse:collapse;margin:1em 0}");
@@ -39,7 +39,7 @@ pub fn render_html(qc: &serde_json::Value) -> String {
     s.push_str("th:first-child,td:first-child{text-align:left}");
     s.push_str("code{background:#f4f4f4;padding:.05em .3em;border-radius:3px}");
     s.push_str("</style></head><body>");
-    s.push_str("<h1>Siderust POD — QC report</h1>");
+    s.push_str("<h1>spod — QC report</h1>");
 
     if let Some(run_id) = qc.get("run_id").and_then(|v| v.as_str()) {
         let _ = write!(s, "<p>Run ID: <code>{}</code></p>", html_escape(run_id));

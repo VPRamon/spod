@@ -13,7 +13,7 @@ use siderust::astro::dynamics::GM_EARTH;
 use siderust::coordinates::frames::GCRS;
 use siderust::qtty::Second;
 use siderust::time::JulianDate;
-use siderust_pod::dynamics::{
+use spod::dynamics::{
     DynamicsContext, Integrator, OrbitState, Position, Rk4Integrator, TwoBody, Velocity,
 };
 

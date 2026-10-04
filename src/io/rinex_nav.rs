@@ -290,7 +290,7 @@ fn fmt_d(v: f64) -> String {
 /// # Examples
 ///
 /// ```
-/// use siderust_pod::io::rinex_nav::{parse_rinex_nav, write_rinex_nav};
+/// use spod::io::rinex_nav::{parse_rinex_nav, write_rinex_nav};
 ///
 /// let txt = "\
 ///      3.04           N: GNSS NAV DATA    M (Mixed)           RINEX VERSION / TYPE\n\
@@ -384,7 +384,7 @@ pub fn write_rinex_nav<W: Write>(w: &mut W, file: &RinexNavFile) -> Result<(), P
 /// # Examples
 ///
 /// ```no_run
-/// use siderust_pod::io::rinex_nav::{write_rinex_nav_to_path, RinexNavFile};
+/// use spod::io::rinex_nav::{write_rinex_nav_to_path, RinexNavFile};
 /// write_rinex_nav_to_path("/tmp/out.rnx", &RinexNavFile::default()).ok();
 /// ```
 pub fn write_rinex_nav_to_path<P: AsRef<Path>>(

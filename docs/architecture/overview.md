@@ -1,6 +1,6 @@
 # Architecture Overview
 
-`siderust-pod` is a single-crate precise-orbit-determination toolkit. Its
+`spod` is a single-crate precise-orbit-determination toolkit. Its
 modules separate domain primitives, dynamics, observations, estimation,
 formats, products, quality control, and application orchestration while
 sharing one released dependency graph.
@@ -15,7 +15,7 @@ those upstream crates.
 
 ```mermaid
 flowchart TD
-    QTTY[qtty] --> POD[siderust-pod]
+    QTTY[qtty] --> POD[spod]
     TEMPOCH[tempoch] --> POD
     AFFN[affn] --> POD
     CHEBY[cheby] --> POD

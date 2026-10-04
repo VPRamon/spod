@@ -1,7 +1,7 @@
 # POD Non-Functional Requirements
 
 This document captures the performance benchmarks (PB), accuracy gates,
-and reproducibility requirements for `siderust-pod`.
+and reproducibility requirements for `spod`.
 
 ## Performance benchmarks
 

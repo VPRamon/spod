@@ -16,7 +16,7 @@ use std::io::{BufRead, BufReader, Read};
 /// # Examples
 ///
 /// ```
-/// use siderust_pod::io::orbex::OrbexOrbitEntry;
+/// use spod::io::orbex::OrbexOrbitEntry;
 /// let e = OrbexOrbitEntry {
 ///     sat: "G01".to_string(),
 ///     epoch_mjd: 60000.25,
@@ -42,7 +42,7 @@ pub struct OrbexOrbitEntry {
 /// # Examples
 ///
 /// ```
-/// use siderust_pod::io::orbex::OrbexClockEntry;
+/// use spod::io::orbex::OrbexClockEntry;
 /// let e = OrbexClockEntry { sat: "G01".to_string(), epoch_mjd: 60000.25, bias_s: 1e-7 };
 /// assert!((e.bias_s - 1e-7).abs() < 1e-15);
 /// ```
@@ -61,7 +61,7 @@ pub struct OrbexClockEntry {
 /// # Examples
 ///
 /// ```
-/// use siderust_pod::io::orbex::OrbexAttitudeEntry;
+/// use spod::io::orbex::OrbexAttitudeEntry;
 /// let e = OrbexAttitudeEntry {
 ///     sat: "G01".to_string(),
 ///     epoch_mjd: 60000.25,
@@ -84,7 +84,7 @@ pub struct OrbexAttitudeEntry {
 /// # Examples
 ///
 /// ```
-/// use siderust_pod::io::orbex::OrbexProduct;
+/// use spod::io::orbex::OrbexProduct;
 /// let prod = OrbexProduct::default();
 /// assert!(prod.orbits.is_empty());
 /// ```
@@ -114,8 +114,8 @@ pub struct OrbexProduct {
 /// # Examples
 ///
 /// ```
-/// use siderust_pod::io::orbex::read_orbex;
-/// use siderust_pod::io::ParseMode;
+/// use spod::io::orbex::read_orbex;
+/// use spod::io::ParseMode;
 ///
 /// let lines = [
 ///     "%=ORBEX  0.09", "%%", "+EPHEMERIS/DATA", "#ORB",

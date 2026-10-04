@@ -8,7 +8,7 @@
 /// # Examples
 ///
 /// ```
-/// use siderust_pod::observations::PodObservationsError;
+/// use spod::observations::PodObservationsError;
 ///
 /// let e = PodObservationsError::MissingSatelliteState {
 ///     prn: "G01".to_string(),

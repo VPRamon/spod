@@ -27,7 +27,7 @@ use siderust::tempoch::{JulianDate, UTC};
 /// # Examples
 ///
 /// ```
-/// use siderust_pod::sgp4::KilometerPerSecond;
+/// use spod::sgp4::KilometerPerSecond;
 /// use siderust::qtty::Quantity;
 /// let v: Quantity<KilometerPerSecond> = Quantity::new(7.5);
 /// assert!((v.value() - 7.5).abs() < 1e-12);
@@ -52,8 +52,8 @@ pub type TemeVelocityKmPerSec = velocity::TEME<KilometerPerSecond>;
 /// # Examples
 ///
 /// ```
-/// use siderust_pod::sgp4::{Sgp4Propagator, TemeState};
-/// use siderust_pod::tle::parse_3le;
+/// use spod::sgp4::{Sgp4Propagator, TemeState};
+/// use spod::tle::parse_3le;
 ///
 /// let tle = parse_3le(
 ///     "ISS (ZARYA)",
@@ -82,7 +82,7 @@ impl TemeState {
     /// # Examples
     ///
     /// ```
-    /// use siderust_pod::sgp4::TemeState;
+    /// use spod::sgp4::TemeState;
     /// use siderust::tempoch::{JulianDate, Time, UTC};
     /// use chrono::{TimeZone, Utc};
     ///
@@ -127,8 +127,8 @@ impl TemeState {
     /// # Examples
     ///
     /// ```
-    /// use siderust_pod::sgp4::Sgp4Propagator;
-    /// use siderust_pod::tle::parse_3le;
+    /// use spod::sgp4::Sgp4Propagator;
+    /// use spod::tle::parse_3le;
     /// let tle = parse_3le(
     ///     "ISS (ZARYA)",
     ///     "1 25544U 98067A   08264.51782528 -.00002182  00000-0 -11606-4 0  2927",
@@ -147,8 +147,8 @@ impl TemeState {
     /// # Examples
     ///
     /// ```
-    /// use siderust_pod::sgp4::Sgp4Propagator;
-    /// use siderust_pod::tle::parse_3le;
+    /// use spod::sgp4::Sgp4Propagator;
+    /// use spod::tle::parse_3le;
     /// let tle = parse_3le(
     ///     "ISS (ZARYA)",
     ///     "1 25544U 98067A   08264.51782528 -.00002182  00000-0 -11606-4 0  2927",
@@ -168,8 +168,8 @@ impl TemeState {
     /// # Examples
     ///
     /// ```
-    /// use siderust_pod::sgp4::Sgp4Propagator;
-    /// use siderust_pod::tle::parse_3le;
+    /// use spod::sgp4::Sgp4Propagator;
+    /// use spod::tle::parse_3le;
     /// let tle = parse_3le(
     ///     "ISS (ZARYA)",
     ///     "1 25544U 98067A   08264.51782528 -.00002182  00000-0 -11606-4 0  2927",

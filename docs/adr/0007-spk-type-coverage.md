@@ -37,7 +37,7 @@ rejected with `UnsupportedDataType`.
 ## Rationale
 
 Types 2 and 3 cover 100% of the JPL DE series (de430, de440, de441), which
-are the ephemerides used in the siderust-pod test suite and the LISA POC.
+are the ephemerides used in the spod test suite and the LISA POC.
 Implementing Types 9/13 correctly requires the full Lagrange-interpolation
 kernel with order selection, which is non-trivial and untested without
 mission-specific SPK fixtures.

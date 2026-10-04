@@ -19,7 +19,7 @@ the receiver, antenna, and observation types.
 
 ## Owning crate
 
-`siderust-pod-io`
+`spod::io`
 
 ## Supported subset
 

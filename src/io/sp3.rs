@@ -301,7 +301,7 @@ pub fn write_sp3<W: Write>(w: &mut W, rec: &Sp3Record) -> Result<(), Sp3Error> {
 /// # Examples
 ///
 /// ```
-/// use siderust_pod::io::sp3::Sp3Stream;
+/// use spod::io::sp3::Sp3Stream;
 ///
 /// const SAMPLE: &str = "\
 /// #dP2024  1  1  0  0  0.00000000       1 ORBIT IGS20 HLM  IGS\n\

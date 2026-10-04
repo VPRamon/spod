@@ -14,7 +14,7 @@
 /// # Examples
 ///
 /// ```rust
-/// use siderust_pod::spice::naif_id_for_name;
+/// use spod::spice::naif_id_for_name;
 ///
 /// assert_eq!(naif_id_for_name("EARTH"), Some(399));
 /// assert_eq!(naif_id_for_name("solar system barycenter"), Some(0));

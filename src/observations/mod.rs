@@ -1,4 +1,4 @@
-//! # siderust-pod observation models
+//! # spod observation models
 //!
 //! ## Scientific scope
 //!
@@ -30,7 +30,7 @@
 //!
 //! | Feature | Adds |
 //! |---------|------|
-//! | `lisa`  | `inter_sat::InterSatRangeObs`, requires `siderust-pod-io` |
+//! | `lisa`  | `inter_sat::InterSatRangeObs`, requires `spod::io` |
 //!
 //! ## References
 //!

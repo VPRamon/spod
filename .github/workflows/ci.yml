@@ -1,9 +1,14 @@
-name: ci
+name: CI
 
 on:
   push:
     branches: [main]
   pull_request:
+    types: [opened, synchronize, reopened]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 permissions:
   contents: read
@@ -12,50 +17,209 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
-  quality:
+  format:
+    name: Format
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout siderust-pod
-        uses: actions/checkout@v4
-
-      - name: Install Rust toolchain
-        uses: dtolnay/rust-toolchain@stable
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
         with:
-          components: rustfmt, clippy
+          components: rustfmt
+      - run: cargo fmt --all -- --check
 
-      - name: Format
-        run: cargo fmt -- --check
+  check:
+    name: Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo check --workspace --all-targets --all-features
 
-      - name: Check
-        run: cargo check --workspace --all-targets --all-features
+  clippy:
+    name: Clippy
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo clippy --workspace --all-targets --all-features -- -D warnings
 
-      - name: Clippy
-        run: cargo clippy --workspace --all-targets --all-features -- -D warnings
+  tests:
+    name: Tests (${{ matrix.features }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - features: default
+            command: cargo test --workspace --no-fail-fast
+          - features: no-default-features
+            command: cargo test --workspace --no-default-features --no-fail-fast
+          - features: all-features
+            command: cargo test --workspace --all-features --no-fail-fast
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - run: ${{ matrix.command }}
 
-      - name: Test default features
-        run: cargo test --workspace --no-fail-fast
+  doctests:
+    name: Documentation tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo test --doc --workspace --all-features
 
-      - name: Test without default features
-        run: cargo test --workspace --no-default-features --no-fail-fast
-
-      - name: Test all features
-        run: cargo test --workspace --all-features --no-fail-fast
-
-      - name: Dependency direction
-        run: bash scripts/check_dep_graph.sh
-
-      - name: Source hygiene
-        run: bash scripts/check_no_todos.sh
-
-      - name: Documentation
-        run: cargo doc --workspace --no-deps
+  docs:
+    name: Documentation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo doc --workspace --no-deps
         env:
           RUSTDOCFLAGS: -D rustdoc::broken-intra-doc-links
 
-      - name: Install cargo-deny
-        run: cargo install --locked cargo-deny
-        continue-on-error: true
+  project-guards:
+    name: Project guards
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - run: bash scripts/check_dep_graph.sh
+      - run: bash scripts/check_no_todos.sh
+      - run: bash scripts/check_legacy_name_refs.sh
 
-      - name: Supply-chain audit
-        run: cargo deny --all-features check
-        continue-on-error: true
+  feature-checks:
+    name: Targeted feature checks
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        feature: [lisa, doris, parquet, de440]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo check --workspace --no-default-features --features ${{ matrix.feature }}
+
+  msrv:
+    name: MSRV (Rust 1.89)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@1.89.0
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo check --locked --workspace --all-targets --all-features
+
+  binaries:
+    name: CLI and REST smoke tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo build --bins
+      - run: cargo run --quiet --bin spod -- --help
+      - name: Start REST server and query health
+        shell: bash
+        run: |
+          set -euo pipefail
+          port=18080
+          cargo run --quiet --bin spod-rest &
+          server_pid=$!
+          trap 'kill "$server_pid" 2>/dev/null || true' EXIT
+          for attempt in {1..30}; do
+            if curl --fail --silent "http://127.0.0.1:${port}/healthz"; then
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "REST server did not become ready" >&2
+          exit 1
+        env:
+          SPOD_REST_BIND: 127.0.0.1:18080
+
+  docker:
+    name: Docker image and compatibility smoke tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build image
+        run: docker build -t spod:ci .
+      - name: Verify CLI in image
+        run: docker run --rm --entrypoint spod spod:ci --help
+      - name: Verify REST bind variables and health endpoint
+        shell: bash
+        run: |
+          set -euo pipefail
+          cleanup() {
+            docker rm -f spod-ci-default spod-ci-new spod-ci-legacy >/dev/null 2>&1 || true
+          }
+          trap cleanup EXIT
+
+          docker run -d --name spod-ci-default -p 18082:8080 spod:ci >/dev/null
+          for attempt in {1..30}; do
+            if curl --fail --silent "http://127.0.0.1:18082/healthz"; then
+              break
+            fi
+            [[ "$attempt" -eq 30 ]] && exit 1
+            sleep 1
+          done
+
+          docker run -d --name spod-ci-new -p 18080:8080 \
+            -e SPOD_REST_BIND=0.0.0.0:8080 spod:ci >/dev/null
+          for attempt in {1..30}; do
+            if curl --fail --silent "http://127.0.0.1:18080/healthz"; then
+              break
+            fi
+            [[ "$attempt" -eq 30 ]] && exit 1
+            sleep 1
+          done
+
+          docker run -d --name spod-ci-legacy -p 18081:8080 \
+            -e SIDERUST_POD_REST_BIND=0.0.0.0:8080 spod:ci >/dev/null
+          for attempt in {1..30}; do
+            if curl --fail --silent "http://127.0.0.1:18081/healthz"; then
+              exit 0
+            fi
+            [[ "$attempt" -eq 30 ]] && exit 1
+            sleep 1
+          done
+
+  coverage:
+    name: Coverage
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@nightly
+      - uses: Swatinem/rust-cache@v2
+      - uses: taiki-e/install-action@cargo-llvm-cov
+      - name: Generate machine-readable report
+        run: |
+          mkdir -p coverage
+          cargo llvm-cov --workspace --all-features --doctests \
+            --json --output-path coverage/coverage.json
+      - name: Generate HTML report
+        run: cargo llvm-cov --workspace --all-features --doctests --html --output-dir coverage/html
+      - name: Publish coverage summary
+        run: cargo llvm-cov report --summary-only | tee -a "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: spod-coverage
+          path: coverage/
+
+  supply-chain:
+    name: Supply-chain policy
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: taiki-e/install-action@cargo-deny
+      - run: cargo deny --all-features check

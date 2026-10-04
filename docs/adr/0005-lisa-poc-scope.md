@@ -34,7 +34,7 @@ The LISA POC (`E2E-12`) covers **only**:
    range measurements, using orbits from `esa/lisa-orbit-files` as truth
    reference.
 
-**Out of scope** for the POC (and for the entire 0.x series of siderust-pod):
+**Out of scope** for the POC (and for the entire 0.x series of spod):
 
 - Time-delay interferometry (TDI) combination.
 - Laser metrology stack.
@@ -46,11 +46,11 @@ The LISA POC (`E2E-12`) covers **only**:
 TDI and the laser metrology stack are specialised signal-processing algorithms,
 not orbit-determination algorithms. They belong in a dedicated
 `siderust-lisa-metrology` crate (not yet planned) that composes with
-`siderust-pod` outputs, not inside the POD pipeline itself.
+`spod` outputs, not inside the POD pipeline itself.
 
 The orbit-estimation layer (propagation + range-measurement model + estimator)
 exercises the full POD pipeline with a real science-mission dataset and is
-sufficient to validate `siderust-pod` at the FocusPOD M6 milestone.
+sufficient to validate `spod` at the FocusPOD M6 milestone.
 
 ## Consequences
 

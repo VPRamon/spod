@@ -65,7 +65,7 @@ const C_M_S: f64 = 299_792_458.0;
 /// # Examples
 ///
 /// ```
-/// use siderust_pod::observations::gnss_obs::KlobucharParams;
+/// use spod::observations::gnss_obs::KlobucharParams;
 ///
 /// let p = KlobucharParams::gps_default();
 /// assert_eq!(p.alpha[0], 2.0e-8);
@@ -108,7 +108,7 @@ impl KlobucharParams {
 /// # Examples
 ///
 /// ```
-/// use siderust_pod::observations::gnss_obs::{IonoModel, KlobucharParams};
+/// use spod::observations::gnss_obs::{IonoModel, KlobucharParams};
 ///
 /// let _iono_free = IonoModel::IonoFree;
 /// let _klob = IonoModel::Klobuchar(KlobucharParams::gps_default());
@@ -129,7 +129,7 @@ pub enum IonoModel {
 /// # Examples
 ///
 /// ```
-/// use siderust_pod::observations::gnss_obs::TropModel;
+/// use spod::observations::gnss_obs::TropModel;
 ///
 /// let _saas = TropModel::Saastamoinen { elevation_rad: std::f64::consts::FRAC_PI_2 };
 /// let _none = TropModel::None;
@@ -274,9 +274,9 @@ fn geometric_range_m(state: &CartesianState, sat_pos_km: Position<GCRS>) -> (f64
 /// # Examples
 ///
 /// ```
-/// use siderust_pod::observations::gnss_obs::{GnssPseudorangeObs, IonoModel, TropModel};
-/// use siderust_pod::observations::obs_trait::{CartesianState, Observation};
-/// use siderust_pod::observations::provider_bundle::NullProviderBundle;
+/// use spod::observations::gnss_obs::{GnssPseudorangeObs, IonoModel, TropModel};
+/// use spod::observations::obs_trait::{CartesianState, Observation};
+/// use spod::observations::provider_bundle::NullProviderBundle;
 /// use siderust::astro::dynamics::{Position, Velocity};
 /// use siderust::coordinates::frames::GCRS;
 /// use siderust::time::JulianDate;
@@ -408,9 +408,9 @@ impl Observation for GnssPseudorangeObs {
 /// # Examples
 ///
 /// ```
-/// use siderust_pod::observations::gnss_obs::{GnssCarrierPhaseObs, IonoModel, TropModel};
-/// use siderust_pod::observations::obs_trait::{CartesianState, Observation};
-/// use siderust_pod::observations::provider_bundle::NullProviderBundle;
+/// use spod::observations::gnss_obs::{GnssCarrierPhaseObs, IonoModel, TropModel};
+/// use spod::observations::obs_trait::{CartesianState, Observation};
+/// use spod::observations::provider_bundle::NullProviderBundle;
 /// use siderust::astro::dynamics::{Position, Velocity};
 /// use siderust::coordinates::frames::GCRS;
 /// use siderust::time::JulianDate;

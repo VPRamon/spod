@@ -1,12 +1,12 @@
-# Siderust POD Detailed Design Document
+# spod Detailed Design Document
 
 ## 0. Document status
 
-**Document type:** Detailed design document  
-**Target project:** Siderust POD / satellite precision-orbit-determination stack  
-**Primary goal:** Define a concrete architecture and implementation plan for building a FocusPOD-class, Rust-native POD and geodesy product on top of the existing Siderust ecosystem.  
-**Status:** Draft v0.1  
-**Audience:** Siderust maintainers, Rust engineers, astrodynamics/POD engineers, validation engineers, and future product owners.  
+**Document type:** Detailed design document
+**Target project:** spod / satellite precision-orbit-determination stack
+**Primary goal:** Define a concrete architecture and implementation plan for building a FocusPOD-class, Rust-native POD and geodesy product on top of the existing Siderust ecosystem.
+**Status:** Draft v0.1
+**Audience:** Siderust maintainers, Rust engineers, astrodynamics/POD engineers, validation engineers, and future product owners.
 
 This document assumes the current Siderust organization contains these foundational projects:
 
@@ -36,7 +36,7 @@ siderust-pod-estimation
 siderust-pod-qc
 siderust-pod-products
 siderust-pod-service
-siderust-pod-cli
+spod
 ```
 
 The first competitive target is **GNSS-only LEO POD with float carrier ambiguities, batch weighted least squares, deterministic product generation, and QC artifacts**. The second target is **SLR-validated GNSS POD**. The third target is **near-real-time replay using EKF/sequential estimation**. DORIS, VLBI, GNSS network processing, normal-equation stacking, web UI, RBAC, and distributed operations are later phases.
@@ -49,7 +49,7 @@ tempoch    = temporal correctness
 affn       = geometric correctness
 cheby      = interpolation and spectral correctness
 siderust   = astronomical and ephemeris correctness
-siderust-pod-* = POD, geodesy, estimation, products, QC, and operations
+spod-* = POD, geodesy, estimation, products, QC, and operations
 ```
 
 ---
@@ -270,13 +270,13 @@ Required extensions:
 
 ```text
 +------------------------------------------------------------------+
-|                          siderust-pod-ui                         |
+|                          spod-ui                         |
 |                       optional later web layer                    |
 +------------------------------------------------------------------+
 |                         siderust-pod-service                     |
 |              jobs, configs, manifests, artifacts, API             |
 +------------------------------------------------------------------+
-|           siderust-pod-cli          |   siderust-pod-python       |
+|           spod          |   spod-python       |
 +------------------------------------------------------------------+
 |                        siderust-pod-products                     |
 |             SP3, OEM, SINEX-like outputs, residual files          |
@@ -301,7 +301,7 @@ Hard dependency rules:
 ```text
 qtty, tempoch, affn, cheby shall not depend on siderust.
 siderust may depend on qtty, tempoch, affn, and cheby.
-siderust-pod-* may depend on qtty, tempoch, affn, cheby, and siderust.
+spod-* may depend on qtty, tempoch, affn, cheby, and siderust.
 siderust-pod-core shall not depend on siderust-pod-service or CLI crates.
 siderust-pod-estimation shall not depend on file-format parsers.
 siderust-pod-observations may depend on IO data structures only through canonical models.
@@ -311,7 +311,7 @@ siderust-pod-service may depend on all POD crates.
 Forbidden:
 
 ```text
-siderust -> siderust-pod-*
+siderust -> spod-*
 qtty -> siderust
 tempoch -> siderust
 affn -> siderust
@@ -324,7 +324,7 @@ core -> service
 ## 5.3 Workspace layout
 
 ```text
-siderust-pod/
+spod/
   Cargo.toml
   crates/
     siderust-pod-core/
@@ -335,7 +335,7 @@ siderust-pod/
     siderust-pod-qc/
     siderust-pod-products/
     siderust-pod-service/
-    siderust-pod-cli/
+    spod/
   examples/
     configs/
     fixtures/
@@ -1032,7 +1032,7 @@ src/
 
 ---
 
-## 6.9 `siderust-pod-cli`
+## 6.9 `spod`
 
 ### Purpose
 
@@ -1041,13 +1041,13 @@ Expose product workflows to users and CI.
 ### Commands
 
 ```bash
-siderust-pod validate-config config.yaml
-siderust-pod run config.yaml
-siderust-pod inspect-manifest out/run.manifest.json
-siderust-pod compare-orbits orbit_a.sp3 orbit_b.sp3 --frame rtn
-siderust-pod qc out/run.manifest.json
-siderust-pod validate-slr out/orbit.sp3 slr/*.crd
-siderust-pod simulate config.yaml
+spod validate-config config.yaml
+spod run config.yaml
+spod inspect-manifest out/run.manifest.json
+spod compare-orbits orbit_a.sp3 orbit_b.sp3 --frame rtn
+spod qc out/run.manifest.json
+spod validate-slr out/orbit.sp3 slr/*.crd
+spod simulate config.yaml
 ```
 
 ### CLI rules
@@ -1582,7 +1582,7 @@ Deliverables:
 
 Exit criteria:
 
-- `siderust-pod run examples/configs/leo_gnss_mvp1.yaml` completes.
+- `spod run examples/configs/leo_gnss_mvp1.yaml` completes.
 - All required artifacts generated.
 - Re-run reproducibility test passes.
 
@@ -1668,7 +1668,7 @@ Exit criteria:
 
 ## 15. Recommended first GitHub issues
 
-1. Create `siderust-pod` workspace skeleton.
+1. Create `spod` workspace skeleton.
 2. Add architecture boundary document.
 3. Add dependency graph CI check.
 4. Define `OrbitState`, `SpacecraftState`, `ArcDefinition`, and `RunManifest`.
@@ -1772,7 +1772,7 @@ out/leo-gnss-mvp1/
 MVP-1 is done when this command works from a clean checkout with fixtures installed:
 
 ```bash
-cargo run -p siderust-pod-cli -- run examples/configs/leo_gnss_mvp1.yaml
+cargo run -p spod -- run examples/configs/leo_gnss_mvp1.yaml
 ```
 
 and produces:
@@ -1802,7 +1802,7 @@ with all of the following true:
 
 ## 19. Final recommendation
 
-The next implementation step should not be another feature inside `siderust/src`. It should be the creation of a dedicated `siderust-pod` workspace with a minimal, test-first GNSS POD pipeline.
+The next implementation step should not be another feature inside `siderust/src`. It should be the creation of a dedicated `spod` workspace with a minimal, test-first GNSS POD pipeline.
 
 The first build target is:
 
@@ -1821,4 +1821,3 @@ Synthetic GNSS-only LEO batch POD
 After that, the project should add SLR validation, then EKF/NRT replay, then public-data benchmarks, then DORIS/VLBI/geodesy expansion, and only then service/UI/productization.
 
 This path gives Siderust the strongest chance to compete credibly: use its current strengths as a scientific kernel, avoid monolithic scope creep, and build a POD product layer with explicit validation and operational discipline.
-

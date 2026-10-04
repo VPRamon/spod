@@ -4,7 +4,7 @@
 //! Astrodynamics and POD-dynamics composition layer.
 //!
 //! This module merges the former `siderust-dynamics` (domain-agnostic
-//! astrodynamics primitives) and `siderust-pod-dynamics` (POD-specific
+//! astrodynamics primitives) and `spod::dynamics` (POD-specific
 //! force-model composition) into a unified surface.
 //!
 //! ## Contents
@@ -43,7 +43,7 @@ pub use integrators::{Dop853Integrator, Dopri5Integrator, Integrator, Rk4Integra
 pub use low_thrust::{LowThrustLog, LowThrustRecord};
 pub use thrust::{mass_flow_rate, thrust_acceleration, ManeuverError, ThrustArc, G0_M_PER_S2};
 
-// Re-exports from the POD dynamics layer (former siderust-pod-dynamics public surface)
+// Re-exports from the POD dynamics layer (former spod::dynamics public surface)
 pub use empirical_periodic::{EmpiricalPeriodicAcceleration, PeriodicHarmonic};
 pub use force_config::ForceModelConfig;
 pub use forces::{

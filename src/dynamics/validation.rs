@@ -45,8 +45,8 @@ use super::error::DynamicsError;
 /// # Example
 ///
 /// ```
-/// use siderust_pod::dynamics::validation::max_rel_stm_predict_error;
-/// use siderust_pod::dynamics::{DynamicsContext, OrbitState, Position, Velocity, TwoBody};
+/// use spod::dynamics::validation::max_rel_stm_predict_error;
+/// use spod::dynamics::{DynamicsContext, OrbitState, Position, Velocity, TwoBody};
 /// use siderust::coordinates::frames::GCRS;
 /// use siderust::time::JulianDate;
 /// use siderust::qtty::Second;

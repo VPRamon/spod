@@ -31,7 +31,7 @@ use crate::tle::{Classification, InternationalDesignator, SatelliteNumber, Tle};
 /// # Examples
 ///
 /// ```
-/// use siderust_pod::tle::{Classification, InternationalDesignator, SatelliteNumber, TleBuilder};
+/// use spod::tle::{Classification, InternationalDesignator, SatelliteNumber, TleBuilder};
 /// use siderust::qtty::angular::Degrees;
 /// use siderust::qtty::{angular::Turn, angular_rate::AngularRate, time::Day};
 /// use siderust::tempoch::{Time, UTC};
@@ -80,7 +80,7 @@ impl TleBuilder {
     /// # Examples
     ///
     /// ```
-    /// use siderust_pod::tle::TleBuilder;
+    /// use spod::tle::TleBuilder;
     /// let _b = TleBuilder::new();
     /// ```
     pub fn new() -> Self {
@@ -92,7 +92,7 @@ impl TleBuilder {
     /// # Examples
     ///
     /// ```
-    /// use siderust_pod::tle::TleBuilder;
+    /// use spod::tle::TleBuilder;
     /// let _b = TleBuilder::new().name("ISS (ZARYA)");
     /// ```
     pub fn name(mut self, name: impl Into<String>) -> Self {
@@ -105,7 +105,7 @@ impl TleBuilder {
     /// # Examples
     ///
     /// ```
-    /// use siderust_pod::tle::{SatelliteNumber, TleBuilder};
+    /// use spod::tle::{SatelliteNumber, TleBuilder};
     /// let _b = TleBuilder::new().norad_id(SatelliteNumber(25_544));
     /// ```
     pub fn norad_id(mut self, n: SatelliteNumber) -> Self {
@@ -118,7 +118,7 @@ impl TleBuilder {
     /// # Examples
     ///
     /// ```
-    /// use siderust_pod::tle::{Classification, TleBuilder};
+    /// use spod::tle::{Classification, TleBuilder};
     /// let _b = TleBuilder::new().classification(Classification::Unclassified);
     /// ```
     pub fn classification(mut self, c: Classification) -> Self {
@@ -131,7 +131,7 @@ impl TleBuilder {
     /// # Examples
     ///
     /// ```
-    /// use siderust_pod::tle::{InternationalDesignator, TleBuilder};
+    /// use spod::tle::{InternationalDesignator, TleBuilder};
     /// let _b = TleBuilder::new()
     ///     .international_designator(InternationalDesignator("98067A".into()));
     /// ```
@@ -145,7 +145,7 @@ impl TleBuilder {
     /// # Examples
     ///
     /// ```
-    /// use siderust_pod::tle::TleBuilder;
+    /// use spod::tle::TleBuilder;
     /// use siderust::tempoch::{Time, UTC};
     /// use chrono::Utc;
     /// let _b = TleBuilder::new().epoch(Time::<UTC>::from_chrono(Utc::now()));
@@ -160,7 +160,7 @@ impl TleBuilder {
     /// # Examples
     ///
     /// ```
-    /// use siderust_pod::tle::TleBuilder;
+    /// use spod::tle::TleBuilder;
     /// let _b = TleBuilder::new().mean_motion_dot(-2.182e-5);
     /// ```
     pub fn mean_motion_dot(mut self, v: f64) -> Self {
@@ -173,7 +173,7 @@ impl TleBuilder {
     /// # Examples
     ///
     /// ```
-    /// use siderust_pod::tle::TleBuilder;
+    /// use spod::tle::TleBuilder;
     /// let _b = TleBuilder::new().mean_motion_ddot(0.0);
     /// ```
     pub fn mean_motion_ddot(mut self, v: f64) -> Self {
@@ -186,7 +186,7 @@ impl TleBuilder {
     /// # Examples
     ///
     /// ```
-    /// use siderust_pod::tle::TleBuilder;
+    /// use spod::tle::TleBuilder;
     /// let _b = TleBuilder::new().bstar(-0.11606e-4);
     /// ```
     pub fn bstar(mut self, v: f64) -> Self {
@@ -199,7 +199,7 @@ impl TleBuilder {
     /// # Examples
     ///
     /// ```
-    /// use siderust_pod::tle::TleBuilder;
+    /// use spod::tle::TleBuilder;
     /// let _b = TleBuilder::new().element_set_number(292);
     /// ```
     pub fn element_set_number(mut self, v: u16) -> Self {
@@ -212,7 +212,7 @@ impl TleBuilder {
     /// # Examples
     ///
     /// ```
-    /// use siderust_pod::tle::TleBuilder;
+    /// use spod::tle::TleBuilder;
     /// let _b = TleBuilder::new().revolution_number_at_epoch(56_353);
     /// ```
     pub fn revolution_number_at_epoch(mut self, v: u32) -> Self {
@@ -225,7 +225,7 @@ impl TleBuilder {
     /// # Examples
     ///
     /// ```
-    /// use siderust_pod::tle::TleBuilder;
+    /// use spod::tle::TleBuilder;
     /// use siderust::qtty::angular::Degrees;
     /// let _b = TleBuilder::new().inclination(Degrees::new(51.6416));
     /// ```
@@ -239,7 +239,7 @@ impl TleBuilder {
     /// # Examples
     ///
     /// ```
-    /// use siderust_pod::tle::TleBuilder;
+    /// use spod::tle::TleBuilder;
     /// use siderust::qtty::angular::Degrees;
     /// let _b = TleBuilder::new().raan(Degrees::new(247.4627));
     /// ```
@@ -253,7 +253,7 @@ impl TleBuilder {
     /// # Examples
     ///
     /// ```
-    /// use siderust_pod::tle::TleBuilder;
+    /// use spod::tle::TleBuilder;
     /// let _b = TleBuilder::new().eccentricity(0.0006703);
     /// ```
     pub fn eccentricity(mut self, v: f64) -> Self {
@@ -266,7 +266,7 @@ impl TleBuilder {
     /// # Examples
     ///
     /// ```
-    /// use siderust_pod::tle::TleBuilder;
+    /// use spod::tle::TleBuilder;
     /// use siderust::qtty::angular::Degrees;
     /// let _b = TleBuilder::new().argument_of_perigee(Degrees::new(130.5360));
     /// ```
@@ -280,7 +280,7 @@ impl TleBuilder {
     /// # Examples
     ///
     /// ```
-    /// use siderust_pod::tle::TleBuilder;
+    /// use spod::tle::TleBuilder;
     /// use siderust::qtty::angular::Degrees;
     /// let _b = TleBuilder::new().mean_anomaly(Degrees::new(325.0288));
     /// ```
@@ -294,7 +294,7 @@ impl TleBuilder {
     /// # Examples
     ///
     /// ```
-    /// use siderust_pod::tle::TleBuilder;
+    /// use spod::tle::TleBuilder;
     /// use siderust::qtty::{angular::Turn, angular_rate::AngularRate, time::Day};
     /// let _b = TleBuilder::new()
     ///     .mean_motion(AngularRate::<Turn, Day>::new(15.72125391));
@@ -312,7 +312,7 @@ impl TleBuilder {
     /// # Examples
     ///
     /// ```
-    /// use siderust_pod::tle::{TleBuilder, TleError};
+    /// use spod::tle::{TleBuilder, TleError};
     /// assert!(matches!(TleBuilder::new().build(), Err(TleError::BuilderMissingField(_))));
     /// ```
     pub fn build(self) -> Result<Tle, TleError> {
@@ -360,7 +360,7 @@ impl TleBuilder {
 /// # Examples
 ///
 /// ```
-/// use siderust_pod::tle::{format_tle, parse_tle};
+/// use spod::tle::{format_tle, parse_tle};
 /// let l1 = "1 25544U 98067A   08264.51782528 -.00002182  00000-0 -11606-4 0  2927";
 /// let l2 = "2 25544  51.6416 247.4627 0006703 130.5360 325.0288 15.72125391563537";
 /// let tle = parse_tle(l1, l2).unwrap();

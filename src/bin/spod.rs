@@ -24,7 +24,7 @@
 //! and QC documents.
 //!
 //! It deliberately does not own schema evolution, force-model selection, or
-//! estimation logic; those responsibilities remain in `siderust-pod-
+//! estimation logic; those responsibilities remain in `spod-
 //! service`.
 //!
 //! ## References
@@ -36,11 +36,7 @@
 use clap::{Parser, Subcommand};
 
 #[derive(Parser, Debug)]
-#[command(
-    name = "siderust-pod",
-    about = "Siderust POD command-line interface",
-    version
-)]
+#[command(name = "spod", about = "spod command-line interface", version)]
 struct Cli {
     #[command(subcommand)]
     command: Cmd,
@@ -75,13 +71,13 @@ fn main() -> anyhow::Result<()> {
     let cli = Cli::parse();
     match cli.command {
         Cmd::ValidateConfig { config } => {
-            let cfg = siderust_pod::service::RunConfig::from_yaml_file(&config)?;
+            let cfg = spod::service::RunConfig::from_yaml_file(&config)?;
             cfg.validate().map_err(|e| anyhow::anyhow!(e))?;
             println!("OK: {} validates", config);
         }
         Cmd::Run { config } => {
-            let cfg = siderust_pod::service::RunConfig::from_yaml_file(&config)?;
-            let report = siderust_pod::service::run(&cfg, &config)?;
+            let cfg = spod::service::RunConfig::from_yaml_file(&config)?;
+            let report = spod::service::run(&cfg, &config)?;
             println!(
                 "OK: ran {} steps, final epoch JD={}, manifest at {}",
                 report.n_steps,

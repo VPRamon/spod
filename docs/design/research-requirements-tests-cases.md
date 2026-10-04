@@ -6,7 +6,7 @@
 
 The current public urlSiderust organizationturn16search2 already has unusually strong foundations for a Rust-native competitor: `qtty` for dimensional correctness, `tempoch` for time scales and EOP infrastructure, `affn` for typed frames/centers/geometry, `cheby` for interpolation and approximation, and `siderust` for astronomy, ephemerides, coordinates, and physical modeling. The public `siderust` README also explicitly signals future batch orbit-determination helpers and notes that RTN/RIC covariance transport is not yet first-class, which aligns closely with the biggest gap between Siderust today and FocusPOD-class systems. Based on the repo tree you provided, the missing center of gravity is not mathematical infrastructure but an operational POD layer: measurement ingestion, estimators, partial derivatives, ambiguity handling, product I/O, residual/QC tooling, batch and sequential solvers, and service orchestration. citeturn15view0turn15view1turn15view3turn16search2
 
-The most credible parity strategy is therefore **not** to overload the existing `siderust` crate with every geodetic and operational concern. The better architecture is a new `siderust-pod` workspace layered on top of existing crates. In that split, `qtty`, `tempoch`, `affn`, `cheby`, and `siderust` remain reusable kernels; POD-specific crates handle observations, estimation, QC, standard products, and cloud/runtime concerns. That architecture mirrors the separation publicly described by GMV for FocusPOD and the service/API layering publicly described for FocusSuite, while preserving Siderust’s current strength as a type-safe scientific kernel. citeturn22search0turn25view0turn24view2turn24view3turn20view2
+The most credible parity strategy is therefore **not** to overload the existing `siderust` crate with every geodetic and operational concern. The better architecture is a new `spod` workspace layered on top of existing crates. In that split, `qtty`, `tempoch`, `affn`, `cheby`, and `siderust` remain reusable kernels; POD-specific crates handle observations, estimation, QC, standard products, and cloud/runtime concerns. That architecture mirrors the separation publicly described by GMV for FocusPOD and the service/API layering publicly described for FocusSuite, while preserving Siderust’s current strength as a type-safe scientific kernel. citeturn22search0turn25view0turn24view2turn24view3turn20view2
 
 The priority sequence is straightforward. **P0** should target GNSS-based LEO POD parity: deterministic time/frame kernels, force and observation models with analytic partials, batch least squares, sequential EKF, standard GNSS/SP3/SINEX-style I/O, and automated QC. **P1** should add multi-technique support and serviceization: SLR, DORIS, mission satellite macro-models, residual analytics, provenance, REST/CLI jobs, and scalable processing. **P2** should add the genuinely differentiating geodesy features: VLBI, normal-equation stacking, GNSS network processing, TRF-like global solutions, and a polished operations UI. That ordering reflects what GMV publicly documents, what the competing toolchain landscape shows, and what Siderust already has versus what it lacks. citeturn24view1turn25view0turn20view4turn28academia42turn11search1turn27search3
 
@@ -63,7 +63,7 @@ flowchart LR
     LEO --> PROD[Product generation]
 ```
 
-For Siderust, that implies a sharp design conclusion: **competing with FocusPOD alone requires estimation parity; competing with GMV in practice requires a separable service/API/runtime layer that can later plug into mission-control and monitoring systems.** That is why the recommended implementation below separates `siderust` the scientific kernel from a new `siderust-pod` workspace for observations, estimation, QC, and services. citeturn24view2turn24view3turn20view2turn20view4
+For Siderust, that implies a sharp design conclusion: **competing with FocusPOD alone requires estimation parity; competing with GMV in practice requires a separable service/API/runtime layer that can later plug into mission-control and monitoring systems.** That is why the recommended implementation below separates `siderust` the scientific kernel from a new `spod` workspace for observations, estimation, QC, and services. citeturn24view2turn24view3turn20view2turn20view4
 
 ## Competing POD and flight-dynamics products
 
@@ -96,7 +96,7 @@ Cross-checking the public Siderust organization with the repo tree you provided 
 | `siderust` | Astronomy, time, coordinates, ephemerides, atmosphere, bodies, targets, FFI. | It already looks like the correct physics kernel for a future POD stack. | Publicly still missing first-class batch OD helpers, sequential OD, covariance transport, observation modeling, and geodetic product I/O. citeturn15view1turn15view3 |
 | `NSB` | Night-sky brightness and atmosphere/radiometry modeling. | Orthogonal to POD, but useful for Earth-observation mission analysis and optical planning. | Should stay separate from POD core to avoid scope dilution. |
 
-The most important architectural fact is that Siderust already has the **kernel pieces** but not the **POD assembly**. Your tree shows ephemerides, EOP data management, atmosphere models, coordinate transforms, targets, interpolation, FFI, and typed units; what it does not yet show is a POD-specific workspace with observation traits, residual pipelines, Jacobian infrastructure, estimator interfaces, ambiguity resolution, standard geodetic product codecs, covariance products, and job-level orchestration. That is exactly the seam where a `siderust-pod` specialization should sit. citeturn15view0turn15view1turn24view1turn25view0
+The most important architectural fact is that Siderust already has the **kernel pieces** but not the **POD assembly**. Your tree shows ephemerides, EOP data management, atmosphere models, coordinate transforms, targets, interpolation, FFI, and typed units; what it does not yet show is a POD-specific workspace with observation traits, residual pipelines, Jacobian infrastructure, estimator interfaces, ambiguity resolution, standard geodetic product codecs, covariance products, and job-level orchestration. That is exactly the seam where a `spod` specialization should sit. citeturn15view0turn15view1turn24view1turn25view0
 
 ```mermaid
 flowchart TD
@@ -129,8 +129,8 @@ flowchart TD
     podcore --> podio[siderust-pod-io]
     podcore --> podqc[siderust-pod-qc]
     podcore --> podsvc[siderust-pod-service]
-    podsvc --> podcli[siderust-pod-cli]
-    podsvc --> podapi[siderust-pod-api]
+    podsvc --> podcli[spod]
+    podsvc --> podapi[spod-api]
 ```
 
 The gap to FocusPOD can therefore be described precisely:
@@ -161,9 +161,9 @@ flowchart LR
         EST[siderust-pod-estimation]
         IO[siderust-pod-io]
         QC[siderust-pod-qc]
-        GEO[siderust-pod-geodesy]
+        GEO[spod-geodesy]
         SVC[siderust-pod-service]
-        CLI[siderust-pod-cli]
+        CLI[spod]
     end
 
     Q --> CORE
@@ -193,8 +193,8 @@ flowchart LR
 | HR-F | The ecosystem shall support DORIS processing and parameter estimation with mission-appropriate frequency/bias handling. | `siderust-pod-observations` + `siderust-pod-estimation` | P1 | High |
 | HR-G | The ecosystem shall estimate mission-critical dynamical nuisance parameters, including drag, SRP scale factors, empirical accelerations, and maneuver parameters. | `siderust-pod-core` + `siderust-pod-estimation` + `siderust` | P1 | High |
 | HR-H | The ecosystem shall support reproducible simulation of orbits, clocks, attitudes, and measurements with configurable noise and truth-vs-estimate comparisons. | `siderust-pod-core` + `siderust-pod-qc` | P1 | Medium |
-| HR-I | The ecosystem shall expose a job-oriented CLI and service API for batch execution, result retrieval, and provenance tracking. | `siderust-pod-service` + `siderust-pod-cli` | P1 | Medium |
-| HR-J | The ecosystem shall add multi-technique geodesy features, including VLBI-ready abstractions, normal-equation stacking, and GNSS network processing, without breaking the GNSS LEO POD path. | `siderust-pod-geodesy` | P2 | High |
+| HR-I | The ecosystem shall expose a job-oriented CLI and service API for batch execution, result retrieval, and provenance tracking. | `siderust-pod-service` + `spod` | P1 | Medium |
+| HR-J | The ecosystem shall add multi-technique geodesy features, including VLBI-ready abstractions, normal-equation stacking, and GNSS network processing, without breaking the GNSS LEO POD path. | `spod-geodesy` | P2 | High |
 | HR-K | The ecosystem shall provide first-class RTN/RIC covariance transport and frame-aware uncertainty products. | `affn` + `siderust-pod-core` | P0 | Medium |
 | HR-L | The ecosystem shall remain usable as a library and as a service, so the same computation kernels are shared between interactive analysis, automation, and distributed operations. | Whole workspace | P0 | Medium |
 
@@ -212,8 +212,8 @@ flowchart LR
 | LR-H | The I/O layer shall preserve forward compatibility with OMM/OEM/OPM-style ecosystems and with current public GP/OMM data practices documented by CelesTrak. | `siderust-pod-io` | P1 | Medium |
 | LR-I | The product layer shall emit deterministic filenames, metadata manifests, checksums, and run digests so any product can be regenerated exactly. | `siderust-pod-service` + `siderust-pod-io` | P1 | Medium |
 | LR-J | The simulation layer shall support truth generation, noise injection, bias injection, outage injection, and Monte Carlo ensembles. | `siderust-pod-core` + `siderust-pod-qc` | P1 | Medium |
-| LR-K | The service layer shall support headless execution from YAML/TOML/JSON configs as well as a stable Rust API. | `siderust-pod-service` + `siderust-pod-cli` | P1 | Medium |
-| LR-L | The geodesy layer shall support NEQ accumulation/stacking, station coordinates, EOP estimation, and troposphere-related state components. | `siderust-pod-geodesy` | P2 | High |
+| LR-K | The service layer shall support headless execution from YAML/TOML/JSON configs as well as a stable Rust API. | `siderust-pod-service` + `spod` | P1 | Medium |
+| LR-L | The geodesy layer shall support NEQ accumulation/stacking, station coordinates, EOP estimation, and troposphere-related state components. | `spod-geodesy` | P2 | High |
 
 ### Concrete test cases
 
@@ -297,8 +297,8 @@ cargo test -p qtty -p tempoch -p affn -p cheby -p siderust
 cargo test -p siderust-pod-core -p siderust-pod-observations -p siderust-pod-estimation
 cargo test -p siderust-pod-io -p siderust-pod-qc -- --nocapture
 cargo bench -p siderust-pod-estimation gnss_batch_lsq_24h
-cargo run -p siderust-pod-cli -- estimate configs/sentinel3a_gnss_batch.yaml
-cargo run -p siderust-pod-cli -- qc out/run.manifest.json
+cargo run -p spod -- estimate configs/sentinel3a_gnss_batch.yaml
+cargo run -p spod -- qc out/run.manifest.json
 ```
 
 ## Implementation roadmap
@@ -329,7 +329,7 @@ At the level of ownership, the recommended split is:
 - Create **`siderust-pod-estimation`** for batch LSQ, SRIF later if desired, EKF, smoothing, and ambiguity workflows.
 - Create **`siderust-pod-io`** for product standards.
 - Create **`siderust-pod-qc`** for residuals, comparisons, and analyst outputs.
-- Create **`siderust-pod-service`** and **`siderust-pod-cli`** for orchestration.  
+- Create **`siderust-pod-service`** and **`spod`** for orchestration.
 
 That mapping preserves current Siderust clarity while making the future product line legible to users, contributors, and integrators. It also prevents the main `siderust` crate from turning into a commercial-style application monolith. citeturn16search2turn15view0turn24view2turn24view3
 

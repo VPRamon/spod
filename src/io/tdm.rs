@@ -16,7 +16,7 @@ use std::io::{BufRead, BufReader, Read, Write};
 /// # Examples
 ///
 /// ```
-/// use siderust_pod::io::tdm::ObservationType;
+/// use spod::io::tdm::ObservationType;
 /// assert_eq!(ObservationType::Range, ObservationType::Range);
 /// ```
 #[derive(Debug, Clone, PartialEq)]
@@ -38,7 +38,7 @@ pub enum ObservationType {
 /// # Examples
 ///
 /// ```
-/// use siderust_pod::io::tdm::{ObservationData, ObservationType};
+/// use spod::io::tdm::{ObservationData, ObservationType};
 /// let obs = ObservationData {
 ///     obs_type: ObservationType::Range,
 ///     epoch: "2024-001T12:00:00".to_string(),
@@ -61,7 +61,7 @@ pub struct ObservationData {
 /// # Examples
 ///
 /// ```
-/// use siderust_pod::io::tdm::TdmMetadata;
+/// use spod::io::tdm::TdmMetadata;
 /// let m = TdmMetadata {
 ///     participants: vec!["STATION_A".to_string()],
 ///     mode: "SEQUENTIAL".to_string(),
@@ -87,7 +87,7 @@ pub struct TdmMetadata {
 /// # Examples
 ///
 /// ```
-/// use siderust_pod::io::tdm::TdmMessage;
+/// use spod::io::tdm::TdmMessage;
 /// let msg = TdmMessage::default();
 /// assert!(msg.observations.is_empty());
 /// ```
@@ -111,7 +111,7 @@ pub struct TdmMessage {
 /// # Examples
 ///
 /// ```
-/// use siderust_pod::io::tdm::read_tdm;
+/// use spod::io::tdm::read_tdm;
 ///
 /// let data = b"CCSDS_TDM_VERS = 1.0\nMETA_START\nPARTICIPANT_1 = STA\n\
 ///              MODE = SEQUENTIAL\nPATH = 1,2,1\nTIME_SYSTEM = UTC\nMETA_STOP\n\
@@ -243,7 +243,7 @@ fn obs_type_to_keyword(t: &ObservationType) -> &str {
 /// # Examples
 ///
 /// ```
-/// use siderust_pod::io::tdm::{write_tdm, TdmMessage, TdmMetadata, ObservationData, ObservationType};
+/// use spod::io::tdm::{write_tdm, TdmMessage, TdmMetadata, ObservationData, ObservationType};
 ///
 /// let mut msg = TdmMessage::default();
 /// msg.metadata.push(TdmMetadata {

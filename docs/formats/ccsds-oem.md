@@ -3,7 +3,7 @@
 ## Summary
 
 The CCSDS Orbit Ephemeris Message (OEM) is the standard ASCII / XML
-exchange format for tabulated spacecraft trajectories. siderust-pod uses
+exchange format for tabulated spacecraft trajectories. spod uses
 OEM as its primary deliverable for non-GNSS POD products and as an
 interoperable input format for trajectory ingest.
 
@@ -19,7 +19,7 @@ interoperable input format for trajectory ingest.
 
 ## Owning crate
 
-`siderust-pod-io`
+`spod::io`
 
 ## Supported on read
 

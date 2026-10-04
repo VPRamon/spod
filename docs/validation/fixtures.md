@@ -1,7 +1,7 @@
 # Test Fixtures — Provenance and Redistribution
 
 This file is the authoritative registry of every test fixture committed to the
-`siderust-pod` workspace. For each fixture the following are recorded:
+`spod` workspace. For each fixture the following are recorded:
 
 - **Path** — relative to workspace root
 - **Format** — file format / protocol
@@ -41,7 +41,7 @@ This file is the authoritative registry of every test fixture committed to the
 
 ---
 
-## siderust-pod (io)
+## spod (io)
 
 | Path | Format | Source | License | Size | Last fetched | Notes |
 |---|---|---|---|---|---|---|
@@ -58,12 +58,12 @@ unlocked by setting the indicated environment variable.
 
 | Test | Required fixture | Env var | Source |
 |---|---|---|---|
-| `rinex_obs_large` | 24-h RINEX OBS for a 30-station network | `SIDERUST_POD_RINEX_OBS_DIR` | IGS/CDDIS |
-| `sp3_igs_rapid` | IGS rapid orbit SP3 | `SIDERUST_POD_SP3_FILE` | IGS/CDDIS |
-| `antex_igs20` | `igs20.atx` | `SIDERUST_POD_ANTEX_FILE` | IGS |
-| `eop_c04_full` | Full IERS C04 series | `SIDERUST_POD_EOP_C04_FILE` | IERS |
-| `slr_crd` | ILRS CRD session file | `SIDERUST_POD_CRD_FILE` | ILRS/EUROLAS |
-| `slr_cpf` | ILRS CPF prediction file | `SIDERUST_POD_CPF_FILE` | ILRS |
+| `rinex_obs_large` | 24-h RINEX OBS for a 30-station network | `SPOD_RINEX_OBS_DIR` | IGS/CDDIS |
+| `sp3_igs_rapid` | IGS rapid orbit SP3 | `SPOD_SP3_FILE` | IGS/CDDIS |
+| `antex_igs20` | `igs20.atx` | `SPOD_ANTEX_FILE` | IGS |
+| `eop_c04_full` | Full IERS C04 series | `SPOD_EOP_C04_FILE` | IERS |
+| `slr_crd` | ILRS CRD session file | `SPOD_CRD_FILE` | ILRS/EUROLAS |
+| `slr_cpf` | ILRS CPF prediction file | `SPOD_CPF_FILE` | ILRS |
 
 ---
 
@@ -71,7 +71,7 @@ unlocked by setting the indicated environment variable.
 
 The LISA orbit files from `https://github.com/esa/lisa-orbit-files` are not
 committed to this repository. They are downloaded at CI time (or by the user
-locally) and unlocked via `SIDERUST_POD_LISA_ORBIT_DIR`. See
+locally) and unlocked via `SPOD_LISA_ORBIT_DIR`. See
 [`acceptance-tests.md`](./acceptance-tests.md) for the E2E-12 test description.
 
 ---

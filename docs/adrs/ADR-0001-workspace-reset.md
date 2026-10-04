@@ -3,6 +3,9 @@
 ## Status
 Accepted.
 
+> Historical record: this decision predates the rename to `spod`. At the time,
+> the repository and planned packages were named `siderust-pod`.
+
 ## Context
 `siderust-pod/` originally contained a verbatim clone of the `siderust`
 crate, with a single `[package] name = "siderust"` declaration. This caused:

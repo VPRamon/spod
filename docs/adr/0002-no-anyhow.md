@@ -25,7 +25,7 @@ crates because:
 
 ## Decision
 
-Every library crate in `siderust-pod` defines exactly **one** error type per
+Every library crate in `spod` defines exactly **one** error type per
 crate, named `<CratePrefix>Error` (e.g., `PodIoError`, `LambertError`). It is:
 
 - Derived with `thiserror::Error`.

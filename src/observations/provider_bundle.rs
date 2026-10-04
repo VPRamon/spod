@@ -16,7 +16,7 @@
 /// # Examples
 ///
 /// ```
-/// use siderust_pod::observations::provider_bundle::{ProviderBundle, NullProviderBundle};
+/// use spod::observations::provider_bundle::{ProviderBundle, NullProviderBundle};
 ///
 /// fn check(pb: &dyn ProviderBundle) {
 ///     assert_eq!(pb.receiver_clock_m(), 0.0);
@@ -52,7 +52,7 @@ pub trait ProviderBundle: Send + Sync {
 /// # Examples
 ///
 /// ```
-/// use siderust_pod::observations::provider_bundle::{ProviderBundle, NullProviderBundle};
+/// use spod::observations::provider_bundle::{ProviderBundle, NullProviderBundle};
 ///
 /// assert_eq!(NullProviderBundle.receiver_clock_m(), 0.0);
 /// assert!(NullProviderBundle.gnss_satellite_state_gcrs("G05", 2_451_545.0).is_none());

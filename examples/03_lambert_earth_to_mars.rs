@@ -15,7 +15,7 @@ use siderust::affn::frames::ICRS;
 use siderust::qtty::unit::Kilometer;
 use siderust::qtty::GravitationalParameter;
 use siderust::qtty::Second;
-use siderust_pod::lambert::{lambert, LambertBranch};
+use spod::lambert::{lambert, LambertBranch};
 
 const AU_KM: f64 = 1.495_978_707e8;
 const MU_SUN_KM3_S2: f64 = 1.327_124_400_18e11;

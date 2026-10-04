@@ -1,8 +1,14 @@
-# Siderust POD — Implementation Plan
+# spod — Implementation Plan
+
+> Historical implementation plan. It describes the pre-consolidation
+> `siderust-pod` workspace and its planned package split. The repository was
+> later renamed to `spod` and consolidated into one crate with modules such
+> as `spod::core`, `spod::service`, and `spod::io`; the commands and paths
+> below are retained as historical context, not current instructions.
 
 > **Editable workspace:** `rust/siderust-pod/`
 > **Untouchable upstream:** `rust/siderust/`, `rust/qtty/`, `rust/tempoch/`, `rust/affn/`, `rust/cheby/`
-> **Modifications to foundational crates:** require a separate branch off `main`, written justification, and must be avoided unless strictly necessary. Always prefer adapter layers, wrapper crates, or public provider traits in `siderust-pod` first.
+> **Modifications to foundational crates:** require a separate branch off `main`, written justification, and must be avoided unless strictly necessary. Always prefer adapter layers, wrapper crates, or public provider traits in `spod` first.
 > **Attribution rule:** never add Copilot as a co-author anywhere (commits, changelogs, files, docs).
 
 ---
@@ -11,19 +17,19 @@
 
 ### 1.1 What exists in `siderust-pod/`
 
-`siderust-pod/` is currently a **verbatim fork of the `siderust` crate**, not a POD product workspace:
+`siderust-pod/` was then a **verbatim fork of the `siderust` crate**, not a POD product workspace:
 
 - `Cargo.toml` declares `name = "siderust"` (a single-crate package) plus a workspace whose only members are `.` and `siderust-ffi`.
 - `src/` is the `siderust` source tree (`astro`, `bodies`, `atmosphere`, `calculus`, `coordinates`, `targets`, `archive`, `provenance`, `observatories`, `time.rs`, `interp.rs`, `spectra`, `tables`, etc.). None of it is POD-domain code.
 - `siderust-ffi/` is the FFI crate from upstream.
 - `memory/` already contains the authoritative inputs:
-  - `siderust_pod_detailed_design_document.md` (1824 lines — the design contract this plan implements)
+  - `spod_detailed_design_document.md` (1824 lines — the design contract this plan implements)
   - `research-requirements-tests-cases.md` (FocusPOD/competitor research, 341 lines)
 - `doc/` carries upstream architecture/conventions/datasets/frames docs (useful to keep as reference).
 - `examples/`, `benches/`, `tests/` are upstream-shaped, not POD-shaped.
 - No POD crate exists yet (`siderust-pod-core`, `-dynamics`, `-io`, `-observations`, `-estimation`, `-qc`, `-products`, `-service`, `-cli` are all absent).
 
-**Conclusion:** the M0 milestone must *reset* `siderust-pod/` into a real Cargo workspace whose members are the new POD crates, depending on upstream `siderust`/`affn`/`qtty`/`tempoch`/`cheby` as external crates. The cloned `src/` is to be deleted (decision locked with user).
+**Conclusion:** the M0 milestone was to *reset* `siderust-pod/` into a real Cargo workspace whose members were the new POD crates, depending on upstream `siderust`/`affn`/`qtty`/`tempoch`/`cheby` as external crates. The cloned `src/` was to be deleted (decision locked with user).
 
 ### 1.2 Reusable foundation (no modification)
 
@@ -37,8 +43,8 @@
 
 ### 1.3 Duplication, coupling, architectural risks observed
 
-- **Package-name collision.** `siderust-pod/Cargo.toml` declares `name = "siderust"` — this guarantees confusion and would break any consumer that depends on both. Must be renamed in M0.
-- **Vendored copy drift risk.** Carrying a full clone of `siderust` source inside `siderust-pod/src/` invites accidental edits and silent divergence. Removing it is the only safe option.
+- **Package-name collision.** `spod/Cargo.toml` declares `name = "siderust"` — this guarantees confusion and would break any consumer that depends on both. Must be renamed in M0.
+- **Vendored copy drift risk.** Carrying a full clone of `siderust` source inside `spod/src/` invites accidental edits and silent divergence. Removing it is the only safe option.
 - **Scope creep risk.** The design doc explicitly warns against turning `siderust` into a POD monolith and against rebuilding FocusPOD wholesale in v1. The plan honors the M0 → M7 sequencing.
 - **Estimator coupling risk.** Without explicit dependency rules, IO/parser code can leak into estimator crates. The plan codifies forbidden edges and enforces them with a CI check (`cargo-deny` + a small graph script).
 - **Provider-trait risk.** If POD code reaches into `siderust` private modules, every upstream refactor breaks POD. The plan introduces a thin `siderust-pod-core::providers` adapter that *only* uses public `siderust` items.
@@ -50,7 +56,7 @@
 ### 2.1 Workspace layout
 
 ```text
-rust/siderust-pod/
+rust/spod/
   Cargo.toml                       # virtual workspace, no [package]
   rust-toolchain.toml
   .cargo/config.toml
@@ -63,7 +69,7 @@ rust/siderust-pod/
     siderust-pod-qc/               # residuals, RTN/RIC compare, JSON, HTML
     siderust-pod-products/         # SP3/OEM writers, packaging, naming
     siderust-pod-service/          # job/pipeline runner, config, artifacts
-    siderust-pod-cli/              # thin CLI over service
+    spod/              # thin CLI over service
   examples/
     configs/
       leo_gnss_mvp1.yaml
@@ -82,7 +88,7 @@ rust/siderust-pod/
     check_dep_graph.sh             # CI dependency-direction enforcement
 ```
 
-The upstream `siderust-ffi` crate that currently lives under `siderust-pod/siderust-ffi` is removed from this workspace (it belongs in `rust/siderust/`). POD's own future FFI lives in `crates/siderust-pod-ffi/` and is **not** part of MVP-1.
+The upstream `siderust-ffi` crate that currently lives under `spod/siderust-ffi` is removed from this workspace (it belongs in `rust/siderust/`). POD's own future FFI lives in `crates/siderust-pod-ffi/` and is **not** part of MVP-1.
 
 ### 2.2 Crate responsibilities
 
@@ -96,7 +102,7 @@ The upstream `siderust-ffi` crate that currently lives under `siderust-pod/sider
 | `siderust-pod-qc` | Residual statistics, grouping (sat/obs/elev/epoch), orbit overlap, RTN/RIC compare, SLR validation, QC JSON schema, HTML report. | Estimation algorithms; product writing. |
 | `siderust-pod-products` | SP3/OEM writers (delegate parsing to `-io`), residual product packaging, manifest/product naming, product validation. | Numerics; service runtime. |
 | `siderust-pod-service` | Job model, config load/validate, pipeline stages (ingest → prepare → estimate → qc → products → manifest), artifact layout, hashing, deterministic logging. Future REST/job queue. | Numerical algorithms. |
-| `siderust-pod-cli` | `clap`-based commands; pure passthrough to `-service` and library APIs; deterministic exit codes. | Any numerical logic. |
+| `spod` | `clap`-based commands; pure passthrough to `-service` and library APIs; deterministic exit codes. | Any numerical logic. |
 
 ### 2.3 Allowed and forbidden dependency directions
 
@@ -158,9 +164,9 @@ Milestones are numbered M0–M7. Each lists *goal*, *crates touched*, *concrete 
 - **Goal:** real virtual workspace; package collision removed; dependency-direction CI live; provider traits compile against upstream `siderust`.
 - **Crates touched:** all (created), `pod-core` (real code), others (placeholder `lib.rs`).
 - **Concrete tasks:**
-  - Delete `siderust-pod/src/`, `siderust-pod/build.rs`, `siderust-pod/siderust-ffi/`, upstream-shaped `examples/`/`benches/`/`tests/`, upstream `archive/` data committed under `src/`.
+  - Delete `spod/src/`, `spod/build.rs`, `spod/siderust-ffi/`, upstream-shaped `examples/`/`benches/`/`tests/`, upstream `archive/` data committed under `src/`.
   - Replace root `Cargo.toml` with a `[workspace]` (no `[package]`), `members = ["crates/*"]`, `resolver = "2"`.
-  - `cargo new --lib crates/siderust-pod-{core,dynamics,io,observations,estimation,qc,products,service}` and `cargo new crates/siderust-pod-cli`.
+  - `cargo new --lib crates/spod-{core,dynamics,io,observations,estimation,qc,products,service}` and `cargo new crates/spod`.
   - Per-crate `Cargo.toml`: AGPL-3.0, version `0.0.0`, `repository`/`license`/`readme` fields, MSRV pin (latest stable −1).
   - Add the Siderust ecosystem crates as released registry dependencies.
   - In `pod-core`: define provider traits (`EphemerisProvider`, `EarthOrientationProvider`, `FrameTransformProvider`, `GravityFieldProvider`, `AtmosphereDensityProvider`) with default impls that wrap public `siderust` APIs.
@@ -217,7 +223,7 @@ Milestones are numbered M0–M7. Each lists *goal*, *crates touched*, *concrete 
 
 ### M4 — POD MVP-1 end-to-end (config-driven)
 
-- **Goal:** `siderust-pod run examples/configs/leo_gnss_mvp1.yaml` produces all required artifacts; reproducible; manifest with input hashes.
+- **Goal:** `spod run examples/configs/leo_gnss_mvp1.yaml` produces all required artifacts; reproducible; manifest with input hashes.
 - **Crates touched:** `pod-service`, `pod-cli`, `pod-products`, `pod-qc`.
 - **Concrete tasks:**
   - `pod-service::config` (YAML + `serde` + JSON-Schema export + `validate-config` command); pipeline stages exactly as design §6.8.
@@ -261,7 +267,7 @@ Milestones are numbered M0–M7. Each lists *goal*, *crates touched*, *concrete 
 ### 4.1 Command
 
 ```bash
-cargo run -p siderust-pod-cli -- run examples/configs/leo_gnss_mvp1.yaml
+cargo run -p spod -- run examples/configs/leo_gnss_mvp1.yaml
 ```
 
 ### 4.2 Required inputs (per config)
@@ -462,7 +468,7 @@ No feature gates change *numerical results*. CI matrix tests `--no-default-featu
 | R-04 | Non-determinism (HashMap iter, float formatting, parallel reductions) | High | High | Canonical JSON encoder; sorted IDs everywhere; deterministic-reduction option; reproducibility test in CI. |
 | R-05 | Covariance semantics drift (frame/center/order ambiguity) | Medium | High | `Covariance` carries frame, center, ordering, and units in its type; round-trip + PSD tests are mandatory gates. |
 | R-06 | Performance regressions go unnoticed | Medium | Medium | Pinned-runner bench job with baselines + 15% regression gate. |
-| R-07 | Vendored siderust copy creeps back into `siderust-pod` | Low | High | M0 deletes it; `scripts/check_dep_graph.sh` rejects any `path = "../../rust/siderust"` not whitelisted; CI scans for `src/astro/`, `src/calculus/` etc. inside `crates/`. |
+| R-07 | Vendored siderust copy creeps back into `spod` | Low | High | M0 deletes it; `scripts/check_dep_graph.sh` rejects any `path = "../../rust/siderust"` not whitelisted; CI scans for `src/astro/`, `src/calculus/` etc. inside `crates/`. |
 | R-08 | Float-only ambiguity insufficient for users | Medium | Medium | Document explicitly; carve a clean place in `pod-estimation::ambiguity` for integer fixing in MVP-2+. |
 | R-09 | Public-data licensing surprises | Medium | Medium | MVP-1 synthetic-only; vetted public fixtures with explicit `LICENSE` and source URL files in `examples/fixtures/public/`. |
 | R-10 | RINEX/SP3/ANTEX edge-case interoperability bugs | High | Medium | Strict + permissive modes; structured diagnostics; expand fixture set per bug report; commit golden fixtures. |
@@ -478,7 +484,7 @@ No feature gates change *numerical results*. CI matrix tests `--no-default-featu
 - `rust/siderust-pod/` — the **only** editable workspace for this plan. All POD work lands here.
 - Any change required in a foundational crate must:
   1. Be created on a **separate branch** off `main`, named `foundational/<crate>/<reason>`.
-  2. Carry an **ADR** under `rust/siderust-pod/docs/adrs/` justifying why an adapter/provider trait was insufficient.
+  2. Carry an **ADR** under `rust/spod/docs/adrs/` justifying why an adapter/provider trait was insufficient.
   3. Be reviewed by a maintainer of the affected crate.
   4. Be merged independently of POD work; POD then bumps the upstream version.
 - Working branch convention for POD: `pod/<milestone>/<short-topic>`, e.g. `pod/m2/sp3-writer`.
@@ -494,8 +500,8 @@ No feature gates change *numerical results*. CI matrix tests `--no-default-featu
 
 Each task: target crate(s), expected files, acceptance criteria.
 
-1. **Reset workspace.** `siderust-pod`. Delete legacy `src/`, `build.rs`, vendored `siderust-ffi/`, upstream `examples/`/`benches/`/`tests/`, `archive/` data. Replace root `Cargo.toml` with virtual workspace. Move `memory/` → `docs/design/`. *Acceptance:* `cargo metadata` lists no members yet; `git status` is clean after re-add.
-2. **Create empty crates.** `crates/siderust-pod-{core,dynamics,io,observations,estimation,qc,products,service,cli}` via `cargo new`, AGPL-3.0 in each `Cargo.toml`. *Acceptance:* `cargo build --workspace` succeeds.
+1. **Reset workspace.** `spod`. Delete legacy `src/`, `build.rs`, vendored `siderust-ffi/`, upstream `examples/`/`benches/`/`tests/`, `archive/` data. Replace root `Cargo.toml` with virtual workspace. Move `memory/` → `docs/design/`. *Acceptance:* `cargo metadata` lists no members yet; `git status` is clean after re-add.
+2. **Create empty crates.** `crates/spod-{core,dynamics,io,observations,estimation,qc,products,service,cli}` via `cargo new`, AGPL-3.0 in each `Cargo.toml`. *Acceptance:* `cargo build --workspace` succeeds.
 3. **Wire workspace deps.** Pin `siderust = "0.7"`, `qtty = "0.7"`, `tempoch = "0.4"`, `affn = "0.7"`, `cheby = "0.2"`, `faer`, `serde`, `thiserror`, `clap`. *Acceptance:* `cargo deny check` passes.
 4. **CI skeleton.** `.github/workflows/ci.yml` with fmt/clippy/test/doc/dep-graph/deny. *Acceptance:* CI green on empty workspace.
 5. **Dep-graph guard.** `scripts/check_dep_graph.sh` + unit test. *Acceptance:* deliberate forbidden edge fails CI in a draft PR.
@@ -553,7 +559,7 @@ Each task: target crate(s), expected files, acceptance criteria.
 
 ## 12. Locked decisions
 
-- Workspace will be **wiped and rebuilt** as a virtual workspace; legacy cloned `siderust` code under `siderust-pod/src/` will be deleted.
+- Workspace will be **wiped and rebuilt** as a virtual workspace; legacy cloned `siderust` code under `spod/src/` will be deleted.
 - Linear-algebra backend for the estimator is **`faer`**; `affn` continues to own typed positions/vectors and 3×3 covariance transforms.
 - License is **AGPL-3.0** (matches `siderust`).
 - Foundational crates (`qtty`, `tempoch`, `affn`, `cheby`, `siderust`) are **read-only** to this plan; any change requires a separate branch and ADR.

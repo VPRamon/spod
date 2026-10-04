@@ -176,7 +176,7 @@ impl ChebSegment {
 /// # Examples
 ///
 /// ```rust
-/// use siderust_pod::spice::{daf::{Daf, Summary}, segment_for_summary, SpiceError};
+/// use spod::spice::{daf::{Daf, Summary}, segment_for_summary, SpiceError};
 /// // Build a synthetic single-record Type 2 segment with one
 /// // coefficient per axis (a constant polynomial).
 /// // rsize = 2 (mid,radius) + 3 components * 1 coeff = 5 doubles.
@@ -253,7 +253,7 @@ fn read_chebyshev(
         });
     }
     let comp = components as usize;
-    if (rsize - 2) % comp != 0 {
+    if !(rsize - 2).is_multiple_of(comp) {
         return Err(SpiceError::Parse {
             message: format!("rsize={rsize} is not 2 + {comp}*k for any k (components={comp})"),
         });

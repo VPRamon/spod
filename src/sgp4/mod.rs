@@ -23,7 +23,7 @@
 //!   `siderust::coordinates::transform::providers::frames_teme` once Earth
 //!   Orientation Parameters are supplied.
 //! * It does not implement orbit determination, force models, or estimation;
-//!   those live in the `siderust-pod-*` crates.
+//!   those live in the `spod-*` crates.
 //!
 //! ## Backend
 //!
@@ -36,8 +36,8 @@
 //! ## Example
 //!
 //! ```
-//! use siderust_pod::sgp4::Sgp4Propagator;
-//! use siderust_pod::tle::parse_3le;
+//! use spod::sgp4::Sgp4Propagator;
+//! use spod::tle::parse_3le;
 //!
 //! let tle = parse_3le(
 //!     "ISS (ZARYA)",

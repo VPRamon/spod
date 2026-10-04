@@ -1,6 +1,6 @@
 # Naming Conventions
 
-These conventions apply uniformly across every crate in the workspace.
+These conventions apply uniformly across the `spod` crate and its modules.
 Deviations are reviewed individually and recorded in the relevant ADR.
 
 ## Type suffixes — name by physical concept
@@ -60,8 +60,8 @@ de441                = []
 parquet              = ["dep:arrow", "dep:parquet"]
 ```
 
-Underscores are reserved for crate names (`siderust_pod_io`); user-facing
-flags use hyphens.
+The public crate is named `spod`; its internal areas are modules such as
+`spod::io` and `spod::service`. User-facing flags use hyphens.
 
 ## Tests
 

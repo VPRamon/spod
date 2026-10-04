@@ -7,10 +7,24 @@ crate (independent versioning).
 
 ## [Unreleased]
 
+### Migration
+
+* Renamed the project to `spod`, including the Cargo package/library, the
+  `spod` and `spod-rest` binaries, repository URLs, and Docker image examples.
+* Renamed REST configuration variables to `SPOD_REST_BIND` and
+  `SPOD_REST_OUT`. The former `SIDERUST_POD_REST_BIND` and
+  `SIDERUST_POD_REST_OUT` names remain supported as deprecated fallbacks.
+  Update scripts and deployments to use the `SPOD_*` namespace.
+* Raised the MSRV to Rust 1.89 because the released `siderust` dependency
+  graph requires it. The Docker builder and CI MSRV job use the same version.
+* Split CI into blocking format, build, lint, feature-test, doctest,
+  documentation, service-smoke, Docker, coverage, guard, MSRV, and
+  supply-chain jobs.
+
 ### Workspace
 
 * Consolidated the former multi-crate implementation into the current
-  `siderust-pod` package and migrated its Siderust ecosystem dependencies to
+  `spod` package and migrated its Siderust ecosystem dependencies to
   released crates.io versions.
 * Added a `[workspace.lints]` table (`unsafe_code = forbid`,
   `missing_docs = deny`, `clippy::all = deny`,
@@ -139,10 +153,10 @@ crate (independent versioning).
 
 ### Documentation
 
-* `siderust-pod/docs/architecture/dependency-rules.md`: extended forbidden
+* `spod/docs/architecture/dependency-rules.md`: extended forbidden
   edges to include reusable foundational crates (`qtty`, `tempoch`,
   `affn`, `cheby`, `siderust`) which must not depend on any
-  `siderust-pod-*` crate. Enforced by `scripts/check_dep_graph.sh`.
+  `spod-*` crate. Enforced by `scripts/check_dep_graph.sh`.
 * `plan.md` §13 records the post-M7 technical audit (six 🔴 critical,
   nine 🟠 high, ten 🟡 medium, five 🟢 low findings) and the M8–M12
   remediation roadmap.

@@ -1,7 +1,7 @@
 # Numerical Tolerances
 
 This document records the per-orbit-class numerical tolerances that
-`siderust-pod` holds itself to. These form the quantitative acceptance
+`spod` holds itself to. These form the quantitative acceptance
 criteria referenced in the E2E test suite and in Phase 13 benchmarks.
 
 All tolerances are **3D RMS** unless stated otherwise.

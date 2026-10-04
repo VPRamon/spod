@@ -85,7 +85,7 @@ pub fn write_oem<W: Write>(
     }
     writeln!(w, "CCSDS_OEM_VERS = 3.0")?;
     writeln!(w, "CREATION_DATE  = 2026-01-01T00:00:00")?;
-    writeln!(w, "ORIGINATOR     = SIDERUST-POD")?;
+    writeln!(w, "ORIGINATOR     = SPOD")?;
     writeln!(w)?;
     writeln!(w, "META_START")?;
     writeln!(w, "OBJECT_NAME          = {}", meta.object_name)?;
@@ -187,8 +187,8 @@ pub struct OemFile {
 /// # Examples
 ///
 /// ```
-/// use siderust_pod::io::oem::{read_oem, write_oem, OemMetadata};
-/// use siderust_pod::io::oem::OemState;
+/// use spod::io::oem::{read_oem, write_oem, OemMetadata};
+/// use spod::io::oem::OemState;
 ///
 /// let states = vec![OemState::new(2_451_545.0, [7000.0, 0.0, 0.0], [0.0, 7.5, 0.0])];
 /// let meta = OemMetadata {
@@ -430,8 +430,8 @@ fn iso8601_to_jd(s: &str) -> Option<f64> {
 /// # Examples
 ///
 /// ```
-/// use siderust_pod::io::oem::{write_oem_xml, OemMetadata};
-/// use siderust_pod::io::oem::OemState;
+/// use spod::io::oem::{write_oem_xml, OemMetadata};
+/// use spod::io::oem::OemState;
 ///
 /// let states = vec![OemState::new(2_451_545.0, [7000.0, 0.0, 0.0], [0.0, 7.5, 0.0])];
 /// let meta = OemMetadata {
@@ -463,7 +463,7 @@ pub fn write_oem_xml<W: std::io::Write>(
     writeln!(w, "<oem id=\"CCSDS_OEM_VERS\" version=\"3.0\">")?;
     writeln!(w, "  <header>")?;
     writeln!(w, "    <CREATION_DATE>2026-01-01T00:00:00</CREATION_DATE>")?;
-    writeln!(w, "    <ORIGINATOR>SIDERUST-POD</ORIGINATOR>")?;
+    writeln!(w, "    <ORIGINATOR>SPOD</ORIGINATOR>")?;
     writeln!(w, "  </header>")?;
     writeln!(w, "  <body>")?;
     writeln!(w, "    <segment>")?;
@@ -548,8 +548,8 @@ fn xml_escape(s: &str) -> String {
 /// # Examples
 ///
 /// ```
-/// use siderust_pod::io::oem::{read_oem_xml, write_oem_xml, OemMetadata};
-/// use siderust_pod::io::oem::OemState;
+/// use spod::io::oem::{read_oem_xml, write_oem_xml, OemMetadata};
+/// use spod::io::oem::OemState;
 ///
 /// let states = vec![OemState::new(2_451_545.0, [7000.0, 0.0, 0.0], [0.0, 7.5, 0.0])];
 /// let meta = OemMetadata {

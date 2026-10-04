@@ -16,7 +16,7 @@ use std::error::Error;
 /// # Examples
 ///
 /// ```
-/// use siderust_pod::core::providers::FrameTransformProvider;
+/// use spod::core::providers::FrameTransformProvider;
 ///
 /// struct IdentityRotation;
 /// struct IdentityProvider;

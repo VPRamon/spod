@@ -16,7 +16,7 @@ use crate::tle::{Classification, SatelliteNumber};
 /// # Examples
 ///
 /// ```
-/// use siderust_pod::tle::{omm::{Omm, json}, parse_3le};
+/// use spod::tle::{omm::{Omm, json}, parse_3le};
 /// let l1 = "1 25544U 98067A   08264.51782528 -.00002182  00000-0 -11606-4 0  2927";
 /// let l2 = "2 25544  51.6416 247.4627 0006703 130.5360 325.0288 15.72125391563537";
 /// let omm = Omm::from_tle(&parse_3le("ISS (ZARYA)", l1, l2).unwrap());
@@ -33,7 +33,7 @@ pub fn write(omm: &Omm) -> Result<String, TleError> {
 /// # Examples
 ///
 /// ```
-/// use siderust_pod::tle::{omm::{Omm, json}, parse_3le};
+/// use spod::tle::{omm::{Omm, json}, parse_3le};
 /// let l1 = "1 25544U 98067A   08264.51782528 -.00002182  00000-0 -11606-4 0  2927";
 /// let l2 = "2 25544  51.6416 247.4627 0006703 130.5360 325.0288 15.72125391563537";
 /// let omm = Omm::from_tle(&parse_3le("ISS (ZARYA)", l1, l2).unwrap());
@@ -53,7 +53,7 @@ pub fn write_many(items: &[Omm]) -> Result<String, TleError> {
 /// # Examples
 ///
 /// ```
-/// use siderust_pod::tle::omm::json;
+/// use spod::tle::omm::json;
 /// let s = r#"{"OBJECT_NAME":"X","OBJECT_ID":"1998-067A",
 ///   "EPOCH":"2008-09-20T12:25:40.104192","MEAN_MOTION":15.72125391,
 ///   "ECCENTRICITY":0.0006703,"INCLINATION":51.6416,
@@ -75,7 +75,7 @@ pub fn read(input: &str) -> Result<Omm, TleError> {
 /// # Examples
 ///
 /// ```
-/// use siderust_pod::tle::omm::json;
+/// use spod::tle::omm::json;
 /// let arr = "[]";
 /// let omms = json::read_many(arr).unwrap();
 /// assert!(omms.is_empty());

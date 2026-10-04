@@ -1,6 +1,6 @@
 # POD Functional Requirements
 
-This document tracks the functional requirements of `siderust-pod` against
+This document tracks the functional requirements of `spod` against
 the M0–M7 milestone structure defined in `docs/design/plan.md`.
 
 Status legend: **Done**, **In progress**, **Planned**, **Deferred**.
@@ -9,7 +9,7 @@ Status legend: **Done**, **In progress**, **Planned**, **Deferred**.
 
 | ID         | Milestone               | Requirement                                                                                       | Status        |
 |------------|-------------------------|---------------------------------------------------------------------------------------------------|---------------|
-| FR-M0      | Workspace bootstrap     | `siderust-pod` compiles cleanly; upstream crates (`siderust`, `affn`, `qtty`, `tempoch`) are the canonical source for general astrodynamics. | Done          |
+| FR-M0      | Workspace bootstrap     | `spod` compiles cleanly; upstream crates (`siderust`, `affn`, `qtty`, `tempoch`) are the canonical source for general astrodynamics. | Done          |
 | FR-M1-01   | GNSS LEO batch          | Ingest SP3, RINEX OBS/NAV, ANTEX, EOP fixtures end-to-end.                                        | In progress   |
 | FR-M1-02   | GNSS LEO batch          | Batch WLS with float carrier ambiguities resolves a 24 h LEO arc.                                 | In progress   |
 | FR-M1-03   | GNSS LEO batch          | SP3 + OEM + manifest products written reproducibly.                                               | In progress   |
@@ -29,18 +29,18 @@ one or more milestones above.
 
 | ID        | Requirement                                                                                              | Crate                | Status        |
 |-----------|----------------------------------------------------------------------------------------------------------|----------------------|---------------|
-| FR-IO-01  | Read SP3-d files (header + epoch + P-records).                                                           | `siderust-pod-io`    | In progress   |
-| FR-IO-02  | Write SP3-d files preserving header verbatim where possible.                                             | `siderust-pod-io`    | In progress   |
-| FR-IO-03  | Read RINEX 3 OBS files (GPS L1/L2 + Galileo E1/E5a subset).                                              | `siderust-pod-io`    | In progress   |
-| FR-IO-04  | Read RINEX 3 NAV (GPS broadcast ephemeris).                                                              | `siderust-pod-io`    | In progress   |
-| FR-IO-05  | Read ANTEX 1.4 PCO values (PCV grids skipped).                                                           | `siderust-pod-io`    | In progress   |
-| FR-IO-06  | Read IERS EOP C04 series (daily rows + linear interpolation).                                            | `siderust-pod-io`    | In progress   |
-| FR-IO-07  | Read & write CCSDS OEM (KVN, single-segment write, multi-segment read).                                  | `siderust-pod-io`    | In progress   |
-| FR-IO-08  | Read ILRS CRD (record types 10 and 11).                                                                  | `siderust-pod-io`    | Planned (M3)  |
-| FR-IO-09  | Read ILRS CPF (record type 10).                                                                          | `siderust-pod-io`    | Planned (M3)  |
+| FR-IO-01  | Read SP3-d files (header + epoch + P-records).                                                           | `spod::io`    | In progress   |
+| FR-IO-02  | Write SP3-d files preserving header verbatim where possible.                                             | `spod::io`    | In progress   |
+| FR-IO-03  | Read RINEX 3 OBS files (GPS L1/L2 + Galileo E1/E5a subset).                                              | `spod::io`    | In progress   |
+| FR-IO-04  | Read RINEX 3 NAV (GPS broadcast ephemeris).                                                              | `spod::io`    | In progress   |
+| FR-IO-05  | Read ANTEX 1.4 PCO values (PCV grids skipped).                                                           | `spod::io`    | In progress   |
+| FR-IO-06  | Read IERS EOP C04 series (daily rows + linear interpolation).                                            | `spod::io`    | In progress   |
+| FR-IO-07  | Read & write CCSDS OEM (KVN, single-segment write, multi-segment read).                                  | `spod::io`    | In progress   |
+| FR-IO-08  | Read ILRS CRD (record types 10 and 11).                                                                  | `spod::io`    | Planned (M3)  |
+| FR-IO-09  | Read ILRS CPF (record type 10).                                                                          | `spod::io`    | Planned (M3)  |
 | FR-IO-10  | Read TLE / 3LE / OMM (KVN, XML, JSON).                                                                   | `siderust::astro::satellite::tle` | Done          |
 | FR-IO-11  | Read DAF/SPK Type 2 and Type 3 segments.                                                                 | `siderust::data::spk`     | Done          |
-| FR-IO-12  | Read BLQ ocean-loading coefficients.                                                                     | `siderust-pod-io`    | Deferred (Ph5)|
+| FR-IO-12  | Read BLQ ocean-loading coefficients.                                                                     | `spod::io`    | Deferred (Ph5)|
 
 ## Group: Force / dynamics models — `FR-DYN-*`
 
@@ -107,8 +107,8 @@ one or more milestones above.
 |-----------|----------------------------------------------------------------------------------------------|---------------|
 | FR-SVC-01 | YAML `RunConfig` ingestion via `serde_yaml`.                                                 | In progress   |
 | FR-SVC-02 | 15-stage pipeline runner with deterministic ordering.                                        | In progress   |
-| FR-SVC-03 | `siderust-pod-cli` exposes `run`, `validate-config`, `inspect-manifest`, `qc`, `validate-slr`, `compare-orbits`, `lambert`, `propagate`, `lisa-poc`. | In progress |
-| FR-SVC-04 | `siderust-pod-rest` exposes `POST /jobs`, `GET /jobs/{id}`, `DELETE /jobs/{id}`, `GET /jobs/{id}/products/{file}`. | Planned (M5) |
+| FR-SVC-03 | `spod` exposes `run`, `validate-config`, `inspect-manifest`, `qc`, `validate-slr`, `compare-orbits`, `lambert`, `propagate`, `lisa-poc`. | In progress |
+| FR-SVC-04 | `spod-rest` exposes `POST /jobs`, `GET /jobs/{id}`, `DELETE /jobs/{id}`, `GET /jobs/{id}/products/{file}`. | Planned (M5) |
 | FR-SVC-05 | OpenAPI 3.1 schema generated for the REST API.                                               | Planned (M5)  |
 | FR-SVC-06 | Bearer-token authentication for REST.                                                        | Planned       |
 | FR-SVC-07 | API parity: CLI, library, and REST produce byte-identical artefacts on the same config.      | Planned (M5)  |
@@ -121,7 +121,7 @@ See [ADR-0005](../adr/0005-lisa-poc-scope.md) for the scoping of this work.
 |------------|------------------------------------------------------------------------------------------|---------------|
 | FR-LISA-01 | `LisaEphemerisProvider` reads `esa/lisa-orbit-files`.                                    | Planned (M6)  |
 | FR-LISA-02 | Three heliocentric ICRS state vectors per epoch (one per spacecraft).                    | Planned (M6)  |
-| FR-LISA-03 | `InterSatRange` measurement model in `siderust-pod-observations`.                        | Planned (M6)  |
+| FR-LISA-03 | `InterSatRange` measurement model in `spod::observations`.                        | Planned (M6)  |
 | FR-LISA-04 | Three-spacecraft batch estimation using existing WLS infrastructure.                     | Planned (M6)  |
 | FR-LISA-05 | Example `examples/12_lisa_poc.rs` runs end-to-end.                                       | Planned (M6)  |
 | FR-LISA-06 | E2E-09 acceptance test passes within ranging-only observability.                         | Planned (M6)  |

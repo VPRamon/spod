@@ -40,7 +40,7 @@ use super::Sgp4Error;
 /// # Examples
 ///
 /// ```
-/// use siderust_pod::sgp4::GravityModel;
+/// use spod::sgp4::GravityModel;
 /// // The default matches Vallado's `tcppver.out` reference outputs exactly.
 /// assert!(matches!(GravityModel::default(), GravityModel::Wgs72));
 /// ```
@@ -85,8 +85,8 @@ impl GravityModel {
 /// # Examples
 ///
 /// ```
-/// use siderust_pod::sgp4::{GravityModel, Sgp4Propagator};
-/// use siderust_pod::tle::parse_3le;
+/// use spod::sgp4::{GravityModel, Sgp4Propagator};
+/// use spod::tle::parse_3le;
 ///
 /// let tle = parse_3le(
 ///     "ISS (ZARYA)",
@@ -120,8 +120,8 @@ impl Sgp4Propagator {
     /// # Examples
     ///
     /// ```
-    /// use siderust_pod::sgp4::Sgp4Propagator;
-    /// use siderust_pod::tle::parse_3le;
+    /// use spod::sgp4::Sgp4Propagator;
+    /// use spod::tle::parse_3le;
     /// let tle = parse_3le(
     ///     "ISS (ZARYA)",
     ///     "1 25544U 98067A   08264.51782528 -.00002182  00000-0 -11606-4 0  2927",
@@ -139,8 +139,8 @@ impl Sgp4Propagator {
     /// # Examples
     ///
     /// ```
-    /// use siderust_pod::sgp4::{GravityModel, Sgp4Propagator};
-    /// use siderust_pod::tle::parse_3le;
+    /// use spod::sgp4::{GravityModel, Sgp4Propagator};
+    /// use spod::tle::parse_3le;
     /// let tle = parse_3le(
     ///     "ISS (ZARYA)",
     ///     "1 25544U 98067A   08264.51782528 -.00002182  00000-0 -11606-4 0  2927",
@@ -200,8 +200,8 @@ impl Sgp4Propagator {
     /// # Examples
     ///
     /// ```
-    /// use siderust_pod::sgp4::{GravityModel, Sgp4Propagator};
-    /// use siderust_pod::tle::parse_3le;
+    /// use spod::sgp4::{GravityModel, Sgp4Propagator};
+    /// use spod::tle::parse_3le;
     /// let tle = parse_3le(
     ///     "ISS (ZARYA)",
     ///     "1 25544U 98067A   08264.51782528 -.00002182  00000-0 -11606-4 0  2927",
@@ -220,8 +220,8 @@ impl Sgp4Propagator {
     /// # Examples
     ///
     /// ```
-    /// use siderust_pod::sgp4::Sgp4Propagator;
-    /// use siderust_pod::tle::parse_3le;
+    /// use spod::sgp4::Sgp4Propagator;
+    /// use spod::tle::parse_3le;
     /// let tle = parse_3le(
     ///     "ISS (ZARYA)",
     ///     "1 25544U 98067A   08264.51782528 -.00002182  00000-0 -11606-4 0  2927",
@@ -250,8 +250,8 @@ impl Sgp4Propagator {
     /// # Examples
     ///
     /// ```
-    /// use siderust_pod::sgp4::Sgp4Propagator;
-    /// use siderust_pod::tle::parse_3le;
+    /// use spod::sgp4::Sgp4Propagator;
+    /// use spod::tle::parse_3le;
     /// let tle = parse_3le(
     ///     "ISS (ZARYA)",
     ///     "1 25544U 98067A   08264.51782528 -.00002182  00000-0 -11606-4 0  2927",
@@ -288,8 +288,8 @@ impl Sgp4Propagator {
     /// # Examples
     ///
     /// ```
-    /// use siderust_pod::sgp4::Sgp4Propagator;
-    /// use siderust_pod::tle::parse_3le;
+    /// use spod::sgp4::Sgp4Propagator;
+    /// use spod::tle::parse_3le;
     /// let tle = parse_3le(
     ///     "ISS (ZARYA)",
     ///     "1 25544U 98067A   08264.51782528 -.00002182  00000-0 -11606-4 0  2927",

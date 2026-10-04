@@ -59,7 +59,7 @@ use std::path::Path;
 /// # Examples
 ///
 /// ```
-/// use siderust_pod::io::cpf::GeocentricCenter;
+/// use spod::io::cpf::GeocentricCenter;
 /// use siderust::affn::centers::ReferenceCenter;
 /// assert_eq!(GeocentricCenter::center_name(), "Geocentric");
 /// ```
@@ -88,7 +88,7 @@ type CpfCartesian = cartesian::Position<GeocentricCenter, ITRF, Kilometer>;
 /// # Examples
 ///
 /// ```
-/// use siderust_pod::io::cpf::{parse_cpf, GeocentricCenter};
+/// use spod::io::cpf::{parse_cpf, GeocentricCenter};
 /// use siderust::affn::centers::ReferenceCenter;
 ///
 /// let txt = "H1 CPF 2 HTS 2024 01 01 00 1\n\
@@ -115,7 +115,7 @@ pub struct CpfEphemerisEntry {
 /// # Examples
 ///
 /// ```
-/// use siderust_pod::io::cpf::{parse_cpf, CpfEphemeris};
+/// use spod::io::cpf::{parse_cpf, CpfEphemeris};
 ///
 /// let txt = "H1 CPF 2 CNES 2024 01 01 00 1\n\
 ///            H2 lageos1 1155 7603901 2024 1 1 0 0 0 2024 1 1 1 0 0 60 0 ITRF2014\n\
@@ -137,7 +137,7 @@ impl CpfEphemeris {
     /// # Examples
     ///
     /// ```
-    /// use siderust_pod::io::cpf::parse_cpf;
+    /// use spod::io::cpf::parse_cpf;
     ///
     /// let txt = "H1 CPF 2 HTS 2024 01 01 00 1\n\
     ///            H2 lageos1 1155 7603901 2024 1 1 0 0 0 2024 1 1 0 1 0 60 0 ITRF2014\n\
@@ -171,7 +171,7 @@ impl std::ops::Index<usize> for CpfEphemeris {
 /// # Examples
 ///
 /// ```
-/// use siderust_pod::io::cpf::parse_cpf;
+/// use spod::io::cpf::parse_cpf;
 /// let txt = "H1 CPF 2 HTS 2024 01 01 00 1\n\
 ///            H2 s 0 0 2024 1 1 0 0 0 2024 1 1 0 1 0 60 0 ITRF2014\n\
 ///            10 1 60310 0.0 0 7000000.0 0.0 0.0\n99\n";
@@ -198,7 +198,7 @@ pub struct CpfPosition {
 /// # Examples
 ///
 /// ```
-/// use siderust_pod::io::cpf::parse_cpf;
+/// use spod::io::cpf::parse_cpf;
 /// let txt = "H1 CPF 2 CNES 2024 01 01 00 1\n\
 ///            H2 lageos1 1155 7603901 2024 1 1 0 0 0 2024 1 1 1 0 0 60 0 ITRF2014\n\
 ///            10 1 60310 0.0 0 6000000.0 9000000.0 7000000.0\n99\n";
@@ -240,7 +240,7 @@ pub struct CpfFile {
 /// # Examples
 ///
 /// ```no_run
-/// use siderust_pod::io::cpf::read_cpf;
+/// use spod::io::cpf::read_cpf;
 /// let f = read_cpf("lageos1.cpf").unwrap();
 /// println!("{} ephemeris entries", f.ephemeris.entries.len());
 /// ```
@@ -254,7 +254,7 @@ pub fn read_cpf<P: AsRef<Path>>(path: P) -> Result<CpfFile, PodIoError> {
 /// # Examples
 ///
 /// ```
-/// use siderust_pod::io::cpf::parse_cpf;
+/// use spod::io::cpf::parse_cpf;
 /// let txt = "H1 CPF 2 HTS 2024 01 01 00 1\n\
 ///            H2 s 0 0 2024 1 1 0 0 0 2024 1 1 0 1 0 60 0 ITRF2014\n\
 ///            10 1 60310 0.0 0 7000000.0 0.0 0.0\n99\n";
@@ -273,7 +273,7 @@ pub fn parse_cpf(text: &str) -> Result<CpfFile, PodIoError> {
 /// # Examples
 ///
 /// ```
-/// use siderust_pod::io::{ParseMode, cpf::parse_cpf_with_mode};
+/// use spod::io::{ParseMode, cpf::parse_cpf_with_mode};
 /// let txt = "H1 CPF 2 HTS 2024 01 01 00 1\nH2 s 0 0\n10 1 BROKEN\n99\n";
 /// let f = parse_cpf_with_mode(txt, ParseMode::Permissive).unwrap();
 /// assert_eq!(f.positions.len(), 0); // skipped
@@ -291,7 +291,7 @@ pub fn parse_cpf_with_mode(text: &str, mode: ParseMode) -> Result<CpfFile, PodIo
 /// # Examples
 ///
 /// ```
-/// use siderust_pod::io::cpf::{parse_cpf, write_cpf};
+/// use spod::io::cpf::{parse_cpf, write_cpf};
 ///
 /// let txt = "H1 CPF 2 CNES 2024 01 01 00 1\n\
 ///            H2 lageos1 1155 7603901 2024 1 1 0 0 0 2024 1 1 1 0 0 60 0 ITRF2014\n\

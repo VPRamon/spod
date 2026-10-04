@@ -1,4 +1,4 @@
-# siderust-pod — single-crate Precise Orbit Determination toolkit.
+# spod — single-crate Precise Orbit Determination toolkit.
 #
 # The previous multi-crate workspace has been collapsed: every former
 # sub-crate is now a module inside this single library.  The
@@ -6,30 +6,18 @@
 # inherit its edition/version metadata.
 
 [package]
-name         = "siderust-pod"
+name         = "spod"
 version      = "0.1.0"
 edition      = "2021"
-rust-version = "1.82"
+rust-version = "1.89"
 authors      = ["Siderust authors"]
 license      = "AGPL-3.0-or-later"
-repository   = "https://github.com/Siderust/siderust-pod"
-homepage     = "https://github.com/Siderust/siderust-pod"
+repository   = "https://github.com/VPRamon/spod"
+homepage     = "https://github.com/VPRamon/spod"
 keywords     = ["satellite", "pod", "orbit-determination", "geodesy", "gnss"]
 categories   = ["science", "aerospace"]
 publish      = false
 description  = "Precise Orbit Determination toolkit (POD) service built on Siderust."
-
-[lib]
-name = "siderust_pod"
-path = "src/lib.rs"
-
-[[bin]]
-name = "siderust-pod"
-path = "src/bin/siderust-pod.rs"
-
-[[bin]]
-name = "siderust-pod-rest"
-path = "src/bin/siderust-pod-rest.rs"
 
 [[example]]
 name = "01_typed_two_body_propagation"
@@ -118,11 +106,11 @@ members  = ["target-sgp4-test/probe"]
 [workspace.package]
 version      = "0.1.0"
 edition      = "2021"
-rust-version = "1.82"
+rust-version = "1.89"
 authors      = ["Siderust authors"]
 license      = "AGPL-3.0-or-later"
-repository   = "https://github.com/Siderust/siderust-pod"
-homepage     = "https://github.com/Siderust/siderust-pod"
+repository   = "https://github.com/VPRamon/spod"
+homepage     = "https://github.com/VPRamon/spod"
 keywords     = ["satellite", "pod", "orbit-determination", "geodesy", "gnss"]
 categories   = ["science", "aerospace"]
 

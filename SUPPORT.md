@@ -14,7 +14,7 @@ Do not report security vulnerabilities in a public issue. See [SECURITY.md](SECU
 
 ## Commercial licensing and support
 
-`siderust-pod` is licensed under AGPL-3.0-or-later. Commercial licensing, integration work, or paid support can be discussed separately via `sales@siderust.org`.
+`spod` is licensed under AGPL-3.0-or-later. Commercial licensing, integration work, or paid support can be discussed separately via `sales@siderust.org`.
 
 ## Current support boundary
 

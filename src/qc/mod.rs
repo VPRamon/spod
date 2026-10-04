@@ -1,4 +1,4 @@
-//! # siderust-pod quality control
+//! # spod quality control
 //!
 //! ## Scientific scope
 //!

@@ -21,7 +21,7 @@
 //! # Example
 //!
 //! ```
-//! use siderust_pod::dynamics::registry::{ForceModelRegistry, ForceModelSpec};
+//! use spod::dynamics::registry::{ForceModelRegistry, ForceModelSpec};
 //! let mut reg = ForceModelRegistry::with_builtins();
 //! let composite = reg
 //!     .build(&[ForceModelSpec::named("two_body"), ForceModelSpec::named("j2")])
@@ -106,7 +106,7 @@ pub enum ForceModelParams {
 /// # Example
 ///
 /// ```
-/// use siderust_pod::dynamics::registry::ForceModelSpec;
+/// use spod::dynamics::registry::ForceModelSpec;
 /// let s = ForceModelSpec::named("j2");
 /// assert_eq!(s.name, "j2");
 /// ```
@@ -179,7 +179,7 @@ impl ForceModelRegistry {
     /// # Example
     ///
     /// ```
-    /// use siderust_pod::dynamics::registry::ForceModelRegistry;
+    /// use spod::dynamics::registry::ForceModelRegistry;
     /// let reg = ForceModelRegistry::with_builtins();
     /// assert!(reg.is_registered("two_body"));
     /// assert!(reg.is_registered("empirical_2cpr"));
@@ -239,7 +239,7 @@ impl ForceModelRegistry {
     /// # Example
     ///
     /// ```
-    /// use siderust_pod::dynamics::registry::{ForceModelRegistry, ForceModelSpec, ForceModelParams};
+    /// use spod::dynamics::registry::{ForceModelRegistry, ForceModelSpec, ForceModelParams};
     /// let reg = ForceModelRegistry::with_builtins();
     /// let composite = reg.build(&[
     ///     ForceModelSpec::named("two_body"),

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Enforce the standalone dependency rules for siderust-pod.
+# Enforce the standalone dependency rules for spod.
 
 set -euo pipefail
 
@@ -17,7 +17,7 @@ if [[ "$source_null_count" -ne 2 ]]; then
   exit 1
 fi
 
-if ! cargo tree --locked -p siderust-pod | grep -q '^siderust-pod v'; then
+if ! cargo tree --locked -p spod | grep -q '^spod v'; then
   echo "Dependency-graph check FAILED."
   exit 1
 fi

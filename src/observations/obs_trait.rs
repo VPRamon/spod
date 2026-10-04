@@ -20,7 +20,7 @@ use super::provider_bundle::ProviderBundle;
 /// # Examples
 ///
 /// ```
-/// use siderust_pod::observations::obs_trait::CartesianState;
+/// use spod::observations::obs_trait::CartesianState;
 /// use siderust::astro::dynamics::{Position, Velocity};
 /// use siderust::coordinates::frames::GCRS;
 /// use siderust::time::JulianDate;
@@ -41,7 +41,7 @@ pub type CartesianState = OrbitState<Geocentric, GCRS>;
 /// # Examples
 ///
 /// ```
-/// use siderust_pod::observations::obs_trait::ObsType;
+/// use spod::observations::obs_trait::ObsType;
 /// assert_ne!(ObsType::GnssPseudorange, ObsType::SlrNormalPoint);
 /// ```
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
@@ -66,7 +66,7 @@ pub enum ObsType {
 /// # Examples
 ///
 /// ```
-/// use siderust_pod::observations::obs_trait::PhaseResidual;
+/// use spod::observations::obs_trait::PhaseResidual;
 ///
 /// let r = PhaseResidual { residual_m: 0.5, cycles: 0.5 / 0.1903 };
 /// assert!((r.residual_m).abs() < 1.0);
@@ -85,7 +85,7 @@ pub struct PhaseResidual {
 /// # Examples
 ///
 /// ```
-/// use siderust_pod::observations::obs_trait::{ObsResidual, PhaseResidual};
+/// use spod::observations::obs_trait::{ObsResidual, PhaseResidual};
 ///
 /// let r = ObsResidual::Scalar(3.0);
 /// let p = ObsResidual::Phase(PhaseResidual { residual_m: 0.1, cycles: 0.5 });
@@ -126,9 +126,9 @@ impl From<PhaseResidual> for ObsResidual {
 /// # Examples
 ///
 /// ```
-/// use siderust_pod::observations::obs_trait::{CartesianState, Observation, ObsType};
-/// use siderust_pod::observations::provider_bundle::NullProviderBundle;
-/// use siderust_pod::observations::PodObservationsError;
+/// use spod::observations::obs_trait::{CartesianState, Observation, ObsType};
+/// use spod::observations::provider_bundle::NullProviderBundle;
+/// use spod::observations::PodObservationsError;
 /// use siderust::astro::dynamics::{Position, Velocity};
 /// use siderust::coordinates::frames::GCRS;
 /// use siderust::time::JulianDate;
@@ -139,7 +139,7 @@ impl From<PhaseResidual> for ObsResidual {
 ///     fn modeled_value(
 ///         &self,
 ///         _state: &CartesianState,
-///         _providers: &dyn siderust_pod::observations::provider_bundle::ProviderBundle,
+///         _providers: &dyn spod::observations::provider_bundle::ProviderBundle,
 ///     ) -> Result<f64, PodObservationsError> {
 ///         Ok(0.0)
 ///     }
@@ -190,7 +190,7 @@ pub trait Observation: Send + Sync {
 /// # Examples
 ///
 /// ```
-/// use siderust_pod::observations::obs_trait::{AnyObservation, ObsResidual};
+/// use spod::observations::obs_trait::{AnyObservation, ObsResidual};
 /// // See ObservationBatch for a usage example.
 /// let _: &dyn AnyObservation;
 /// ```

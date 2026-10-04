@@ -64,7 +64,7 @@ impl PeriodicHarmonic {
 /// # Example
 ///
 /// ```
-/// use siderust_pod::dynamics::{EmpiricalPeriodicAcceleration, PeriodicHarmonic};
+/// use spod::dynamics::{EmpiricalPeriodicAcceleration, PeriodicHarmonic};
 /// use siderust::qtty::{KmPerSecondsSquared, Second};
 /// use siderust::time::JulianDate;
 ///

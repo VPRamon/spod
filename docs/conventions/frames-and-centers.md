@@ -9,14 +9,14 @@ every common situation in the POD workspace.
 | Marker  | Full name                                          | Use for                                                                 |
 |---------|----------------------------------------------------|-------------------------------------------------------------------------|
 | `Teme`  | True Equator, Mean Equinox (of date)               | SGP4/SDP4 native output. **Always convert to GCRF before propagation.** |
-| `Gcrf`  | Geocentric Celestial Reference Frame               | Inertial frame for Earth-orbiting satellites; the workhorse in `siderust-pod-dynamics`. |
+| `Gcrf`  | Geocentric Celestial Reference Frame               | Inertial frame for Earth-orbiting satellites; the workhorse in `spod::dynamics`. |
 | `Icrs`  | International Celestial Reference System           | Deep-space and heliocentric work, including the LISA POC. Aligns with GCRF at the ε level. |
 | `Itrf`  | International Terrestrial Reference Frame          | Earth-fixed: ground-station coordinates, EOP-driven GCRF↔ITRF transforms, surface displacements. |
 | `J2000` | Mean equator/equinox of J2000.0                    | **Legacy.** Avoid in new code; prefer GCRF.                             |
 
 Cross-frame transforms live in `siderust` (precession-nutation, polar
 motion, EOP application) and are surfaced through the
-`FrameTransformProvider` trait in `siderust-pod-dynamics`.
+`FrameTransformProvider` trait in `spod::dynamics`.
 
 ## Center markers (from `affn`)
 
