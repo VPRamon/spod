@@ -1,28 +1,35 @@
 # Dependency rules
 
-```text
-ALLOWED:
-  qtty, tempoch, affn, cheby                  (independent foundations)
-  siderust         -> qtty, tempoch, affn, cheby
-  pod-core         -> siderust, qtty, tempoch, affn, cheby
-  pod-dynamics     -> pod-core, siderust, cheby
-  pod-io           -> siderust
-  pod-observations -> pod-dynamics, siderust
-  pod-estimation   -> siderust, faer
-  pod-qc           -> pod-products, siderust
-  pod-products     -> pod-io, siderust
-  pod-service      -> ALL pod-* crates, siderust
-  pod-cli          -> pod-service (only)
+`spod` is a single service/application crate built on the canonical Siderust
+0.12 APIs. The dependency direction is intentionally small:
 
-FORBIDDEN:
-  siderust          -> pod-*
-  qtty/tempoch/affn/cheby -> siderust or pod-*
-  pod-core          -> any other pod-*
-  pod-estimation    -> pod-io, pod-observations
-  pod-observations  -> pod-io
-  pod-dynamics      -> pod-io, pod-observations, pod-estimation
-  pod-qc            -> pod-estimation
-  pod-cli           -> pod-{core,dynamics,io,observations,estimation,qc,products}
+```text
+spod service/application
+        |
+        v
+  siderust::pod and siderust::formats
 ```
 
-The forbidden edges are checked by `scripts/check_dep_graph.sh`.
+Runtime crates such as Axum, Tokio, Clap, and Serde support the application
+boundary. They do not provide or replace POD scientific ownership.
+
+## Allowed exceptions
+
+The direct `sgp4` dependency and `src/sgp4/` implementation are temporary
+product-parity exceptions. They provide full Vallado/AFSPC semantics that are
+not yet available in Siderust 0.12. Their removal is gated by spod #29 and
+Siderust #98, with the fixtures in `tests/sgp4_vallado.rs` preserved until
+semantic parity is demonstrated.
+
+## Forbidden drift
+
+- Path or Git dependencies for canonical scientific crates.
+- New local generic force, measurement, estimation, QC, format-parser, or
+  propagation implementations outside the documented SGP4 exception.
+- CLI or REST code that assembles scientific pipelines instead of dispatching
+  through `spod::service`.
+
+`scripts/check_dep_graph.sh` enforces reproducible registry/lockfile
+dependencies. `scripts/check_architecture.sh` enforces the source boundary
+using narrowly scoped implementation type patterns rather than a filename
+blacklist. Both checks run in the CI project-guards job.

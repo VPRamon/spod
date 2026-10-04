@@ -82,6 +82,7 @@ The CI pipeline runs (in order):
    see [`../conventions/examples-and-doctests.md`](../conventions/examples-and-doctests.md)).
 5. `scripts/snapshot_public_api.sh` — public-API diff (advisory pre-1.0).
 6. `cargo deny check` — license / advisory / source policy.
+7. `scripts/check_architecture.sh` — service-to-Siderust source boundary.
 
 A red light on any of these blocks merge.
 

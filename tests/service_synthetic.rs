@@ -29,6 +29,16 @@ fn base_config(output_dir: &Path) -> RunConfig {
     }
 }
 
+fn test_root(name: &str) -> PathBuf {
+    let suffix = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .unwrap()
+        .as_nanos();
+    let root = std::env::temp_dir().join(format!("spod-service-{name}-{suffix}"));
+    fs::create_dir_all(&root).unwrap();
+    root
+}
+
 #[test]
 fn synthetic_service_produces_valid_manifest_and_products() {
     let suffix = SystemTime::now()
@@ -98,7 +108,10 @@ fn synthetic_service_produces_valid_manifest_and_products() {
             .iter()
             .any(|v| v == field));
     }
-    for output in &manifest.outputs {
+    let expected_kinds = ["orbit-oem", "orbit-sp3", "qc", "residuals"];
+    assert_eq!(manifest.outputs.len(), expected_kinds.len());
+    for (output, expected_kind) in manifest.outputs.iter().zip(expected_kinds) {
+        assert_eq!(output.kind, expected_kind);
         let path = if output.path.is_absolute() {
             output.path.clone()
         } else {
@@ -158,6 +171,52 @@ fn invalid_configuration_fails_before_execution() {
 
     let err = run(&cfg, "unused-config.yaml").unwrap_err();
     assert!(matches!(err, ServiceError::Configuration { .. }));
+}
+
+#[test]
+fn configuration_validation_rejects_empty_run_id_and_disabled_two_body() {
+    let output_dir = std::env::temp_dir().join("spod-invalid-semantic-config-test");
+
+    let mut empty_id = base_config(&output_dir);
+    empty_id.run_id = "  ".into();
+    assert!(matches!(
+        empty_id.validate().unwrap_err(),
+        ServiceError::Configuration { .. }
+    ));
+
+    let mut no_two_body = base_config(&output_dir);
+    no_two_body.forces.two_body = false;
+    assert!(matches!(
+        no_two_body.validate().unwrap_err(),
+        ServiceError::Configuration { .. }
+    ));
+}
+
+#[test]
+fn configuration_rejects_unknown_yaml_fields() {
+    let root = test_root("unknown-field");
+    let config_path = root.join("run.yaml");
+    fs::write(
+        &config_path,
+        "schema_version: 1.0.0\nrun_id: unknown-field\ninputs: {}\noutput_dir: output\nforces: {}\nunexpected: true\n",
+    )
+    .unwrap();
+
+    let error = RunConfig::from_yaml_file(&config_path).unwrap_err();
+    assert!(matches!(error, ServiceError::Configuration { .. }));
+    fs::remove_dir_all(root).unwrap();
+}
+
+#[test]
+fn relative_output_directory_is_resolved_from_configuration_file() {
+    let root = test_root("relative-output");
+    let config_path = root.join("nested/run.yaml");
+    let config = base_config(Path::new("products"));
+    assert_eq!(
+        config.output_dir_relative_to(&config_path),
+        root.join("nested/products")
+    );
+    fs::remove_dir_all(root).unwrap();
 }
 
 #[test]
