@@ -13,6 +13,7 @@
 //! | Module | Contents |
 //! |--------|----------|
 //! | [`service`] | Pipeline orchestration, transport, and job runner |
+//! | [`sgp4`] | Temporary full Vallado SGP4/SDP4 compatibility layer; removal tracked by spod #29 |
 //!
 //! ## Binary entry-points
 //!
