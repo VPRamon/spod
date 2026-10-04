@@ -1,9 +1,9 @@
-# spod — single-crate Precise Orbit Determination toolkit.
+# spod — service application for Siderust POD workflows.
 #
-# The previous multi-crate workspace has been collapsed: every former
-# sub-crate is now a module inside this single library.  The
-# [workspace] block is kept only to let target-sgp4-test/probe
-# inherit its edition/version metadata.
+# Reusable POD science is provided by Siderust; this package owns service
+# orchestration, interfaces, format adapters, and application-specific
+# functionality. The [workspace] block is kept only so target-sgp4-test/probe
+# can inherit package metadata.
 
 [package]
 name         = "spod"
@@ -17,7 +17,7 @@ homepage     = "https://github.com/VPRamon/spod"
 keywords     = ["satellite", "pod", "orbit-determination", "geodesy", "gnss"]
 categories   = ["science", "aerospace"]
 publish      = false
-description  = "Precise Orbit Determination toolkit (POD) service built on Siderust."
+description  = "Precise Orbit Determination service application built on Siderust."
 
 [[example]]
 name = "03_lambert_earth_to_mars"
