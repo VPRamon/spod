@@ -2,61 +2,64 @@
 
 ## Summary
 
-NAIF SPICE distributes planetary, satellite, and spacecraft trajectory
-data in DAF (Double-precision Array File) container files. The SPK
-sub-format ("SP-Kernel") layers a typed segment table on top of DAF and
-defines 21 segment types covering Chebyshev, Lagrange, Hermite, and
-discrete-state representations. The familiar `.bsp` extension denotes a
-binary SPK kernel; there is no separate `.bsp` format.
+NAIF SPICE distributes planetary, satellite, and spacecraft trajectory data
+in DAF (Double-precision Array File) containers. SPK (SP-Kernel) stores typed
+ephemeris segments inside DAF files; binary kernels conventionally use the
+`.bsp` extension.
 
-## Authoritative specs
+## Authoritative specifications
 
 - DAF: <https://naif.jpl.nasa.gov/pub/naif/toolkit_docs/C/req/daf.html>
 - SPK: <https://naif.jpl.nasa.gov/pub/naif/toolkit_docs/C/req/spk.html>
 
-## Coverage
+## Ownership
 
-| Read | Write |
-|------|-------|
-|  ✅  |  —    |
+Low-level DAF parsing and raw SPK decoding are canonical Siderust APIs:
 
-## Owning crate
+```text
+siderust::formats::spice::daf
+siderust::formats::spice::spk
+```
 
-`siderust::data::spk`
+`spod::spice` adds service/application functionality that is not a simple
+reexport of those namespaces:
+
+- `SpkKernel` owns kernel bytes, indexes summaries, and resolves body chains;
+- `SpkSegment` evaluates the supported segment representations;
+- `SpiceEphemerisProvider` adapts kernel queries to the service provider
+  boundary;
+- `SpiceError` reports kernel/index/evaluation failures.
+
+Callers that only need the low-level DAF/SPK parser should import Siderust
+directly.
 
 ## Supported SPK segment types
 
-| Type | Description                                       | Status |
-|------|---------------------------------------------------|--------|
-|  2   | Chebyshev polynomial — position only              | ✅     |
-|  3   | Chebyshev polynomial — position and velocity      | ✅     |
+| Type | Description | Status |
+| --- | --- | --- |
+| 2 | Chebyshev position | supported |
+| 3 | Chebyshev position and velocity | supported |
 
-These two types cover the JPL DE-series planetary ephemerides
-(DE440, DE441) and most ITRF-to-GCRF station kernels in common use.
+These types cover the JPL DE-series kernels used by the current validation
+path.
 
-## Not supported
+## Unsupported segment types
 
-The following SPK types return `SpiceError::UnsupportedDataType { ty }`
-when encountered. They are explicitly enumerated so that the dispatch
-matches against them and produces a clear error rather than panicking on
-an unknown data type:
+Other SPK data types are indexed when possible but are not evaluated by the
+current `spod::spice` implementation. A state query that resolves to an
+unsupported segment returns:
 
-`1, 5, 8, 9, 10, 12, 13, 14, 15, 17, 18, 19, 20, 21`.
+```rust
+spod::spice::SpiceError::UnsupportedDataType { data_type: 9 }
+```
 
-Adding a new type requires:
+Types 9 and 13 remain intentionally deferred; see
+[ADR-0007](../adr/0007-spk-type-coverage.md).
 
-1. Implementing the segment evaluator under `siderust_spice::spk::types`.
-2. Wiring it into the `SpkSegment` dispatch enum.
-3. Adding regression cases against a JPL-published reference for that type.
+## Implementation notes
 
-See [ADR-0007 — SPK type coverage](../adr/0007-spk-type-coverage.md).
-
-## Deviations
-
-- The reader **does not** load the entire kernel into memory; it memory-
-  maps the file (read-only) and decodes segments lazily.
-- Endianness is detected from the DAF file record; both `LTL-IEEE` and
-  `BIG-IEEE` kernels are supported.
-- Comment area (DAF "ID word" followed by reserved record area) is
-  exposed as a `String` and used as part of the run manifest provenance
-  block.
+- `SpkKernel::open` currently reads the kernel bytes into memory.
+- DAF metadata is parsed with `siderust::formats::spice::daf::Daf`.
+- Body-relative states are resolved by walking the indexed target/center
+  segment graph and summing the appropriate segment states.
+- Epochs are TDB seconds past J2000, matching NAIF SPK conventions.
