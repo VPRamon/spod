@@ -20,7 +20,7 @@ records (`P`), with optional velocity (`V`), event (`EP`), and event-velocity
 
 ## Owning crate
 
-`spod::io`
+`siderust::formats::igs::sp3`
 
 ## Supported subset
 

@@ -96,19 +96,6 @@ jobs:
       - run: bash scripts/check_no_todos.sh
       - run: bash scripts/check_legacy_name_refs.sh
 
-  feature-checks:
-    name: Targeted feature checks
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        feature: [lisa, doris, parquet, de440]
-    steps:
-      - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@stable
-      - uses: Swatinem/rust-cache@v2
-      - run: cargo check --workspace --no-default-features --features ${{ matrix.feature }}
-
   msrv:
     name: MSRV (Rust 1.89)
     runs-on: ubuntu-latest

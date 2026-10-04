@@ -18,23 +18,20 @@ Docker builder image.
 | Area | Current scope |
 | --- | --- |
 | POD science | Provided by `siderust::pod` (forces, propagation, observations, estimation, QC and products) |
-| Orbit mechanics | Lambert solver, TLE/3LE/OMM handling, SGP4/SDP4 propagation, SPICE ephemerides |
-| Formats | SP3, RINEX, ANTEX, EOP, CRD, CPF and CCSDS OEM support at the currently implemented subsets |
+| Scientific backend | Siderust 0.12 |
+| Full SGP4/SDP4 | Local Vallado-style backend retained until upstream parity |
 | Products & QC | Residuals, orbit products, manifests, comparison/QC utilities |
 | Interfaces | Rust library, command-line interface, experimental Axum REST API |
 
-The project separates service orchestration, external interfaces, persistence and format adapters from the reusable POD implementation in Siderust.
+The project separates service orchestration, external interfaces, and
+persistence from the reusable POD implementation in Siderust.
 
 ## Repository structure
 
 ```text
 src/
-  io/            Space/geodesy format readers and writers
   service/       Configuration, orchestration, REST/CLI and artifact handling
-  lambert/       Lambert solver
-  sgp4/          SGP4 integration
-  spice/         SPICE helpers/providers
-  tle/           TLE/3LE/OMM handling
+  sgp4/          Temporary full Vallado SGP4/SDP4 compatibility layer (#29)
   bin/           CLI and experimental REST entry points
 ```
 
@@ -48,7 +45,11 @@ cargo test
 
 ## Relationship with the Siderust ecosystem
 
-Foundational astrodynamics, typed quantities, time scales, frames, and reusable numerical mechanics live in the released Siderust ecosystem crates. `spod` is built on top of `siderust::pod`; it does not expose a scientific compatibility facade. Callers needing reusable force, observation, estimation, QC, or product APIs should import Siderust directly.
+Foundational astrodynamics, typed quantities, time scales, frames, standard
+formats, and reusable numerical mechanics live in the released Siderust
+ecosystem crates. `spod` is built on top of `siderust::pod`; it does not expose
+scientific compatibility facades. Full Vallado SGP4/SDP4 remains a documented
+temporary local exception while parity is tracked by #29 and Siderust #98.
 
 Validate and run the synthetic POD configuration:
 
@@ -67,20 +68,15 @@ docker run --rm -p 8080:8080 spod:dev
 The service listens on `SPOD_REST_BIND` and writes job output below
 `SPOD_REST_OUT`.
 
-The remaining Rust examples cover Lambert transfer and SGP4 integration:
-
-```bash
-cargo run --example 03_lambert_earth_to_mars
-cargo run --example 04_sgp4_from_tle
-```
-
-See [examples/README.md](examples/README.md) for the purpose of each example and the typed-API conventions they follow.
+See [examples/README.md](examples/README.md) for the service workflow.
 
 ## Design principles
 
 - **Type safety for physical quantities.** Units, epochs, frames and states should be difficult to mix accidentally.
 - **Traceable numerical behaviour.** Scientific algorithms should have explicit assumptions and validation tests.
-- **Separation of concerns.** Reusable dynamics, observations, estimation, and QC remain independently testable in Siderust; `spod` keeps format adapters and service orchestration at the application boundary.
+- **Separation of concerns.** Reusable dynamics, observations, estimation,
+  formats, and QC remain independently testable in Siderust; `spod` keeps
+  service orchestration at the application boundary.
 - **No unsafe Rust.** The library forbids `unsafe_code`.
 - **Standards-oriented interoperability.** Common astrodynamics and geodesy formats are treated as first-class interfaces.
 

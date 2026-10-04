@@ -25,11 +25,11 @@ This file is the authoritative registry of every test fixture committed to the
 
 ---
 
-## siderust (sgp4)
+## spod (temporary SGP4 upstream-gap validation)
 
 | Path | Format | Source | License | Size | Last fetched | Notes |
 |---|---|---|---|---|---|---|
-| `test-data/vallado_sgp4ver_subset.toml` | TOML (SGP4 reference) | Derived from Vallado `SGP4-VER.TLE` + `tcppver.out` (https://celestrak.org/software/vallado-sw.php) | Public domain (Vallado) | < 10 KB | 2026-05-12 | 6 satellites × 4 epochs; reference values extracted from `tcppver.out` |
+| `tests/sgp4_vallado.rs` | Rust regression vectors | Derived from Vallado `SGP4-VER.TLE` + `tcppver.out` (https://celestrak.org/software/vallado-sw.php) | Public domain (Vallado) | < 10 KB | 2026-10-04 | Near-Earth and deep-space position/velocity epochs plus a documented propagation error |
 
 ---
 
@@ -41,7 +41,7 @@ This file is the authoritative registry of every test fixture committed to the
 
 ---
 
-## spod (io)
+## Siderust canonical formats
 
 | Path | Format | Source | License | Size | Last fetched | Notes |
 |---|---|---|---|---|---|---|

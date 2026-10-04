@@ -53,7 +53,7 @@ pub type TemeVelocityKmPerSec = velocity::TEME<KilometerPerSecond>;
 ///
 /// ```
 /// use spod::sgp4::{Sgp4Propagator, TemeState};
-/// use spod::tle::parse_3le;
+/// use siderust::formats::tle::parse_3le;
 ///
 /// let tle = parse_3le(
 ///     "ISS (ZARYA)",
@@ -128,7 +128,7 @@ impl TemeState {
     ///
     /// ```
     /// use spod::sgp4::Sgp4Propagator;
-    /// use spod::tle::parse_3le;
+    /// use siderust::formats::tle::parse_3le;
     /// let tle = parse_3le(
     ///     "ISS (ZARYA)",
     ///     "1 25544U 98067A   08264.51782528 -.00002182  00000-0 -11606-4 0  2927",
@@ -148,7 +148,7 @@ impl TemeState {
     ///
     /// ```
     /// use spod::sgp4::Sgp4Propagator;
-    /// use spod::tle::parse_3le;
+    /// use siderust::formats::tle::parse_3le;
     /// let tle = parse_3le(
     ///     "ISS (ZARYA)",
     ///     "1 25544U 98067A   08264.51782528 -.00002182  00000-0 -11606-4 0  2927",
@@ -169,7 +169,7 @@ impl TemeState {
     ///
     /// ```
     /// use spod::sgp4::Sgp4Propagator;
-    /// use spod::tle::parse_3le;
+    /// use siderust::formats::tle::parse_3le;
     /// let tle = parse_3le(
     ///     "ISS (ZARYA)",
     ///     "1 25544U 98067A   08264.51782528 -.00002182  00000-0 -11606-4 0  2927",

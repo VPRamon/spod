@@ -89,12 +89,6 @@ pub enum PipelineError {
     /// Estimation failure.
     #[error("estimation: {0}")]
     Estimation(#[from] NonlinearError),
-    /// SP3 write failure.
-    #[error("sp3: {0}")]
-    Sp3(#[from] crate::io::sp3::Sp3Error),
-    /// I/O umbrella errors from products.
-    #[error("io: {0}")]
-    PodIo(#[from] crate::io::PodIoError),
 }
 
 /// Outcome of an MVP-1 pipeline run.

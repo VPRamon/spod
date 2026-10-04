@@ -7,23 +7,23 @@
 //! ## What this crate is
 //!
 //! * A type-preserving wrapper around the public-domain SGP4/SDP4 mean-element
-//!   propagator. Inputs are typed [`crate::tle::Tle`] records and target
+//!   propagator. Inputs are typed [`siderust::formats::tle::TLE`] records and target
 //!   epochs are typed [`siderust::tempoch::JulianDate<siderust::tempoch::UTC>`]. Outputs are
-//!   typed [`TemeState`] values: a geocentric **TEME** position in
+//! typed [`crate::sgp4::TemeState`] values: a geocentric **TEME** position in
 //!   kilometres and a velocity in km·s⁻¹.
 //! * Validated against Vallado's "SGP4-VER" reference test set: the
-//!   `vallado_sgp4ver` integration test reproduces position to better than
-//!   `1e-6 km` and velocity to better than `1e-9 km·s⁻¹` over a curated
-//!   subset of ≥ 5 satellites and ≥ 3 epochs each.
+//!   `sgp4_vallado` integration test reproduces near-Earth and deep-space
+//!   positions to better than `1e-6 km` and velocities to better than
+//!   `1e-9 km·s⁻¹`, and checks a documented propagation failure.
 //!
 //! ## What this crate is *not*
 //!
-//! * It is not a TLE parser. Use [`crate::tle`] for that.
+//! * It is not a TLE parser. Use [`siderust::formats::tle`] for that.
 //! * It does not perform TEME → ITRF / GCRF rotations. Use
 //!   `siderust::coordinates::transform::providers::frames_teme` once Earth
 //!   Orientation Parameters are supplied.
 //! * It does not implement orbit determination, force models, or estimation;
-//!   those live in the `spod-*` crates.
+//!   those live in Siderust's POD APIs.
 //!
 //! ## Backend
 //!
@@ -37,7 +37,7 @@
 //!
 //! ```
 //! use spod::sgp4::Sgp4Propagator;
-//! use spod::tle::parse_3le;
+//! use siderust::formats::tle::parse_3le;
 //!
 //! let tle = parse_3le(
 //!     "ISS (ZARYA)",

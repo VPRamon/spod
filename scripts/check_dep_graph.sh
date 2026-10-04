@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
-# Enforce the standalone dependency rules for spod.
+# Enforce the standalone dependency rules for spod. The SGP4 probe is an
+# intentional workspace exception while full Vallado parity is unavailable in
+# Siderust (spod #29, Siderust #98).
 
 set -euo pipefail
 
