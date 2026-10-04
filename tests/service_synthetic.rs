@@ -125,3 +125,17 @@ fn synthetic_service_rejects_every_real_data_input() {
         );
     }
 }
+
+#[test]
+fn synthetic_service_rejects_unsupported_third_body_force() {
+    let output_dir = std::env::temp_dir().join("spod-unsupported-third-body-test");
+    let mut cfg = base_config(&output_dir);
+    cfg.forces.third_body = true;
+
+    let err = run(&cfg, "unused-config.yaml").unwrap_err();
+    assert_eq!(err.kind(), std::io::ErrorKind::InvalidInput);
+    assert!(
+        err.to_string().contains("third_body"),
+        "diagnostic did not identify the unsupported third-body force: {err}"
+    );
+}
