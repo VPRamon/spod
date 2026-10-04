@@ -53,3 +53,18 @@ The CLI and REST binaries are thin front ends over `spod::service::Runner`.
 They do not assemble pipelines or call scientific components directly.
 Siderust's scientific APIs remain independently testable, while the service
 boundary is covered by synthetic end-to-end execution.
+
+## Shared job model
+
+`spod::service` owns the canonical `JobId`, `JobState`, `JobStatus`,
+`JobResult`, and `JobError` contracts. The lifecycle is `pending -> running ->
+succeeded` or `pending -> running -> failed`; terminal statuses carry either
+artifact references or a stable machine-readable error category. REST stores
+these snapshots in an in-memory `JobStore` and exposes them as JSON. The CLI
+uses the same model synchronously and formats its terminal status for
+operators.
+
+The REST adapter is intentionally asynchronous and experimental. It does not
+provide durable persistence, scheduling, retries, or distributed workers.
+Those concerns are deferred to later service/API work, including the stable
+artifact API tracked by #28.

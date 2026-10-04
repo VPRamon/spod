@@ -49,7 +49,10 @@ pub mod workflow;
 pub use artifacts::Artifacts;
 pub use config::{ForcesConfig, InputsConfig, RunConfig};
 pub use error::ServiceError;
-pub use job::{JobId, RunReport, RunRequest, RunResult};
+pub use job::{
+    JobError, JobErrorCode, JobId, JobResult, JobState, JobStatus, JobStore, JobStoreError,
+    JobTransitionError, RunReport, RunRequest, RunResult,
+};
 pub use provenance::RunProvenance;
-pub use runner::{run, Runner};
+pub use runner::{execute, run, Runner};
 pub use workflow::Workflow;

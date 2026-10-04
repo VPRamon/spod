@@ -2,7 +2,7 @@
 
 use super::artifacts::{ArtifactLayout, Artifacts};
 use super::error::ServiceError;
-use super::job::{RunReport, RunRequest};
+use super::job::{JobStatus, RunReport, RunRequest};
 use super::pipeline::run_synth;
 use super::provenance::RunProvenance;
 use super::synth::{generate, SyntheticArcConfig};
@@ -15,6 +15,13 @@ use siderust::pod::run::dataset::DatasetRef;
 pub struct Runner;
 
 impl Runner {
+    /// Execute a request and return the canonical terminal job status.
+    pub fn execute(&self, request: RunRequest) -> JobStatus {
+        let id = request.config.run_id.clone();
+        let workflow = request.config.workflow;
+        JobStatus::from_run(id, workflow, self.run(request))
+    }
+
     /// Execute a request through validation, dispatch, execution, and packaging.
     pub fn run(&self, request: RunRequest) -> Result<RunReport, ServiceError> {
         request.config.validate()?;
@@ -95,6 +102,17 @@ pub fn run(
     config_path: impl Into<std::path::PathBuf>,
 ) -> Result<RunReport, ServiceError> {
     Runner.run(RunRequest {
+        config: config.clone(),
+        config_path: config_path.into(),
+    })
+}
+
+/// Execute a request synchronously using the canonical job model.
+pub fn execute(
+    config: &super::config::RunConfig,
+    config_path: impl Into<std::path::PathBuf>,
+) -> JobStatus {
+    Runner.execute(RunRequest {
         config: config.clone(),
         config_path: config_path.into(),
     })
