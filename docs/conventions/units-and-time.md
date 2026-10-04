@@ -1,6 +1,6 @@
 # Units, Time, and Geometry — When to Use Which Crate
 
-`siderust-pod` builds on three typed-primitive crates. Each owns a clearly
+`spod` builds on three typed-primitive crates. Each owns a clearly
 delimited concept; APIs in the POD workspace must use the right wrapper for
 the right job and avoid bare `f64` whenever a typed alternative exists.
 

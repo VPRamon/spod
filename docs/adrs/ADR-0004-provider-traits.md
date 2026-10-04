@@ -10,7 +10,7 @@ modules would couple POD's compile graph and semantics to upstream's
 internal layout and cause churn whenever upstream refactors.
 
 ## Original Decision
-`siderust-pod-core::providers` was meant to define five small traits:
+`spod-core::providers` was meant to define five small traits:
 
 - `EphemerisProvider`
 - `EarthOrientationProvider`
@@ -27,15 +27,15 @@ In practice, four of the five provider modules were never more than
 one-line `pub use siderust::...` re-exports — no trait was defined, no
 abstraction existed. The only real trait (`FrameTransformProvider`) had
 no implementations. Every POD call-site already referenced `siderust`
-types by their fully-qualified names, so `siderust-pod-core` provided no
+types by their fully-qualified names, so `spod-core` provided no
 isolation in reality.
 
-`siderust-pod-core` was therefore eliminated entirely. Its genuine
+`spod-core` was therefore eliminated entirely. Its genuine
 content was redistributed:
 
-- `RunManifest` / `DatasetRef` → `siderust-pod-service`
-- `FrameTransformProvider` → `siderust-pod-dynamics`
-- `ParameterKind` / `Parameter` → `siderust-pod-estimation`
+- `RunManifest` / `DatasetRef` → `spod-service`
+- `FrameTransformProvider` → `spod-dynamics`
+- `ParameterKind` / `Parameter` → `spod-estimation`
 - State types (`Position`, `Velocity`, `OrbitState`, `RTN`) — callers
   import directly from `siderust::astro::dynamics::{state,frames}`.
 

@@ -33,9 +33,9 @@ use super::izzo::{
 /// # Examples
 ///
 /// ```
-/// use siderust_pod::lambert::TypedLambertSolution;
+/// use spod::lambert::TypedLambertSolution;
 /// // The struct just bundles the two velocities and diagnostics; see
-/// // [`siderust_pod::lambert::lambert`] for end-to-end usage.
+/// // [`spod::lambert::lambert`] for end-to-end usage.
 /// fn assert_solution_layout<F: siderust::affn::frames::ReferenceFrame>(
 ///     sol: TypedLambertSolution<F>,
 /// ) {
@@ -79,7 +79,7 @@ pub struct TypedLambertSolution<F: ReferenceFrame> {
 /// use siderust::qtty::GravitationalParameter;
 /// use siderust::qtty::unit::Kilometer;
 /// use siderust::qtty::{Quantity, Second};
-/// use siderust_pod::lambert::{lambert, LambertBranch};
+/// use spod::lambert::{lambert, LambertBranch};
 ///
 /// let r1 = Position::<(), ICRS, Kilometer>::new(15945.34, 0.0, 0.0);
 /// let r2 = Position::<(), ICRS, Kilometer>::new(12214.83899, 10249.46731, 0.0);
@@ -141,7 +141,7 @@ where
 /// use siderust::qtty::GravitationalParameter;
 /// use siderust::qtty::unit::Kilometer;
 /// use siderust::qtty::Second;
-/// use siderust_pod::lambert::{lambert_n_rev, LambertBranch, NRevBranch};
+/// use spod::lambert::{lambert_n_rev, LambertBranch, NRevBranch};
 ///
 /// let r1 = Position::<(), ICRS, Kilometer>::new(15945.34, 0.0, 0.0);
 /// let r2 = Position::<(), ICRS, Kilometer>::new(12214.83899, 10249.46731, 0.0);

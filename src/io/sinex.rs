@@ -24,7 +24,7 @@ use std::io::{BufRead, BufReader, Read};
 /// # Examples
 ///
 /// ```
-/// use siderust_pod::io::sinex::GeoCenterItrf;
+/// use spod::io::sinex::GeoCenterItrf;
 /// use siderust::affn::centers::ReferenceCenter;
 /// assert_eq!(GeoCenterItrf::center_name(), "Geocentric ITRF");
 /// ```
@@ -45,7 +45,7 @@ impl AffineCenter for GeoCenterItrf {}
 /// # Examples
 ///
 /// ```
-/// use siderust_pod::io::sinex::SinexPosition;
+/// use spod::io::sinex::SinexPosition;
 /// let _pos = SinexPosition::new(4_641_949.0_f64, 1_393_045.0_f64, 4_133_287.0_f64);
 /// ```
 pub type SinexPosition = cartesian::Position<GeoCenterItrf, ITRF, Meter>;
@@ -61,7 +61,7 @@ pub type MeterPerYear =
 /// # Examples
 ///
 /// ```
-/// use siderust_pod::io::sinex::{StationCoordinate, SinexPosition};
+/// use spod::io::sinex::{StationCoordinate, SinexPosition};
 /// let pos = SinexPosition::new(1.0_f64, 2.0_f64, 3.0_f64);
 /// let _ = StationCoordinate {
 ///     code: "MATE".to_string(),
@@ -93,7 +93,7 @@ pub struct StationCoordinate {
 /// # Examples
 ///
 /// ```
-/// use siderust_pod::io::sinex::SinexSolution;
+/// use spod::io::sinex::SinexSolution;
 /// let sol = SinexSolution::default();
 /// assert!(sol.stations.is_empty());
 /// ```
@@ -121,8 +121,8 @@ pub struct SinexSolution {
 /// # Examples
 ///
 /// ```
-/// use siderust_pod::io::sinex::read_sinex;
-/// use siderust_pod::io::ParseMode;
+/// use spod::io::sinex::read_sinex;
+/// use spod::io::ParseMode;
 ///
 /// let data = b"%=SNX 2.10 IGS 24:001:00000 IGS 00:000:00000 23:365:86370 P 00000 0 S\n\
 ///              +SITE/ID\n\

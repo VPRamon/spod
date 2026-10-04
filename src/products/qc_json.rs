@@ -34,7 +34,7 @@ use std::io::Write;
 /// # Examples
 ///
 /// ```
-/// use siderust_pod::products::qc_json::{QcDocument, write_qc_json};
+/// use spod::products::qc_json::{QcDocument, write_qc_json};
 ///
 /// let doc = QcDocument {
 ///     schema_version: "qc.v1".into(),
@@ -75,7 +75,7 @@ pub struct QcDocument<S> {
 /// # Examples
 ///
 /// ```
-/// use siderust_pod::products::qc_json::{QcDocument, write_qc_json};
+/// use spod::products::qc_json::{QcDocument, write_qc_json};
 ///
 /// let doc = QcDocument {
 ///     schema_version: "qc.v1".into(),

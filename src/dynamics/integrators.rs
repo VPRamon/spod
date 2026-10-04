@@ -39,7 +39,7 @@ use super::error::DynamicsError;
 /// # Example
 ///
 /// ```
-/// use siderust_pod::dynamics::{Integrator, Dop853Integrator, OrbitState, Position, Velocity,
+/// use spod::dynamics::{Integrator, Dop853Integrator, OrbitState, Position, Velocity,
 ///                          DynamicsContext, TwoBody};
 /// use siderust::coordinates::frames::GCRS;
 /// use siderust::time::JulianDate;
@@ -79,7 +79,7 @@ pub trait Integrator {
 /// # Example
 ///
 /// ```
-/// use siderust_pod::dynamics::{Integrator, Rk4Integrator, OrbitState, Position, Velocity,
+/// use spod::dynamics::{Integrator, Rk4Integrator, OrbitState, Position, Velocity,
 ///                          DynamicsContext, TwoBody};
 /// use siderust::coordinates::frames::GCRS;
 /// use siderust::time::JulianDate;
@@ -135,7 +135,7 @@ impl Integrator for Rk4Integrator {
 /// # Example
 ///
 /// ```
-/// use siderust_pod::dynamics::{Integrator, Dopri5Integrator};
+/// use spod::dynamics::{Integrator, Dopri5Integrator};
 /// use siderust::qtty::IntegratorTolerances;
 /// let _ = Dopri5Integrator {
 ///     tolerances: IntegratorTolerances::uniform(1e-9, 1e-6, 1e-9),
@@ -168,7 +168,7 @@ impl Integrator for Dopri5Integrator {
 /// # Example
 ///
 /// ```
-/// use siderust_pod::dynamics::{Integrator, Dop853Integrator};
+/// use spod::dynamics::{Integrator, Dop853Integrator};
 /// use siderust::qtty::IntegratorTolerances;
 /// let _ = Dop853Integrator {
 ///     tolerances: IntegratorTolerances::uniform(1e-9, 1e-6, 1e-9),

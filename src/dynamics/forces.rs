@@ -40,7 +40,7 @@
 //! use std::sync::Arc;
 //! use siderust::astro::dynamics::density::ExponentialAtmosphere;
 //! use siderust::qtty::{AreaToMass, DragCoefficient, SrpCoefficient};
-//! use siderust_pod::dynamics::forces::{
+//! use spod::dynamics::forces::{
 //!     DragForce, ForceModelRegistry, J2PerturbationForce, TwoBodyForce,
 //! };
 //!
@@ -80,7 +80,7 @@ use siderust::time::JulianDate;
 /// # Example
 ///
 /// ```
-/// use siderust_pod::dynamics::forces::CartesianState;
+/// use spod::dynamics::forces::CartesianState;
 /// use siderust::astro::dynamics::{Position, Velocity};
 /// use siderust::coordinates::frames::GCRS;
 /// use siderust::time::JulianDate;
@@ -97,7 +97,7 @@ pub type CartesianState = OrbitState<Geocentric, GCRS>;
 /// # Example
 ///
 /// ```
-/// use siderust_pod::dynamics::forces::Epoch;
+/// use spod::dynamics::forces::Epoch;
 /// use siderust::time::JulianDate;
 /// let _t: Epoch = JulianDate::new(2_451_545.0);
 /// ```
@@ -116,7 +116,7 @@ pub type Epoch = JulianDate;
 /// # Example
 ///
 /// ```
-/// use siderust_pod::dynamics::forces::Acceleration3;
+/// use spod::dynamics::forces::Acceleration3;
 /// let a = Acceleration3([1e-6, 0.0, -1e-7]);
 /// let b = Acceleration3::zero();
 /// let mut c = a;
@@ -166,7 +166,7 @@ impl From<Acceleration<GCRS, siderust::astro::dynamics::state::AccelerationUnit>
 /// # Example
 ///
 /// ```
-/// use siderust_pod::dynamics::forces::AccelPartials;
+/// use spod::dynamics::forces::AccelPartials;
 /// let z = AccelPartials::zero();
 /// for row in &z.d_acc_d_pos {
 ///     for &v in row { assert_eq!(v, 0.0); }
@@ -218,7 +218,7 @@ impl AccelPartials {
 /// # Example
 ///
 /// ```
-/// use siderust_pod::dynamics::forces::{
+/// use spod::dynamics::forces::{
 ///     AccelPartials, Acceleration3, CartesianState, Epoch, ForceModel,
 /// };
 /// use siderust::astro::dynamics::{Position, Velocity};
@@ -273,7 +273,7 @@ pub trait ForceModel: Send + Sync {
 /// # Example
 ///
 /// ```
-/// use siderust_pod::dynamics::forces::{CartesianState, Epoch, TwoBodyForce, ForceModel};
+/// use spod::dynamics::forces::{CartesianState, Epoch, TwoBodyForce, ForceModel};
 /// use siderust::astro::dynamics::{Position, Velocity};
 /// use siderust::coordinates::frames::GCRS;
 /// use siderust::time::JulianDate;
@@ -342,7 +342,7 @@ impl ForceModel for TwoBodyForce {
 /// # Example
 ///
 /// ```
-/// use siderust_pod::dynamics::forces::{
+/// use spod::dynamics::forces::{
 ///     CartesianState, ForceModel, J2PerturbationForce,
 /// };
 /// use siderust::astro::dynamics::{Position, Velocity};
@@ -422,7 +422,7 @@ impl ForceModel for J2PerturbationForce {
 /// use std::sync::Arc;
 /// use siderust::astro::dynamics::density::ExponentialAtmosphere;
 /// use siderust::qtty::{AreaToMass, DragCoefficient};
-/// use siderust_pod::dynamics::forces::{CartesianState, DragForce, ForceModel};
+/// use spod::dynamics::forces::{CartesianState, DragForce, ForceModel};
 /// use siderust::astro::dynamics::{Position, Velocity};
 /// use siderust::coordinates::frames::GCRS;
 /// use siderust::time::JulianDate;
@@ -571,7 +571,7 @@ fn cylindrical_shadow_nu(r_sat: [f64; 3], r_sun: [f64; 3]) -> f64 {
 ///
 /// ```
 /// use siderust::qtty::{AreaToMass, SrpCoefficient};
-/// use siderust_pod::dynamics::forces::{
+/// use spod::dynamics::forces::{
 ///     CartesianState, ForceModel, SolarRadiationPressureForce,
 /// };
 /// use siderust::astro::dynamics::{Position, Velocity};
@@ -668,7 +668,7 @@ impl ForceModel for SolarRadiationPressureForce {
 /// # Example
 ///
 /// ```
-/// use siderust_pod::dynamics::forces::{
+/// use spod::dynamics::forces::{
 ///     ForceModelRegistry, J2PerturbationForce, TwoBodyForce,
 /// };
 /// use siderust::astro::dynamics::{Position, Velocity};
@@ -682,7 +682,7 @@ impl ForceModel for SolarRadiationPressureForce {
 /// assert_eq!(reg.len(), 2);
 /// assert!(reg.is_variational());
 ///
-/// let s = siderust_pod::dynamics::forces::CartesianState::new(
+/// let s = spod::dynamics::forces::CartesianState::new(
 ///     JulianDate::new(2_451_545.0).to_j2000s(),
 ///     Position::<GCRS>::new(7_000.0, 0.0, 0.0),
 ///     Velocity::<GCRS>::new(0.0, 7.545, 0.0),
@@ -737,13 +737,13 @@ impl ForceModelRegistry {
     /// # Example
     ///
     /// ```
-    /// use siderust_pod::dynamics::forces::{ForceModelRegistry, TwoBodyForce};
+    /// use spod::dynamics::forces::{ForceModelRegistry, TwoBodyForce};
     /// use siderust::astro::dynamics::{Position, Velocity};
     /// use siderust::coordinates::frames::GCRS;
     /// use siderust::time::JulianDate;
     ///
     /// let reg = ForceModelRegistry::new().push(Box::new(TwoBodyForce::earth()));
-    /// let s = siderust_pod::dynamics::forces::CartesianState::new(
+    /// let s = spod::dynamics::forces::CartesianState::new(
     ///     JulianDate::new(2_451_545.0).to_j2000s(),
     ///     Position::<GCRS>::new(7_000.0, 0.0, 0.0),
     ///     Velocity::<GCRS>::new(0.0, 7.545, 0.0),
@@ -766,13 +766,13 @@ impl ForceModelRegistry {
     /// # Example
     ///
     /// ```
-    /// use siderust_pod::dynamics::forces::{ForceModelRegistry, TwoBodyForce};
+    /// use spod::dynamics::forces::{ForceModelRegistry, TwoBodyForce};
     /// use siderust::astro::dynamics::{Position, Velocity};
     /// use siderust::coordinates::frames::GCRS;
     /// use siderust::time::JulianDate;
     ///
     /// let reg = ForceModelRegistry::new().push(Box::new(TwoBodyForce::earth()));
-    /// let s = siderust_pod::dynamics::forces::CartesianState::new(
+    /// let s = spod::dynamics::forces::CartesianState::new(
     ///     JulianDate::new(2_451_545.0).to_j2000s(),
     ///     Position::<GCRS>::new(7_000.0, 0.0, 0.0),
     ///     Velocity::<GCRS>::new(0.0, 7.545, 0.0),

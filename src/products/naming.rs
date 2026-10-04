@@ -50,7 +50,7 @@ use std::path::PathBuf;
 /// # Examples
 ///
 /// ```
-/// use siderust_pod::products::naming::Sp3FileType;
+/// use spod::products::naming::Sp3FileType;
 ///
 /// assert_eq!(Sp3FileType::PositionOnly.lfn_file_type_tag(), "ORB");
 /// assert_eq!(Sp3FileType::PositionVelocity.lfn_file_type_tag(), "OBV");
@@ -69,7 +69,7 @@ impl Sp3FileType {
     /// # Examples
     ///
     /// ```
-    /// use siderust_pod::products::naming::Sp3FileType;
+    /// use spod::products::naming::Sp3FileType;
     ///
     /// assert_eq!(Sp3FileType::PositionOnly.lfn_file_type_tag(), "ORB");
     /// ```
@@ -88,7 +88,7 @@ impl Sp3FileType {
 /// # Examples
 ///
 /// ```
-/// use siderust_pod::products::naming::Sp3Version;
+/// use spod::products::naming::Sp3Version;
 ///
 /// assert_eq!(Sp3Version::D.lfn_version_char(), 'd');
 /// ```
@@ -108,7 +108,7 @@ impl Sp3Version {
     /// # Examples
     ///
     /// ```
-    /// use siderust_pod::products::naming::Sp3Version;
+    /// use spod::products::naming::Sp3Version;
     ///
     /// assert_eq!(Sp3Version::C.lfn_version_char(), 'c');
     /// ```
@@ -134,7 +134,7 @@ impl Sp3Version {
 /// # Examples
 ///
 /// ```
-/// use siderust_pod::products::naming::sample_rate_to_lfn;
+/// use spod::products::naming::sample_rate_to_lfn;
 ///
 /// assert_eq!(sample_rate_to_lfn(30),   "30S");
 /// assert_eq!(sample_rate_to_lfn(900),  "15M");
@@ -165,7 +165,7 @@ pub fn sample_rate_to_lfn(sample_rate_sec: u32) -> String {
 ///
 /// ```
 /// use chrono::NaiveDate;
-/// use siderust_pod::products::naming::{Sp3FileType, Sp3Version, sp3_filename};
+/// use spod::products::naming::{Sp3FileType, Sp3Version, sp3_filename};
 ///
 /// let date = NaiveDate::from_ymd_opt(2024, 1, 1).unwrap();
 /// let p = sp3_filename("IGS", date, Sp3FileType::PositionOnly, 900, Sp3Version::D);
@@ -203,7 +203,7 @@ pub fn sp3_filename(
 ///
 /// ```
 /// use chrono::NaiveDate;
-/// use siderust_pod::products::naming::{Sp3Version, sp3_short_filename};
+/// use spod::products::naming::{Sp3Version, sp3_short_filename};
 ///
 /// // 2024-01-01 falls on GPS week 2295, day-of-week 1 (Monday).
 /// let date = NaiveDate::from_ymd_opt(2024, 1, 1).unwrap();
@@ -242,7 +242,7 @@ pub fn sp3_short_filename(ac: &str, date: NaiveDate, _version: Sp3Version) -> Pa
 /// # Examples
 ///
 /// ```
-/// use siderust_pod::products::naming::igs_lfn;
+/// use spod::products::naming::igs_lfn;
 ///
 /// let p = igs_lfn("IGS", '0', "OPSFIN", 2024, 1, 0, 0, "01D", "15M", "ORB", "SP3");
 /// assert_eq!(p.file_name().unwrap().to_str().unwrap(),
@@ -275,7 +275,7 @@ pub fn igs_lfn(
 /// # Examples
 ///
 /// ```
-/// use siderust_pod::products::naming::sp3_lfn;
+/// use spod::products::naming::sp3_lfn;
 ///
 /// let p = sp3_lfn("IGS", '0', "OPSFIN", 2024, 1, 0, 0, "01D", "15M");
 /// assert_eq!(
@@ -307,7 +307,7 @@ pub fn sp3_lfn(
 /// # Examples
 ///
 /// ```
-/// use siderust_pod::products::naming::clk_filename;
+/// use spod::products::naming::clk_filename;
 ///
 /// let p = clk_filename("GFZ", '0', "OPSRAP", 2024, 1, 0, 0, "01D", "30S");
 /// assert_eq!(
@@ -340,7 +340,7 @@ pub fn clk_filename(
 /// # Examples
 ///
 /// ```
-/// use siderust_pod::products::naming::rnx_obs_filename;
+/// use spod::products::naming::rnx_obs_filename;
 ///
 /// let p = rnx_obs_filename("EUR", '0', "MGXFIN", 2024, 1, 0, 0, "01D", "30S");
 /// assert_eq!(

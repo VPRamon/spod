@@ -27,7 +27,7 @@ in CI.
 
 ## Why `unsafe_code = forbid`
 
-`siderust-pod` is a pure-Rust workspace (see
+`spod` is a pure-Rust workspace (see
 [ADR-0001 — pure Rust only](../adr/0001-pure-rust-only.md)).
 
 - There is **no FFI surface** in this workspace. The closest equivalent

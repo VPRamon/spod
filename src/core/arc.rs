@@ -24,7 +24,7 @@ use siderust::tempoch::{Time, TT};
 /// # Examples
 ///
 /// ```
-/// use siderust_pod::core::arc::ArcId;
+/// use spod::core::arc::ArcId;
 /// let id = ArcId::new("LEO-2026-05-11");
 /// assert_eq!(id.as_str(), "LEO-2026-05-11");
 /// ```
@@ -37,7 +37,7 @@ impl ArcId {
     /// # Examples
     ///
     /// ```
-    /// use siderust_pod::core::arc::ArcId;
+    /// use spod::core::arc::ArcId;
     /// let id = ArcId::new("arc-001");
     /// assert_eq!(id.as_str(), "arc-001");
     /// ```
@@ -50,7 +50,7 @@ impl ArcId {
     /// # Examples
     ///
     /// ```
-    /// use siderust_pod::core::arc::ArcId;
+    /// use spod::core::arc::ArcId;
     /// assert_eq!(ArcId::new("a").as_str(), "a");
     /// ```
     pub fn as_str(&self) -> &str {
@@ -77,7 +77,7 @@ impl std::fmt::Display for ArcId {
 /// # Examples
 ///
 /// ```
-/// use siderust_pod::core::arc::{ArcDefinition, ArcId};
+/// use spod::core::arc::{ArcDefinition, ArcId};
 /// use siderust::tempoch::{J2000Seconds, TT};
 /// use siderust::qtty::Second;
 ///
@@ -113,7 +113,7 @@ impl ArcDefinition {
     /// # Examples
     ///
     /// ```
-    /// use siderust_pod::core::arc::{ArcDefinition, ArcId};
+    /// use spod::core::arc::{ArcDefinition, ArcId};
     /// use siderust::tempoch::{J2000Seconds, TT};
     /// use siderust::qtty::Second;
     /// let arc = ArcDefinition {
@@ -133,7 +133,7 @@ impl ArcDefinition {
     /// # Examples
     ///
     /// ```
-    /// use siderust_pod::core::arc::{ArcDefinition, ArcId};
+    /// use spod::core::arc::{ArcDefinition, ArcId};
     /// use siderust::tempoch::{J2000Seconds, TT};
     /// use siderust::qtty::Second;
     /// let arc = ArcDefinition {

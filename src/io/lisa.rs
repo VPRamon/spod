@@ -71,7 +71,7 @@ type KmPerSecond = siderust::qtty::Per<Kilometer, siderust::qtty::unit::Second>;
 /// # Examples
 ///
 /// ```
-/// use siderust_pod::io::lisa::HeliocentricCenter;
+/// use spod::io::lisa::HeliocentricCenter;
 /// use siderust::affn::centers::ReferenceCenter;
 /// assert_eq!(HeliocentricCenter::center_name(), "Heliocentric");
 /// ```
@@ -112,7 +112,7 @@ pub type LisaVelocity = cartesian::Velocity<EME2000, KmPerSecond>;
 /// # Examples
 ///
 /// ```
-/// use siderust_pod::io::lisa::LisaSpacecraftId;
+/// use spod::io::lisa::LisaSpacecraftId;
 /// assert_eq!(LisaSpacecraftId::SC1.naif_id(), -1001);
 /// assert_eq!(LisaSpacecraftId::from_naif_id(-1002), Some(LisaSpacecraftId::SC2));
 /// ```
@@ -132,7 +132,7 @@ impl LisaSpacecraftId {
     /// # Examples
     ///
     /// ```
-    /// use siderust_pod::io::lisa::LisaSpacecraftId;
+    /// use spod::io::lisa::LisaSpacecraftId;
     /// assert_eq!(LisaSpacecraftId::SC3.naif_id(), -1003);
     /// ```
     pub fn naif_id(self) -> i32 {
@@ -149,7 +149,7 @@ impl LisaSpacecraftId {
     /// # Examples
     ///
     /// ```
-    /// use siderust_pod::io::lisa::LisaSpacecraftId;
+    /// use spod::io::lisa::LisaSpacecraftId;
     /// assert_eq!(LisaSpacecraftId::from_naif_id(-1001), Some(LisaSpacecraftId::SC1));
     /// assert_eq!(LisaSpacecraftId::from_naif_id(399), None);
     /// ```
@@ -170,7 +170,7 @@ impl LisaSpacecraftId {
 /// # Examples
 ///
 /// ```
-/// use siderust_pod::io::lisa::{LisaOrbitReader, LisaSpacecraftId};
+/// use spod::io::lisa::{LisaOrbitReader, LisaSpacecraftId};
 ///
 /// let oem = "\
 /// CCSDS_OEM_VERS = 2.0\n\
@@ -212,7 +212,7 @@ pub struct LisaOrbitPoint {
 /// # Examples
 ///
 /// ```
-/// use siderust_pod::io::lisa::{LisaOrbitReader, LisaSpacecraftId};
+/// use spod::io::lisa::{LisaOrbitReader, LisaSpacecraftId};
 /// let raw = std::fs::read_to_string(
 ///     concat!(env!("CARGO_MANIFEST_DIR"), "/test-data/lisa/lisa_orbit_sample.oem1")
 /// ).unwrap();
@@ -239,7 +239,7 @@ pub struct LisaOrbit {
 /// # Examples
 ///
 /// ```
-/// use siderust_pod::io::lisa::{LisaOrbitReader, LisaSpacecraftId};
+/// use spod::io::lisa::{LisaOrbitReader, LisaSpacecraftId};
 ///
 /// let raw = std::fs::read_to_string(
 ///     concat!(env!("CARGO_MANIFEST_DIR"), "/test-data/lisa/lisa_orbit_sample.oem1"),
@@ -263,7 +263,7 @@ impl LisaOrbitReader {
     /// # Examples
     ///
     /// ```
-    /// use siderust_pod::io::lisa::{LisaOrbitReader, LisaSpacecraftId};
+    /// use spod::io::lisa::{LisaOrbitReader, LisaSpacecraftId};
     /// use std::fs::File;
     ///
     /// let path = concat!(env!("CARGO_MANIFEST_DIR"), "/test-data/lisa/lisa_orbit_sample.oem1");
@@ -288,7 +288,7 @@ impl LisaOrbitReader {
     /// # Examples
     ///
     /// ```
-    /// use siderust_pod::io::lisa::{LisaOrbitReader, LisaSpacecraftId};
+    /// use spod::io::lisa::{LisaOrbitReader, LisaSpacecraftId};
     ///
     /// let oem = "\
     /// CCSDS_OEM_VERS = 2.0\n\
@@ -365,7 +365,7 @@ impl LisaOrbitReader {
 /// # Examples
 ///
 /// ```
-/// use siderust_pod::io::lisa::{LisaOrbitReader, LisaOrbitSet, LisaSpacecraftId};
+/// use spod::io::lisa::{LisaOrbitReader, LisaOrbitSet, LisaSpacecraftId};
 ///
 /// let root = concat!(env!("CARGO_MANIFEST_DIR"), "/test-data/lisa");
 /// let load = |name: &str, sc: LisaSpacecraftId| {
@@ -395,7 +395,7 @@ impl LisaOrbitSet {
     /// # Examples
     ///
     /// ```
-    /// use siderust_pod::io::lisa::{LisaOrbitReader, LisaOrbitSet, LisaSpacecraftId};
+    /// use spod::io::lisa::{LisaOrbitReader, LisaOrbitSet, LisaSpacecraftId};
     ///
     /// let root = concat!(env!("CARGO_MANIFEST_DIR"), "/test-data/lisa");
     /// let load = |name: &str, sc: LisaSpacecraftId| {
@@ -439,8 +439,8 @@ impl LisaOrbitSet {
 /// # Examples
 ///
 /// ```
-/// use siderust_pod::io::lisa::{LisaOrbitReader, LisaOrbitSet, LisaEphemerisProvider, LisaSpacecraftId};
-/// use siderust_pod::core::providers::EphemerisProvider;
+/// use spod::io::lisa::{LisaOrbitReader, LisaOrbitSet, LisaEphemerisProvider, LisaSpacecraftId};
+/// use spod::core::providers::EphemerisProvider;
 ///
 /// let root = concat!(env!("CARGO_MANIFEST_DIR"), "/test-data/lisa");
 /// let load = |name: &str, sc: LisaSpacecraftId| {
@@ -466,7 +466,7 @@ impl LisaEphemerisProvider {
     /// # Examples
     ///
     /// ```
-    /// use siderust_pod::io::lisa::{LisaOrbitReader, LisaOrbitSet, LisaEphemerisProvider, LisaSpacecraftId};
+    /// use spod::io::lisa::{LisaOrbitReader, LisaOrbitSet, LisaEphemerisProvider, LisaSpacecraftId};
     ///
     /// let root = concat!(env!("CARGO_MANIFEST_DIR"), "/test-data/lisa");
     /// let load = |name: &str, sc: LisaSpacecraftId| {
@@ -490,7 +490,7 @@ impl LisaEphemerisProvider {
 /// # Examples
 ///
 /// ```
-/// use siderust_pod::io::lisa::LisaProviderError;
+/// use spod::io::lisa::LisaProviderError;
 /// let e = LisaProviderError::UnknownBody(-9999);
 /// assert!(format!("{e}").contains("-9999"));
 /// ```

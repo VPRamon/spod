@@ -1,4 +1,4 @@
-//! # siderust-pod product writers
+//! # spod product writers
 //!
 //! ## Scientific scope
 //!

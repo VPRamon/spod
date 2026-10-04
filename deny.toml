@@ -1,4 +1,4 @@
-# Cargo deny configuration for siderust-pod.
+# Cargo deny configuration for spod.
 #
 # This file is consumed by `cargo deny check` in CI to enforce
 # license, advisory, source, and duplicate-dependency policy.

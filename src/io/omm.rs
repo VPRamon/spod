@@ -19,8 +19,8 @@ use std::io::{Read, Write};
 /// # Examples
 ///
 /// ```
-/// use siderust_pod::io::omm::OmmMessage;
-/// use siderust_pod::tle::{parse_3le, omm::Omm};
+/// use spod::io::omm::OmmMessage;
+/// use spod::tle::{parse_3le, omm::Omm};
 /// let l1 = "1 25544U 98067A   08264.51782528 -.00002182  00000-0 -11606-4 0  2927";
 /// let l2 = "2 25544  51.6416 247.4627 0006703 130.5360 325.0288 15.72125391563537";
 /// let tle = parse_3le("ISS (ZARYA)", l1, l2).unwrap();
@@ -38,7 +38,7 @@ pub use crate::tle::omm::Omm as OmmMessage;
 /// # Examples
 ///
 /// ```
-/// use siderust_pod::io::omm::read_omm_kvn;
+/// use spod::io::omm::read_omm_kvn;
 ///
 /// let data = b"CCSDS_OMM_VERS = 2.0\nOBJECT_NAME = TEST\nOBJECT_ID = 1998-067A\n\
 ///              MEAN_ELEMENT_THEORY = SGP4\nEPOCH = 2008-09-20T12:25:40.104192\n\
@@ -67,8 +67,8 @@ pub fn read_omm_kvn<R: Read>(mut reader: R) -> Result<OmmMessage, PodIoError> {
 /// # Examples
 ///
 /// ```
-/// use siderust_pod::io::omm::{write_omm_kvn, OmmMessage};
-/// use siderust_pod::tle::{parse_3le, omm::Omm};
+/// use spod::io::omm::{write_omm_kvn, OmmMessage};
+/// use spod::tle::{parse_3le, omm::Omm};
 ///
 /// let l1 = "1 25544U 98067A   08264.51782528 -.00002182  00000-0 -11606-4 0  2927";
 /// let l2 = "2 25544  51.6416 247.4627 0006703 130.5360 325.0288 15.72125391563537";
@@ -93,8 +93,8 @@ pub fn write_omm_kvn<W: Write>(w: &mut W, omm: &OmmMessage) -> Result<(), PodIoE
 /// # Examples
 ///
 /// ```
-/// use siderust_pod::io::omm::{read_omm_xml, write_omm_xml, OmmMessage};
-/// use siderust_pod::tle::{parse_3le, omm::Omm};
+/// use spod::io::omm::{read_omm_xml, write_omm_xml, OmmMessage};
+/// use spod::tle::{parse_3le, omm::Omm};
 ///
 /// let l1 = "1 25544U 98067A   08264.51782528 -.00002182  00000-0 -11606-4 0  2927";
 /// let l2 = "2 25544  51.6416 247.4627 0006703 130.5360 325.0288 15.72125391563537";
@@ -121,8 +121,8 @@ pub fn read_omm_xml<R: Read>(mut reader: R) -> Result<OmmMessage, PodIoError> {
 /// # Examples
 ///
 /// ```
-/// use siderust_pod::io::omm::{write_omm_xml, OmmMessage};
-/// use siderust_pod::tle::{parse_3le, omm::Omm};
+/// use spod::io::omm::{write_omm_xml, OmmMessage};
+/// use spod::tle::{parse_3le, omm::Omm};
 ///
 /// let l1 = "1 25544U 98067A   08264.51782528 -.00002182  00000-0 -11606-4 0  2927";
 /// let l2 = "2 25544  51.6416 247.4627 0006703 130.5360 325.0288 15.72125391563537";

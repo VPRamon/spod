@@ -48,7 +48,7 @@
 //! # Examples
 //!
 //! ```rust
-//! use siderust_pod::spice::{SpkKernel, SpiceError};
+//! use spod::spice::{SpkKernel, SpiceError};
 //!
 //! // The crate ships no DAF binaries; in production you load a path:
 //! //   let kernel = SpkKernel::open("de440.bsp")?;

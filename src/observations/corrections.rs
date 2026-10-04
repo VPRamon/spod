@@ -30,7 +30,7 @@
 /// # Examples
 ///
 /// ```
-/// use siderust_pod::observations::corrections::Correction;
+/// use spod::observations::corrections::Correction;
 ///
 /// struct ZeroCorrection;
 /// impl Correction for ZeroCorrection {
@@ -65,7 +65,7 @@ pub trait Correction: Send + Sync {
 /// # Examples
 ///
 /// ```
-/// use siderust_pod::observations::corrections::{
+/// use spod::observations::corrections::{
 ///     CorrectionRegistry, ShapiroDelay,
 /// };
 ///
@@ -137,7 +137,7 @@ impl Default for CorrectionRegistry {
 /// # Examples
 ///
 /// ```
-/// use siderust_pod::observations::corrections::{Correction, PhaseCenterOffset};
+/// use spod::observations::corrections::{Correction, PhaseCenterOffset};
 ///
 /// // 1.5 mm offset along the receiver radial direction (X in GCRS here)
 /// let pco = PhaseCenterOffset::new([0.0000015, 0.0, 0.0]);
@@ -207,7 +207,7 @@ impl Correction for PhaseCenterOffset {
 /// # Examples
 ///
 /// ```
-/// use siderust_pod::observations::corrections::{Correction, ShapiroDelay};
+/// use spod::observations::corrections::{Correction, ShapiroDelay};
 ///
 /// let sd = ShapiroDelay;
 /// let rx  = [6_378.0, 0.0, 0.0_f64]; // km
@@ -267,7 +267,7 @@ impl Correction for ShapiroDelay {
 /// # Examples
 ///
 /// ```
-/// use siderust_pod::observations::corrections::{Correction, EarthTideDisplacement};
+/// use spod::observations::corrections::{Correction, EarthTideDisplacement};
 ///
 /// // 3 cm radial (vertical) uplift
 /// let rx  = [6_378.0, 0.0, 0.0_f64]; // km, radial direction = X

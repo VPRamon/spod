@@ -1,5 +1,5 @@
 #![allow(clippy::needless_range_loop, clippy::inconsistent_digit_grouping)]
-//! # siderust-pod service orchestration
+//! # spod service orchestration
 //!
 //! ## Scientific scope
 //!
@@ -22,7 +22,7 @@
 //! outputs are reports and artifact paths.
 //!
 //! HTTP transport and command-line dispatch live in sibling crates, while
-//! numerical estimation remains in `siderust-pod-estimation`.
+//! numerical estimation remains in `spod-estimation`.
 //!
 //! ## References
 //!

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Generate or compare the public API snapshot for the single siderust-pod crate.
+# Generate or compare the public API snapshot for the single spod crate.
 #
 #   scripts/snapshot_public_api.sh --update   # refresh api.snapshot
 #   scripts/snapshot_public_api.sh            # compare when a baseline exists

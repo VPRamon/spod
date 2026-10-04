@@ -17,7 +17,7 @@ use super::TleError;
 /// # Examples
 ///
 /// ```
-/// use siderust_pod::tle::SatelliteNumber;
+/// use spod::tle::SatelliteNumber;
 /// assert_eq!(SatelliteNumber::parse("25544").unwrap(), SatelliteNumber(25_544));
 /// assert_eq!(SatelliteNumber::parse("T0001").unwrap(), SatelliteNumber(270_001));
 /// ```
@@ -37,7 +37,7 @@ impl SatelliteNumber {
     /// # Examples
     ///
     /// ```
-    /// use siderust_pod::tle::SatelliteNumber;
+    /// use spod::tle::SatelliteNumber;
     /// assert_eq!(SatelliteNumber::parse("A0000").unwrap(), SatelliteNumber(100_000));
     /// assert!(SatelliteNumber::parse("I0001").is_err());
     /// ```
@@ -83,7 +83,7 @@ impl SatelliteNumber {
     /// # Examples
     ///
     /// ```
-    /// use siderust_pod::tle::SatelliteNumber;
+    /// use spod::tle::SatelliteNumber;
     /// assert_eq!(SatelliteNumber(25_544).format_alpha5().unwrap(), "25544");
     /// assert_eq!(SatelliteNumber(270_001).format_alpha5().unwrap(), "T0001");
     /// ```
@@ -114,7 +114,7 @@ impl SatelliteNumber {
 /// # Examples
 ///
 /// ```
-/// use siderust_pod::tle::Classification;
+/// use spod::tle::Classification;
 /// assert_eq!(Classification::from_char('U').unwrap(), Classification::Unclassified);
 /// ```
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
@@ -133,7 +133,7 @@ impl Classification {
     /// # Examples
     ///
     /// ```
-    /// use siderust_pod::tle::Classification;
+    /// use spod::tle::Classification;
     /// assert!(Classification::from_char('Z').is_err());
     /// ```
     pub fn from_char(c: char) -> Result<Self, TleError> {
@@ -150,7 +150,7 @@ impl Classification {
     /// # Examples
     ///
     /// ```
-    /// use siderust_pod::tle::Classification;
+    /// use spod::tle::Classification;
     /// assert_eq!(Classification::Unclassified.as_char(), 'U');
     /// ```
     pub fn as_char(self) -> char {
@@ -170,7 +170,7 @@ impl Classification {
 /// # Examples
 ///
 /// ```
-/// use siderust_pod::tle::InternationalDesignator;
+/// use spod::tle::InternationalDesignator;
 /// let d = InternationalDesignator("98067A".to_string());
 /// assert_eq!(d.0, "98067A");
 /// ```
@@ -197,7 +197,7 @@ pub struct InternationalDesignator(pub String);
 /// # Examples
 ///
 /// ```
-/// use siderust_pod::tle::parse_3le;
+/// use spod::tle::parse_3le;
 /// let tle = parse_3le(
 ///     "ISS (ZARYA)",
 ///     "1 25544U 98067A   08264.51782528 -.00002182  00000-0 -11606-4 0  2927",

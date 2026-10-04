@@ -20,7 +20,7 @@ use crate::tle::{Classification, SatelliteNumber};
 /// # Examples
 ///
 /// ```
-/// use siderust_pod::tle::{omm::{Omm, xml}, parse_3le};
+/// use spod::tle::{omm::{Omm, xml}, parse_3le};
 /// let l1 = "1 25544U 98067A   08264.51782528 -.00002182  00000-0 -11606-4 0  2927";
 /// let l2 = "2 25544  51.6416 247.4627 0006703 130.5360 325.0288 15.72125391563537";
 /// let omm = Omm::from_tle(&parse_3le("ISS (ZARYA)", l1, l2).unwrap());
@@ -87,10 +87,10 @@ pub fn write(omm: &Omm) -> Result<String, TleError> {
 /// # Examples
 ///
 /// ```
-/// use siderust_pod::tle::omm::{xml, Omm, kvn};
+/// use spod::tle::omm::{xml, Omm, kvn};
 /// let l1 = "1 25544U 98067A   08264.51782528 -.00002182  00000-0 -11606-4 0  2927";
 /// let l2 = "2 25544  51.6416 247.4627 0006703 130.5360 325.0288 15.72125391563537";
-/// let omm = Omm::from_tle(&siderust_pod::tle::parse_3le("ISS (ZARYA)", l1, l2).unwrap());
+/// let omm = Omm::from_tle(&spod::tle::parse_3le("ISS (ZARYA)", l1, l2).unwrap());
 /// let s = xml::write(&omm).unwrap();
 /// let omm2 = xml::read(&s).unwrap();
 /// assert_eq!(omm2.norad_id, omm.norad_id);

@@ -1,16 +1,16 @@
 # Contributing
 
-Thanks for contributing to `siderust-pod`.
+Thanks for contributing to `spod`.
 
 ## Development setup
 
-`siderust-pod` builds against released crates from the Siderust ecosystem. No sibling repository checkouts are required.
+`spod` builds against released crates from the Siderust ecosystem. No sibling repository checkouts are required.
 
 A standard development setup is enough:
 
 ```bash
-git clone https://github.com/Siderust/siderust-pod.git
-cd siderust-pod
+git clone https://github.com/VPRamon/spod.git
+cd spod
 cargo test
 ```
 
@@ -49,7 +49,7 @@ Avoid changing physical constants, time-scale semantics, frame conventions, esti
 
 ## Dependency boundaries
 
-Foundational astrodynamics and reusable mechanics belong in the upstream Siderust ecosystem when they are broadly applicable. `siderust-pod` should remain focused on precise orbit determination concerns such as observations, estimation, orbit products, quality control, and service orchestration.
+Foundational astrodynamics and reusable mechanics belong in the upstream Siderust ecosystem when they are broadly applicable. `spod` should remain focused on precise orbit determination concerns such as observations, estimation, orbit products, quality control, and service orchestration.
 
 When functionality overlaps with upstream crates, prefer their released public APIs rather than maintaining duplicate foundational implementations here, provided POD-specific behaviour is preserved.
 

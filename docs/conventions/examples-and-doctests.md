@@ -1,6 +1,6 @@
 # Examples and Doctests
 
-Every public item in `siderust-pod` carries an executable example. This is
+Every public item in `spod` carries an executable example. This is
 non-negotiable: the `missing_docs = deny` lint already requires *some*
 documentation; this convention says that documentation must include
 working code.

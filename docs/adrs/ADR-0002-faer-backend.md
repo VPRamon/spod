@@ -10,7 +10,7 @@ weighted least squares, with a sparse upgrade path. Candidates:
 
 ## Decision
 Use `faer` (workspace dependency, version `0.22`) as the dense / sparse
-linear algebra backend in `siderust-pod-estimation`. `affn` continues to
+linear algebra backend in `spod-estimation`. `affn` continues to
 own typed positions, vectors, and 3×3 covariance transforms.
 
 ## Consequences

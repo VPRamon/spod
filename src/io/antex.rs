@@ -135,7 +135,7 @@ fn header_line<W: Write>(w: &mut W, body: &str, label: &str) -> std::io::Result<
 /// # Examples
 ///
 /// ```
-/// use siderust_pod::io::antex::{read_antex, write_antex};
+/// use spod::io::antex::{read_antex, write_antex};
 ///
 /// let src = "\
 ///                                                             START OF ANTENNA\n\

@@ -25,7 +25,7 @@ The siderust ecosystem provides three crates precisely to solve this:
 
 ## Decision
 
-All public APIs in `siderust-pod` crates use typed `qtty`/`tempoch`/`affn`
+All public APIs in `spod` crates use typed `qtty`/`tempoch`/`affn`
 types where an equivalent exists. Specifically:
 
 - Angles → `qtty::Angle<Radians>` or `qtty::Angle<Degrees>` (not `f64`).
@@ -50,5 +50,5 @@ The `affn` affine-geometry semantics apply without exception:
 - IDE completions surface unit information automatically.
 - The API surface is larger (more type parameters), which is a worthwhile
   trade for correctness.
-- FFI surfaces (`siderust-ffi`, `siderust-pod-rest`) must translate to/from
+- FFI surfaces (`siderust-ffi`, `spod-rest`) must translate to/from
   typed equivalents at the ABI boundary; this is an accepted cost.

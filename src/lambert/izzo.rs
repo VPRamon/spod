@@ -54,7 +54,7 @@ use super::error::LambertError;
 /// # Examples
 ///
 /// ```
-/// use siderust_pod::lambert::LambertBranch;
+/// use spod::lambert::LambertBranch;
 ///
 /// assert_ne!(LambertBranch::Prograde, LambertBranch::Retrograde);
 /// ```
@@ -76,7 +76,7 @@ pub enum LambertBranch {
 /// # Examples
 ///
 /// ```
-/// use siderust_pod::lambert::NRevBranch;
+/// use spod::lambert::NRevBranch;
 ///
 /// // Two distinct N-rev sides: left (short-period) and right (long-period).
 /// assert_ne!(NRevBranch::Left, NRevBranch::Right);
@@ -94,7 +94,7 @@ pub enum NRevBranch {
 /// # Examples
 ///
 /// ```
-/// use siderust_pod::lambert::{solve_lambert, LambertBranch};
+/// use spod::lambert::{solve_lambert, LambertBranch};
 ///
 /// let r1 = [15945.34, 0.0, 0.0];
 /// let r2 = [12214.83899, 10249.46731, 0.0];
@@ -123,7 +123,7 @@ pub struct LambertDiagnostics {
 /// # Examples
 ///
 /// ```
-/// use siderust_pod::lambert::{solve_lambert, LambertBranch, LambertSolution};
+/// use spod::lambert::{solve_lambert, LambertBranch, LambertSolution};
 ///
 /// let LambertSolution { v1, v2, .. } = solve_lambert(
 ///     [15945.34, 0.0, 0.0],
@@ -193,7 +193,7 @@ fn scale(v: [f64; 3], k: f64) -> [f64; 3] {
 /// # Examples
 ///
 /// ```
-/// use siderust_pod::lambert::{solve_lambert, LambertBranch};
+/// use spod::lambert::{solve_lambert, LambertBranch};
 ///
 /// // Vallado, *Fundamentals of Astrodynamics*, Ex. 7-5.
 /// let r1 = [15945.34, 0.0, 0.0];
@@ -227,7 +227,7 @@ pub fn solve_lambert(
 /// # Examples
 ///
 /// ```
-/// use siderust_pod::lambert::{solve_lambert_n_rev, LambertBranch, NRevBranch};
+/// use spod::lambert::{solve_lambert_n_rev, LambertBranch, NRevBranch};
 ///
 /// // Same geometry as Vallado Ex. 7-5 but with a much longer TOF
 /// // (≈ 6 h) — admits an N = 1 solution because T > T_min(1).

@@ -16,7 +16,7 @@ use std::io::{BufRead, BufReader, Read, Write};
 /// # Examples
 ///
 /// ```
-/// use siderust_pod::io::opm::CartesianState;
+/// use spod::io::opm::CartesianState;
 /// let s = CartesianState {
 ///     epoch: "2024-001T12:00:00.000".to_string(),
 ///     position_km: [7000.0, 0.0, 0.0],
@@ -39,7 +39,7 @@ pub struct CartesianState {
 /// # Examples
 ///
 /// ```
-/// use siderust_pod::io::opm::KeplerianElements;
+/// use spod::io::opm::KeplerianElements;
 /// let k = KeplerianElements {
 ///     semi_major_axis_km: 7000.0,
 ///     eccentricity: 0.001,
@@ -71,7 +71,7 @@ pub struct KeplerianElements {
 /// # Examples
 ///
 /// ```
-/// use siderust_pod::io::opm::OpmMetadata;
+/// use spod::io::opm::OpmMetadata;
 /// let m = OpmMetadata {
 ///     object_name: "TEST-SAT".to_string(),
 ///     object_id: "2024-001A".to_string(),
@@ -100,7 +100,7 @@ pub struct OpmMetadata {
 /// # Examples
 ///
 /// ```
-/// use siderust_pod::io::opm::{OpmMessage, OpmMetadata, CartesianState};
+/// use spod::io::opm::{OpmMessage, OpmMetadata, CartesianState};
 /// let msg = OpmMessage {
 ///     metadata: OpmMetadata {
 ///         object_name: "SAT".to_string(),
@@ -140,7 +140,7 @@ pub struct OpmMessage {
 /// # Examples
 ///
 /// ```
-/// use siderust_pod::io::opm::read_opm;
+/// use spod::io::opm::read_opm;
 ///
 /// let data = b"CCSDS_OPM_VERS = 2.0\nMETA_START\nOBJECT_NAME = SAT\n\
 ///              OBJECT_ID = 2024-001A\nCENTER_NAME = EARTH\nREF_FRAME = EME2000\n\
@@ -230,7 +230,7 @@ pub fn read_opm<R: Read>(reader: R) -> Result<OpmMessage, PodIoError> {
 /// # Examples
 ///
 /// ```
-/// use siderust_pod::io::opm::{write_opm, read_opm, OpmMessage, OpmMetadata, CartesianState};
+/// use spod::io::opm::{write_opm, read_opm, OpmMessage, OpmMetadata, CartesianState};
 ///
 /// let msg = OpmMessage {
 ///     metadata: OpmMetadata {

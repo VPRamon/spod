@@ -10,7 +10,7 @@ The upstream `siderust` crate marks `finite_diff_stm_series` as deprecated in
 favour of `variational::propagate_stm`. The deprecation note states that
 `propagate_stm` is the preferred path for single-arc STM computation.
 
-`siderust-pod-service/src/pipeline.rs` calls `finite_diff_stm_series` inside
+`spod-service/src/pipeline.rs` calls `finite_diff_stm_series` inside
 the batch-LS assembly loop.
 
 The reason `propagate_stm` cannot be used here is:
@@ -22,7 +22,7 @@ The reason `propagate_stm` cannot be used here is:
 
 ## Decision
 
-`siderust-pod-service/src/pipeline.rs` retains its call to
+`spod-service/src/pipeline.rs` retains its call to
 `finite_diff_stm_series` with a scoped `#[allow(deprecated)]` attribute and a
 multi-line rationale comment explaining why `propagate_stm` is insufficient for
 this call-site.

@@ -9,8 +9,8 @@
 
 #![allow(clippy::print_stdout)]
 
-use siderust_pod::sgp4::{GravityModel, Sgp4Propagator};
-use siderust_pod::tle::parse_tle;
+use spod::sgp4::{GravityModel, Sgp4Propagator};
+use spod::tle::parse_tle;
 
 const L1: &str = "1 00005U 58002B   00179.78495062  .00000023  00000-0  28098-4 0  4753";
 const L2: &str = "2 00005  34.2682 348.7242 1859667 331.7664  19.3264 10.82419157413667";

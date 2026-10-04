@@ -20,8 +20,8 @@ use crate::observations::provider_bundle::ProviderBundle;
 /// # Examples
 ///
 /// ```
-/// use siderust_pod::observations::batch::ObservationBatch;
-/// use siderust_pod::observations::provider_bundle::NullProviderBundle;
+/// use spod::observations::batch::ObservationBatch;
+/// use spod::observations::provider_bundle::NullProviderBundle;
 /// use siderust::time::JulianDate;
 ///
 /// let batch = ObservationBatch::new();
@@ -74,10 +74,10 @@ impl ObservationBatch {
     /// # Examples
     ///
     /// ```
-    /// use siderust_pod::observations::batch::ObservationBatch;
-    /// use siderust_pod::observations::obs_trait::{ObsType, Observation, CartesianState};
-    /// use siderust_pod::observations::provider_bundle::{NullProviderBundle, ProviderBundle};
-    /// use siderust_pod::observations::PodObservationsError;
+    /// use spod::observations::batch::ObservationBatch;
+    /// use spod::observations::obs_trait::{ObsType, Observation, CartesianState};
+    /// use spod::observations::provider_bundle::{NullProviderBundle, ProviderBundle};
+    /// use spod::observations::PodObservationsError;
     /// use siderust::astro::dynamics::{Position, Velocity};
     /// use siderust::coordinates::frames::GCRS;
     /// use siderust::time::JulianDate;

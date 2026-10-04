@@ -1,47 +1,47 @@
-# Siderust POD — Implementation Plan
+# spod — Implementation Plan
 
-> **Editable workspace:** `rust/siderust-pod/`
+> **Editable workspace:** `rust/spod/`
 > **Untouchable upstream:** `rust/siderust/`, `rust/qtty/`, `rust/tempoch/`, `rust/affn/`, `rust/cheby/`
-> **Modifications to foundational crates:** require a separate branch off `main`, written justification, and must be avoided unless strictly necessary. Always prefer adapter layers, wrapper crates, or public provider traits in `siderust-pod` first.
+> **Modifications to foundational crates:** require a separate branch off `main`, written justification, and must be avoided unless strictly necessary. Always prefer adapter layers, wrapper crates, or public provider traits in `spod` first.
 > **Attribution rule:** never add Copilot as a co-author anywhere (commits, changelogs, files, docs).
 
 ---
 
 ## 1. Current-state assessment
 
-### 1.1 What exists in `siderust-pod/`
+### 1.1 What exists in `spod/`
 
-`siderust-pod/` is currently a **verbatim fork of the `siderust` crate**, not a POD product workspace:
+`spod/` is currently a **verbatim fork of the `siderust` crate**, not a POD product workspace:
 
 - `Cargo.toml` declares `name = "siderust"` (a single-crate package) plus a workspace whose only members are `.` and `siderust-ffi`.
 - `src/` is the `siderust` source tree (`astro`, `bodies`, `atmosphere`, `calculus`, `coordinates`, `targets`, `archive`, `provenance`, `observatories`, `time.rs`, `interp.rs`, `spectra`, `tables`, etc.). None of it is POD-domain code.
 - `siderust-ffi/` is the FFI crate from upstream.
 - `memory/` already contains the authoritative inputs:
-  - `siderust_pod_detailed_design_document.md` (1824 lines — the design contract this plan implements)
+  - `spod_detailed_design_document.md` (1824 lines — the design contract this plan implements)
   - `research-requirements-tests-cases.md` (FocusPOD/competitor research, 341 lines)
 - `doc/` carries upstream architecture/conventions/datasets/frames docs (useful to keep as reference).
 - `examples/`, `benches/`, `tests/` are upstream-shaped, not POD-shaped.
-- No POD crate exists yet (`siderust-pod-core`, `-dynamics`, `-io`, `-observations`, `-estimation`, `-qc`, `-products`, `-service`, `-cli` are all absent).
+- No POD crate exists yet (`spod-core`, `-dynamics`, `-io`, `-observations`, `-estimation`, `-qc`, `-products`, `-service`, `-cli` are all absent).
 
-**Conclusion:** the M0 milestone must *reset* `siderust-pod/` into a real Cargo workspace whose members are the new POD crates, depending on upstream `siderust`/`affn`/`qtty`/`tempoch`/`cheby` as external crates. The cloned `src/` is to be deleted (decision locked with user).
+**Conclusion:** the M0 milestone must *reset* `spod/` into a real Cargo workspace whose members are the new POD crates, depending on upstream `siderust`/`affn`/`qtty`/`tempoch`/`cheby` as external crates. The cloned `src/` is to be deleted (decision locked with user).
 
 ### 1.2 Reusable foundation (no modification)
 
 | Upstream crate | POD-relevant capability already present | Reuse strategy |
 |---|---|---|
-| `qtty` | `Quantity<U,S>` typed units across `f64`/`f32`; angles, lengths, masses, times, etc. `qtty-core`/`qtty-derive`/`qtty-ffi`. | Use directly. New POD-specific units (carrier cycles, TECU, clock bias, area-to-mass) live in `siderust-pod-core` as `qtty` newtypes around existing dimensions; only file an upstream `qtty` change if a *new dimension* is unavoidable. |
-| `tempoch` | `Time<S, Scale>`, `TT/TAI/UTC/UT1/TDB/TCB/TCG/GPS`, `Interval`, `Period`, `eop`, leap seconds, EOP context. | Use directly. POD-run "time context" wraps an explicit `EopDataset` + `LeapSecondDataset` reference (provenance lives in `siderust-pod-core`). |
-| `affn` | `Point`/`Vector` algebra with `qtty` units, frame/center markers, rotations, isometries, conics, `Position - Position = Vector`. | Use directly for `OrbitState` geometry, station positions, residual geometry. POD-only frames (RTN/RIC, LVLH, VNC) defined as new marker types in `siderust-pod-core::frames` *implementing* `affn` traits, not modifying `affn`. |
-| `cheby` | Chebyshev series, piecewise interpolation, derivatives, spectral tools, binary/serde I/O. | Use directly for SP3 segment representation, propagated-orbit interpolation, and spectral QC. New POD wrappers (e.g. `OrbitSegment`) live in `siderust-pod-core`. |
-| `siderust` | VSOP87, ELP2000, optional DE440/DE441; precession, nutation, polar motion, ERA, EOP plumbing; observatories; targets. | Consume through *new public provider traits* (`EphemerisProvider`, `EarthOrientationProvider`, `FrameTransformProvider`) added in `siderust-pod-core::providers` as a thin adapter over current `siderust` APIs. Only escalate to an upstream PR if a needed capability is gated behind private modules. |
+| `qtty` | `Quantity<U,S>` typed units across `f64`/`f32`; angles, lengths, masses, times, etc. `qtty-core`/`qtty-derive`/`qtty-ffi`. | Use directly. New POD-specific units (carrier cycles, TECU, clock bias, area-to-mass) live in `spod-core` as `qtty` newtypes around existing dimensions; only file an upstream `qtty` change if a *new dimension* is unavoidable. |
+| `tempoch` | `Time<S, Scale>`, `TT/TAI/UTC/UT1/TDB/TCB/TCG/GPS`, `Interval`, `Period`, `eop`, leap seconds, EOP context. | Use directly. POD-run "time context" wraps an explicit `EopDataset` + `LeapSecondDataset` reference (provenance lives in `spod-core`). |
+| `affn` | `Point`/`Vector` algebra with `qtty` units, frame/center markers, rotations, isometries, conics, `Position - Position = Vector`. | Use directly for `OrbitState` geometry, station positions, residual geometry. POD-only frames (RTN/RIC, LVLH, VNC) defined as new marker types in `spod-core::frames` *implementing* `affn` traits, not modifying `affn`. |
+| `cheby` | Chebyshev series, piecewise interpolation, derivatives, spectral tools, binary/serde I/O. | Use directly for SP3 segment representation, propagated-orbit interpolation, and spectral QC. New POD wrappers (e.g. `OrbitSegment`) live in `spod-core`. |
+| `siderust` | VSOP87, ELP2000, optional DE440/DE441; precession, nutation, polar motion, ERA, EOP plumbing; observatories; targets. | Consume through *new public provider traits* (`EphemerisProvider`, `EarthOrientationProvider`, `FrameTransformProvider`) added in `spod-core::providers` as a thin adapter over current `siderust` APIs. Only escalate to an upstream PR if a needed capability is gated behind private modules. |
 
 ### 1.3 Duplication, coupling, architectural risks observed
 
-- **Package-name collision.** `siderust-pod/Cargo.toml` declares `name = "siderust"` — this guarantees confusion and would break any consumer that depends on both. Must be renamed in M0.
-- **Vendored copy drift risk.** Carrying a full clone of `siderust` source inside `siderust-pod/src/` invites accidental edits and silent divergence. Removing it is the only safe option.
+- **Package-name collision.** `spod/Cargo.toml` declares `name = "siderust"` — this guarantees confusion and would break any consumer that depends on both. Must be renamed in M0.
+- **Vendored copy drift risk.** Carrying a full clone of `siderust` source inside `spod/src/` invites accidental edits and silent divergence. Removing it is the only safe option.
 - **Scope creep risk.** The design doc explicitly warns against turning `siderust` into a POD monolith and against rebuilding FocusPOD wholesale in v1. The plan honors the M0 → M7 sequencing.
 - **Estimator coupling risk.** Without explicit dependency rules, IO/parser code can leak into estimator crates. The plan codifies forbidden edges and enforces them with a CI check (`cargo-deny` + a small graph script).
-- **Provider-trait risk.** If POD code reaches into `siderust` private modules, every upstream refactor breaks POD. The plan introduces a thin `siderust-pod-core::providers` adapter that *only* uses public `siderust` items.
+- **Provider-trait risk.** If POD code reaches into `siderust` private modules, every upstream refactor breaks POD. The plan introduces a thin `spod-core::providers` adapter that *only* uses public `siderust` items.
 
 ---
 
@@ -50,20 +50,20 @@
 ### 2.1 Workspace layout
 
 ```text
-rust/siderust-pod/
+rust/spod/
   Cargo.toml                       # virtual workspace, no [package]
   rust-toolchain.toml
   .cargo/config.toml
   crates/
-    siderust-pod-core/             # domain primitives, providers, manifest, errors
-    siderust-pod-dynamics/         # forces, propagation, STM, RTN/RIC
-    siderust-pod-io/               # SP3, RINEX, ANTEX, EOP, OEM, …
-    siderust-pod-observations/     # GNSS/SLR/DORIS/VLBI measurement models
-    siderust-pod-estimation/       # WLS/EKF/robust/covariance (faer)
-    siderust-pod-qc/               # residuals, RTN/RIC compare, JSON, HTML
-    siderust-pod-products/         # SP3/OEM writers, packaging, naming
-    siderust-pod-service/          # job/pipeline runner, config, artifacts
-    siderust-pod-cli/              # thin CLI over service
+    spod-core/             # domain primitives, providers, manifest, errors
+    spod-dynamics/         # forces, propagation, STM, RTN/RIC
+    spod-io/               # SP3, RINEX, ANTEX, EOP, OEM, …
+    spod-observations/     # GNSS/SLR/DORIS/VLBI measurement models
+    spod-estimation/       # WLS/EKF/robust/covariance (faer)
+    spod-qc/               # residuals, RTN/RIC compare, JSON, HTML
+    spod-products/         # SP3/OEM writers, packaging, naming
+    spod-service/          # job/pipeline runner, config, artifacts
+    spod/              # thin CLI over service
   examples/
     configs/
       leo_gnss_mvp1.yaml
@@ -82,21 +82,21 @@ rust/siderust-pod/
     check_dep_graph.sh             # CI dependency-direction enforcement
 ```
 
-The upstream `siderust-ffi` crate that currently lives under `siderust-pod/siderust-ffi` is removed from this workspace (it belongs in `rust/siderust/`). POD's own future FFI lives in `crates/siderust-pod-ffi/` and is **not** part of MVP-1.
+The upstream `siderust-ffi` crate that currently lives under `spod/siderust-ffi` is removed from this workspace (it belongs in `rust/siderust/`). POD's own future FFI lives in `crates/spod-ffi/` and is **not** part of MVP-1.
 
 ### 2.2 Crate responsibilities
 
 | Crate | Owns | Does not own |
 |---|---|---|
-| `siderust-pod-core` | `OrbitState`, `SpacecraftState`, `ArcDefinition`, `RunManifest`, `ParameterKind`, `Covariance`, `DatasetRef`, error taxonomy, **provider traits** (`EphemerisProvider`, `EarthOrientationProvider`, `FrameTransformProvider`, `GravityFieldProvider`, `AtmosphereDensityProvider`), POD-specific frame markers (RTN/RIC/LVLH/VNC), config schema primitives. | Numerical algorithms; file parsing; estimator math. |
-| `siderust-pod-dynamics` | `ForceModel` trait, `Propagator` trait, two-body/J2/spherical-harmonics/third-body/drag/SRP/relativity/empirical, integrators (RK4 → DOP853), STM/variational, RTN/LVLH/VNC frame transforms. | File I/O; observation models; estimator. |
-| `siderust-pod-io` | Parsers/writers for SP3, RINEX OBS/NAV, ANTEX, EOP, OEM (MVP-1) and SINEX/CRD/CPF/ORBEX/CCSDS-OPM/AEM/TDM/OMM/RINEX-DORIS/vgosDB (later). Canonical typed records. Round-trip & strict/permissive parse modes. SHA-256 of input files. | Numerics; estimator; service. |
-| `siderust-pod-observations` | `MeasurementModel` trait, GNSS code/carrier prediction + analytic partials, corrections (clock, Sagnac, relativity, antenna phase center, phase wind-up, troposphere, ionosphere), simulation. | File parsing; estimator solver. |
-| `siderust-pod-estimation` | Parameter blocks, residual/design-matrix assembly (faer-backed), WLS, nonlinear iteration, robust weighting, covariance extraction, EKF/smoothing later, ambiguity (float now, integer later). | File parsing; observation modeling; service orchestration. |
-| `siderust-pod-qc` | Residual statistics, grouping (sat/obs/elev/epoch), orbit overlap, RTN/RIC compare, SLR validation, QC JSON schema, HTML report. | Estimation algorithms; product writing. |
-| `siderust-pod-products` | SP3/OEM writers (delegate parsing to `-io`), residual product packaging, manifest/product naming, product validation. | Numerics; service runtime. |
-| `siderust-pod-service` | Job model, config load/validate, pipeline stages (ingest → prepare → estimate → qc → products → manifest), artifact layout, hashing, deterministic logging. Future REST/job queue. | Numerical algorithms. |
-| `siderust-pod-cli` | `clap`-based commands; pure passthrough to `-service` and library APIs; deterministic exit codes. | Any numerical logic. |
+| `spod-core` | `OrbitState`, `SpacecraftState`, `ArcDefinition`, `RunManifest`, `ParameterKind`, `Covariance`, `DatasetRef`, error taxonomy, **provider traits** (`EphemerisProvider`, `EarthOrientationProvider`, `FrameTransformProvider`, `GravityFieldProvider`, `AtmosphereDensityProvider`), POD-specific frame markers (RTN/RIC/LVLH/VNC), config schema primitives. | Numerical algorithms; file parsing; estimator math. |
+| `spod-dynamics` | `ForceModel` trait, `Propagator` trait, two-body/J2/spherical-harmonics/third-body/drag/SRP/relativity/empirical, integrators (RK4 → DOP853), STM/variational, RTN/LVLH/VNC frame transforms. | File I/O; observation models; estimator. |
+| `spod-io` | Parsers/writers for SP3, RINEX OBS/NAV, ANTEX, EOP, OEM (MVP-1) and SINEX/CRD/CPF/ORBEX/CCSDS-OPM/AEM/TDM/OMM/RINEX-DORIS/vgosDB (later). Canonical typed records. Round-trip & strict/permissive parse modes. SHA-256 of input files. | Numerics; estimator; service. |
+| `spod-observations` | `MeasurementModel` trait, GNSS code/carrier prediction + analytic partials, corrections (clock, Sagnac, relativity, antenna phase center, phase wind-up, troposphere, ionosphere), simulation. | File parsing; estimator solver. |
+| `spod-estimation` | Parameter blocks, residual/design-matrix assembly (faer-backed), WLS, nonlinear iteration, robust weighting, covariance extraction, EKF/smoothing later, ambiguity (float now, integer later). | File parsing; observation modeling; service orchestration. |
+| `spod-qc` | Residual statistics, grouping (sat/obs/elev/epoch), orbit overlap, RTN/RIC compare, SLR validation, QC JSON schema, HTML report. | Estimation algorithms; product writing. |
+| `spod-products` | SP3/OEM writers (delegate parsing to `-io`), residual product packaging, manifest/product naming, product validation. | Numerics; service runtime. |
+| `spod-service` | Job model, config load/validate, pipeline stages (ingest → prepare → estimate → qc → products → manifest), artifact layout, hashing, deterministic logging. Future REST/job queue. | Numerical algorithms. |
+| `spod` | `clap`-based commands; pure passthrough to `-service` and library APIs; deterministic exit codes. | Any numerical logic. |
 
 ### 2.3 Allowed and forbidden dependency directions
 
@@ -133,8 +133,8 @@ The `scripts/check_dep_graph.sh` CI step parses each crate's `Cargo.toml` and fa
 - **Units** live in `qtty` only.
 - **Geometry** lives in `affn` only (positions, vectors, rotations, conics).
 - **Astronomy** lives in `siderust` only, exposed to POD through provider traits.
-- **POD domain semantics** (arcs, parameters, residuals, manifests, run config) live in `siderust-pod-core` only.
-- **File formats** live in `siderust-pod-io` only; everything else consumes canonical typed records.
+- **POD domain semantics** (arcs, parameters, residuals, manifests, run config) live in `spod-core` only.
+- **File formats** live in `spod-io` only; everything else consumes canonical typed records.
 - **Estimator** receives data through traits and parameter blocks; it does not know what GNSS or SLR is.
 - **QC** consumes residual records; it does not run estimators.
 - **Products** consume estimator outputs; they do not run estimators.
@@ -158,9 +158,9 @@ Milestones are numbered M0–M7. Each lists *goal*, *crates touched*, *concrete 
 - **Goal:** real virtual workspace; package collision removed; dependency-direction CI live; provider traits compile against upstream `siderust`.
 - **Crates touched:** all (created), `pod-core` (real code), others (placeholder `lib.rs`).
 - **Concrete tasks:**
-  - Delete `siderust-pod/src/`, `siderust-pod/build.rs`, `siderust-pod/siderust-ffi/`, upstream-shaped `examples/`/`benches/`/`tests/`, upstream `archive/` data committed under `src/`.
+  - Delete `spod/src/`, `spod/build.rs`, `spod/siderust-ffi/`, upstream-shaped `examples/`/`benches/`/`tests/`, upstream `archive/` data committed under `src/`.
   - Replace root `Cargo.toml` with a `[workspace]` (no `[package]`), `members = ["crates/*"]`, `resolver = "2"`.
-  - `cargo new --lib crates/siderust-pod-{core,dynamics,io,observations,estimation,qc,products,service}` and `cargo new crates/siderust-pod-cli`.
+  - `cargo new --lib crates/spod-{core,dynamics,io,observations,estimation,qc,products,service}` and `cargo new crates/spod`.
   - Per-crate `Cargo.toml`: AGPL-3.0, version `0.0.0`, `repository`/`license`/`readme` fields, MSRV pin (latest stable −1).
   - Add the Siderust ecosystem crates as released registry dependencies.
   - In `pod-core`: define provider traits (`EphemerisProvider`, `EarthOrientationProvider`, `FrameTransformProvider`, `GravityFieldProvider`, `AtmosphereDensityProvider`) with default impls that wrap public `siderust` APIs.
@@ -217,7 +217,7 @@ Milestones are numbered M0–M7. Each lists *goal*, *crates touched*, *concrete 
 
 ### M4 — POD MVP-1 end-to-end (config-driven)
 
-- **Goal:** `siderust-pod run examples/configs/leo_gnss_mvp1.yaml` produces all required artifacts; reproducible; manifest with input hashes.
+- **Goal:** `spod run examples/configs/leo_gnss_mvp1.yaml` produces all required artifacts; reproducible; manifest with input hashes.
 - **Crates touched:** `pod-service`, `pod-cli`, `pod-products`, `pod-qc`.
 - **Concrete tasks:**
   - `pod-service::config` (YAML + `serde` + JSON-Schema export + `validate-config` command); pipeline stages exactly as design §6.8.
@@ -250,7 +250,7 @@ Milestones are numbered M0–M7. Each lists *goal*, *crates touched*, *concrete 
 ### M7 — Productization
 
 - **Goal:** Python bindings (PyO3), REST job API, container image, public-data benchmark corpus, performance dashboards.
-- **Crates touched:** new `crates/siderust-pod-py/`, `crates/siderust-pod-rest/`; `pod-service` worker model.
+- **Crates touched:** new `crates/spod-py/`, `crates/spod-rest/`; `pod-service` worker model.
 - **Concrete tasks:** PyO3 wrappers calling the same library APIs; `axum` REST over `pod-service::Runner`; OCI image with deterministic build; public LEO GNSS arc benchmark.
 - **Definition of done:** API parity test (CLI ≡ Rust API ≡ Python ≡ REST) green; documented commercial-readiness checklist.
 
@@ -261,7 +261,7 @@ Milestones are numbered M0–M7. Each lists *goal*, *crates touched*, *concrete 
 ### 4.1 Command
 
 ```bash
-cargo run -p siderust-pod-cli -- run examples/configs/leo_gnss_mvp1.yaml
+cargo run -p spod -- run examples/configs/leo_gnss_mvp1.yaml
 ```
 
 ### 4.2 Required inputs (per config)
@@ -308,8 +308,8 @@ All inputs are SHA-256-hashed and recorded in `run.manifest.json`.
 | Category | Location | What it covers |
 |---|---|---|
 | Unit | per-crate `src/**/tests` and `tests/` | Numerical kernels, parsers (small), corrections, partials. |
-| Compile-fail (`trybuild`) | `crates/siderust-pod-core/tests/compile_fail/` | Adding two `Position`s; using ITRF position where GCRF is required; computing residual without center binding; mixing scalar units. |
-| Parser round-trip | `crates/siderust-pod-io/tests/roundtrip/` | SP3, OEM, ANTEX, RINEX MVP. |
+| Compile-fail (`trybuild`) | `crates/spod-core/tests/compile_fail/` | Adding two `Position`s; using ITRF position where GCRF is required; computing residual without center binding; mixing scalar units. |
+| Parser round-trip | `crates/spod-io/tests/roundtrip/` | SP3, OEM, ANTEX, RINEX MVP. |
 | Synthetic truth | `tests/synthetic/` | Simulate orbit + observations → estimate → assert recovered parameters within tolerance. |
 | End-to-end | `tests/e2e/` | Run the CLI against a fixture config; diff artifacts against committed expected outputs. |
 | Regression | `tests/regression/` | Frozen fixtures of public-data parses; pinned outputs. |
@@ -321,7 +321,7 @@ All inputs are SHA-256-hashed and recorded in `run.manifest.json`.
 
 - **MVP-1:** synthetic only (deterministic, fully reproducible, no licensing risk).
 - **MVP-2:** add one frozen, redistributable LEO GNSS arc + IGS final products (24 h) committed under `examples/fixtures/public/` with explicit license/source notes.
-- **MVP-3+:** publish a separate `siderust-pod-benchmarks` repo with curated multi-day public arcs and CI-published results dashboards.
+- **MVP-3+:** publish a separate `spod-benchmarks` repo with curated multi-day public arcs and CI-published results dashboards.
 
 ### 5.3 Minimum tolerances (initial)
 
@@ -462,7 +462,7 @@ No feature gates change *numerical results*. CI matrix tests `--no-default-featu
 | R-04 | Non-determinism (HashMap iter, float formatting, parallel reductions) | High | High | Canonical JSON encoder; sorted IDs everywhere; deterministic-reduction option; reproducibility test in CI. |
 | R-05 | Covariance semantics drift (frame/center/order ambiguity) | Medium | High | `Covariance` carries frame, center, ordering, and units in its type; round-trip + PSD tests are mandatory gates. |
 | R-06 | Performance regressions go unnoticed | Medium | Medium | Pinned-runner bench job with baselines + 15% regression gate. |
-| R-07 | Vendored siderust copy creeps back into `siderust-pod` | Low | High | M0 deletes it; `scripts/check_dep_graph.sh` rejects any `path = "../../rust/siderust"` not whitelisted; CI scans for `src/astro/`, `src/calculus/` etc. inside `crates/`. |
+| R-07 | Vendored siderust copy creeps back into `spod` | Low | High | M0 deletes it; `scripts/check_dep_graph.sh` rejects any `path = "../../rust/siderust"` not whitelisted; CI scans for `src/astro/`, `src/calculus/` etc. inside `crates/`. |
 | R-08 | Float-only ambiguity insufficient for users | Medium | Medium | Document explicitly; carve a clean place in `pod-estimation::ambiguity` for integer fixing in MVP-2+. |
 | R-09 | Public-data licensing surprises | Medium | Medium | MVP-1 synthetic-only; vetted public fixtures with explicit `LICENSE` and source URL files in `examples/fixtures/public/`. |
 | R-10 | RINEX/SP3/ANTEX edge-case interoperability bugs | High | Medium | Strict + permissive modes; structured diagnostics; expand fixture set per bug report; commit golden fixtures. |
@@ -475,10 +475,10 @@ No feature gates change *numerical results*. CI matrix tests `--no-default-featu
 ## 9. Branching and change policy
 
 - `rust/siderust/`, `rust/qtty/`, `rust/tempoch/`, `rust/affn/`, `rust/cheby/`, `rust/NSB/` — **untouched** by the POD plan. CI on the POD branch fails if any file under those paths changes.
-- `rust/siderust-pod/` — the **only** editable workspace for this plan. All POD work lands here.
+- `rust/spod/` — the **only** editable workspace for this plan. All POD work lands here.
 - Any change required in a foundational crate must:
   1. Be created on a **separate branch** off `main`, named `foundational/<crate>/<reason>`.
-  2. Carry an **ADR** under `rust/siderust-pod/docs/adrs/` justifying why an adapter/provider trait was insufficient.
+  2. Carry an **ADR** under `rust/spod/docs/adrs/` justifying why an adapter/provider trait was insufficient.
   3. Be reviewed by a maintainer of the affected crate.
   4. Be merged independently of POD work; POD then bumps the upstream version.
 - Working branch convention for POD: `pod/<milestone>/<short-topic>`, e.g. `pod/m2/sp3-writer`.
@@ -494,8 +494,8 @@ No feature gates change *numerical results*. CI matrix tests `--no-default-featu
 
 Each task: target crate(s), expected files, acceptance criteria.
 
-1. **Reset workspace.** `siderust-pod`. Delete legacy `src/`, `build.rs`, vendored `siderust-ffi/`, upstream `examples/`/`benches/`/`tests/`, `archive/` data. Replace root `Cargo.toml` with virtual workspace. Move `memory/` → `docs/design/`. *Acceptance:* `cargo metadata` lists no members yet; `git status` is clean after re-add.
-2. **Create empty crates.** `crates/siderust-pod-{core,dynamics,io,observations,estimation,qc,products,service,cli}` via `cargo new`, AGPL-3.0 in each `Cargo.toml`. *Acceptance:* `cargo build --workspace` succeeds.
+1. **Reset workspace.** `spod`. Delete legacy `src/`, `build.rs`, vendored `siderust-ffi/`, upstream `examples/`/`benches/`/`tests/`, `archive/` data. Replace root `Cargo.toml` with virtual workspace. Move `memory/` → `docs/design/`. *Acceptance:* `cargo metadata` lists no members yet; `git status` is clean after re-add.
+2. **Create empty crates.** `crates/spod-{core,dynamics,io,observations,estimation,qc,products,service,cli}` via `cargo new`, AGPL-3.0 in each `Cargo.toml`. *Acceptance:* `cargo build --workspace` succeeds.
 3. **Wire workspace deps.** Pin `siderust = "0.7"`, `qtty = "0.7"`, `tempoch = "0.4"`, `affn = "0.7"`, `cheby = "0.2"`, `faer`, `serde`, `thiserror`, `clap`. *Acceptance:* `cargo deny check` passes.
 4. **CI skeleton.** `.github/workflows/ci.yml` with fmt/clippy/test/doc/dep-graph/deny. *Acceptance:* CI green on empty workspace.
 5. **Dep-graph guard.** `scripts/check_dep_graph.sh` + unit test. *Acceptance:* deliberate forbidden edge fails CI in a draft PR.
@@ -553,7 +553,7 @@ Each task: target crate(s), expected files, acceptance criteria.
 
 ## 12. Locked decisions
 
-- Workspace will be **wiped and rebuilt** as a virtual workspace; legacy cloned `siderust` code under `siderust-pod/src/` will be deleted.
+- Workspace will be **wiped and rebuilt** as a virtual workspace; legacy cloned `siderust` code under `spod/src/` will be deleted.
 - Linear-algebra backend for the estimator is **`faer`**; `affn` continues to own typed positions/vectors and 3×3 covariance transforms.
 - License is **AGPL-3.0** (matches `siderust`).
 - Foundational crates (`qtty`, `tempoch`, `affn`, `cheby`, `siderust`) are **read-only** to this plan; any change requires a separate branch and ADR.

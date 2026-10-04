@@ -20,7 +20,7 @@ frame transform.
 
 ## Owning crate
 
-`siderust-pod-io`
+`spod-io`
 
 ## Supported subset
 

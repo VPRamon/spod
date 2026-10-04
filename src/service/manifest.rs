@@ -72,7 +72,7 @@ pub struct RunManifest {
     pub inputs: Vec<DatasetRef>,
     /// Output product files, with hashes.
     pub outputs: Vec<DatasetRef>,
-    /// Software version (semver of `siderust-pod-service`).
+    /// Software version (semver of `spod-service`).
     pub software_version: String,
     /// Optional free-form notes.
     pub notes: Option<String>,

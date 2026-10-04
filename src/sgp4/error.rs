@@ -26,7 +26,7 @@ use thiserror::Error;
 /// # Examples
 ///
 /// ```
-/// use siderust_pod::sgp4::Sgp4Error;
+/// use spod::sgp4::Sgp4Error;
 /// let e = Sgp4Error::InvalidEpoch("year out of range");
 /// assert!(matches!(e, Sgp4Error::InvalidEpoch(_)));
 /// assert!(e.to_string().contains("epoch"));

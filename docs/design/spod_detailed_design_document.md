@@ -1,12 +1,12 @@
-# Siderust POD Detailed Design Document
+# spod Detailed Design Document
 
 ## 0. Document status
 
-**Document type:** Detailed design document  
-**Target project:** Siderust POD / satellite precision-orbit-determination stack  
-**Primary goal:** Define a concrete architecture and implementation plan for building a FocusPOD-class, Rust-native POD and geodesy product on top of the existing Siderust ecosystem.  
-**Status:** Draft v0.1  
-**Audience:** Siderust maintainers, Rust engineers, astrodynamics/POD engineers, validation engineers, and future product owners.  
+**Document type:** Detailed design document
+**Target project:** spod / satellite precision-orbit-determination stack
+**Primary goal:** Define a concrete architecture and implementation plan for building a FocusPOD-class, Rust-native POD and geodesy product on top of the existing Siderust ecosystem.
+**Status:** Draft v0.1
+**Audience:** Siderust maintainers, Rust engineers, astrodynamics/POD engineers, validation engineers, and future product owners.
 
 This document assumes the current Siderust organization contains these foundational projects:
 
@@ -28,15 +28,15 @@ The Siderust ecosystem already has a strong scientific substrate: typed units, t
 The proposed design introduces a new product family:
 
 ```text
-siderust-pod-core
-siderust-pod-dynamics
-siderust-pod-io
-siderust-pod-observations
-siderust-pod-estimation
-siderust-pod-qc
-siderust-pod-products
-siderust-pod-service
-siderust-pod-cli
+spod-core
+spod-dynamics
+spod-io
+spod-observations
+spod-estimation
+spod-qc
+spod-products
+spod-service
+spod
 ```
 
 The first competitive target is **GNSS-only LEO POD with float carrier ambiguities, batch weighted least squares, deterministic product generation, and QC artifacts**. The second target is **SLR-validated GNSS POD**. The third target is **near-real-time replay using EKF/sequential estimation**. DORIS, VLBI, GNSS network processing, normal-equation stacking, web UI, RBAC, and distributed operations are later phases.
@@ -49,7 +49,7 @@ tempoch    = temporal correctness
 affn       = geometric correctness
 cheby      = interpolation and spectral correctness
 siderust   = astronomical and ephemeris correctness
-siderust-pod-* = POD, geodesy, estimation, products, QC, and operations
+spod-* = POD, geodesy, estimation, products, QC, and operations
 ```
 
 ---
@@ -270,24 +270,24 @@ Required extensions:
 
 ```text
 +------------------------------------------------------------------+
-|                          siderust-pod-ui                         |
+|                          spod-ui                         |
 |                       optional later web layer                    |
 +------------------------------------------------------------------+
-|                         siderust-pod-service                     |
+|                         spod-service                     |
 |              jobs, configs, manifests, artifacts, API             |
 +------------------------------------------------------------------+
-|           siderust-pod-cli          |   siderust-pod-python       |
+|           spod          |   spod-python       |
 +------------------------------------------------------------------+
-|                        siderust-pod-products                     |
+|                        spod-products                     |
 |             SP3, OEM, SINEX-like outputs, residual files          |
 +------------------------------------------------------------------+
-|       siderust-pod-qc       |       siderust-pod-estimation       |
+|       spod-qc       |       spod-estimation       |
 | residuals, reports, plots   | WLS, EKF, smoothing, covariances    |
 +------------------------------------------------------------------+
-|      siderust-pod-observations      |      siderust-pod-io         |
+|      spod-observations      |      spod-io         |
 | GNSS, SLR, DORIS, VLBI models       | RINEX, SP3, ANTEX, CRD...   |
 +------------------------------------------------------------------+
-|     siderust-pod-dynamics       |        siderust-pod-core        |
+|     spod-dynamics       |        spod-core        |
 | forces, propagation, STM       | states, params, context, config  |
 +------------------------------------------------------------------+
 | qtty | tempoch | affn | cheby | siderust                         |
@@ -301,17 +301,17 @@ Hard dependency rules:
 ```text
 qtty, tempoch, affn, cheby shall not depend on siderust.
 siderust may depend on qtty, tempoch, affn, and cheby.
-siderust-pod-* may depend on qtty, tempoch, affn, cheby, and siderust.
-siderust-pod-core shall not depend on siderust-pod-service or CLI crates.
-siderust-pod-estimation shall not depend on file-format parsers.
-siderust-pod-observations may depend on IO data structures only through canonical models.
-siderust-pod-service may depend on all POD crates.
+spod-* may depend on qtty, tempoch, affn, cheby, and siderust.
+spod-core shall not depend on spod-service or CLI crates.
+spod-estimation shall not depend on file-format parsers.
+spod-observations may depend on IO data structures only through canonical models.
+spod-service may depend on all POD crates.
 ```
 
 Forbidden:
 
 ```text
-siderust -> siderust-pod-*
+siderust -> spod-*
 qtty -> siderust
 tempoch -> siderust
 affn -> siderust
@@ -324,18 +324,18 @@ core -> service
 ## 5.3 Workspace layout
 
 ```text
-siderust-pod/
+spod/
   Cargo.toml
   crates/
-    siderust-pod-core/
-    siderust-pod-dynamics/
-    siderust-pod-io/
-    siderust-pod-observations/
-    siderust-pod-estimation/
-    siderust-pod-qc/
-    siderust-pod-products/
-    siderust-pod-service/
-    siderust-pod-cli/
+    spod-core/
+    spod-dynamics/
+    spod-io/
+    spod-observations/
+    spod-estimation/
+    spod-qc/
+    spod-products/
+    spod-service/
+    spod/
   examples/
     configs/
     fixtures/
@@ -355,7 +355,7 @@ siderust-pod/
 
 ## 6. Crate designs
 
-## 6.1 `siderust-pod-core`
+## 6.1 `spod-core`
 
 ### Purpose
 
@@ -443,11 +443,11 @@ pub struct RunManifest {
 
 ### Design notes
 
-`OrbitState` should probably live in `siderust-pod-core`, while lower-level position, velocity, frame, and center types should come from `affn`. This avoids forcing `affn` to know what an OD arc, estimation parameter, or spacecraft model is.
+`OrbitState` should probably live in `spod-core`, while lower-level position, velocity, frame, and center types should come from `affn`. This avoids forcing `affn` to know what an OD arc, estimation parameter, or spacecraft model is.
 
 ---
 
-## 6.2 `siderust-pod-dynamics`
+## 6.2 `spod-dynamics`
 
 ### Purpose
 
@@ -560,7 +560,7 @@ POD MVP requires:
 
 ---
 
-## 6.3 `siderust-pod-io`
+## 6.3 `spod-io`
 
 ### Purpose
 
@@ -674,7 +674,7 @@ pub struct GnssObservation<S = f64> {
 
 ---
 
-## 6.4 `siderust-pod-observations`
+## 6.4 `spod-observations`
 
 ### Purpose
 
@@ -777,7 +777,7 @@ pub trait MeasurementModel<State, Params, Obs, Ctx, S = f64> {
 
 ---
 
-## 6.5 `siderust-pod-estimation`
+## 6.5 `spod-estimation`
 
 ### Purpose
 
@@ -859,7 +859,7 @@ Every estimator run shall produce:
 
 ---
 
-## 6.6 `siderust-pod-qc`
+## 6.6 `spod-qc`
 
 ### Purpose
 
@@ -924,7 +924,7 @@ Later:
 
 ---
 
-## 6.7 `siderust-pod-products`
+## 6.7 `spod-products`
 
 ### Purpose
 
@@ -973,7 +973,7 @@ Every product shall include or reference:
 
 ---
 
-## 6.8 `siderust-pod-service`
+## 6.8 `spod-service`
 
 ### Purpose
 
@@ -1032,7 +1032,7 @@ src/
 
 ---
 
-## 6.9 `siderust-pod-cli`
+## 6.9 `spod`
 
 ### Purpose
 
@@ -1041,13 +1041,13 @@ Expose product workflows to users and CI.
 ### Commands
 
 ```bash
-siderust-pod validate-config config.yaml
-siderust-pod run config.yaml
-siderust-pod inspect-manifest out/run.manifest.json
-siderust-pod compare-orbits orbit_a.sp3 orbit_b.sp3 --frame rtn
-siderust-pod qc out/run.manifest.json
-siderust-pod validate-slr out/orbit.sp3 slr/*.crd
-siderust-pod simulate config.yaml
+spod validate-config config.yaml
+spod run config.yaml
+spod inspect-manifest out/run.manifest.json
+spod compare-orbits orbit_a.sp3 orbit_b.sp3 --frame rtn
+spod qc out/run.manifest.json
+spod validate-slr out/orbit.sp3 slr/*.crd
+spod simulate config.yaml
 ```
 
 ### CLI rules
@@ -1415,17 +1415,17 @@ Simulation outputs shall be compatible with estimation inputs.
 | LR-002 | Every POD run shall bind to explicit EOP and leap-second datasets. | P0 | core/service | Manifest includes dataset IDs/hashes. |
 | LR-003 | `affn`/POD core shall represent RTN/RIC and LVLH frames. | P0 | affn/core | Frame transform tests pass. |
 | LR-004 | `siderust` shall expose public ephemeris and frame-transform provider traits. | P0 | siderust | POD crates do not import private modules. |
-| LR-005 | `siderust-pod-dynamics` shall implement two-body and J2 acceleration. | P0 | dynamics | Reference acceleration tests pass. |
-| LR-006 | `siderust-pod-dynamics` shall implement third-body acceleration using Siderust ephemerides. | P0 | dynamics | Sun/Moon tests pass. |
-| LR-007 | `siderust-pod-dynamics` shall implement a high-degree gravity interface. | P0 | dynamics | Gravity file loads and truncates degree/order. |
-| LR-008 | `siderust-pod-dynamics` shall implement simple drag and cannonball SRP. | P0 | dynamics | Synthetic drag/SRP cases pass. |
-| LR-009 | `siderust-pod-io` shall parse and write SP3. | P0 | io | Round-trip test passes. |
-| LR-010 | `siderust-pod-io` shall parse RINEX OBS and NAV MVP subsets. | P0 | io | Fixtures parse with no silent loss. |
-| LR-011 | `siderust-pod-io` shall parse ANTEX. | P0 | io | Antenna corrections queryable. |
-| LR-012 | `siderust-pod-observations` shall implement GNSS pseudorange prediction and partials. | P0 | obs | Synthetic residual/Jacobian tests pass. |
-| LR-013 | `siderust-pod-observations` shall implement GNSS carrier-phase prediction with float ambiguity. | P0 | obs | Synthetic residual/Jacobian tests pass. |
+| LR-005 | `spod-dynamics` shall implement two-body and J2 acceleration. | P0 | dynamics | Reference acceleration tests pass. |
+| LR-006 | `spod-dynamics` shall implement third-body acceleration using Siderust ephemerides. | P0 | dynamics | Sun/Moon tests pass. |
+| LR-007 | `spod-dynamics` shall implement a high-degree gravity interface. | P0 | dynamics | Gravity file loads and truncates degree/order. |
+| LR-008 | `spod-dynamics` shall implement simple drag and cannonball SRP. | P0 | dynamics | Synthetic drag/SRP cases pass. |
+| LR-009 | `spod-io` shall parse and write SP3. | P0 | io | Round-trip test passes. |
+| LR-010 | `spod-io` shall parse RINEX OBS and NAV MVP subsets. | P0 | io | Fixtures parse with no silent loss. |
+| LR-011 | `spod-io` shall parse ANTEX. | P0 | io | Antenna corrections queryable. |
+| LR-012 | `spod-observations` shall implement GNSS pseudorange prediction and partials. | P0 | obs | Synthetic residual/Jacobian tests pass. |
+| LR-013 | `spod-observations` shall implement GNSS carrier-phase prediction with float ambiguity. | P0 | obs | Synthetic residual/Jacobian tests pass. |
 | LR-014 | GNSS models shall support satellite clock, receiver clock, Sagnac, relativity, and antenna phase-center corrections. | P0 | obs | Individual correction tests pass. |
-| LR-015 | `siderust-pod-estimation` shall implement nonlinear WLS. | P0 | estimation | Synthetic OD converges. |
+| LR-015 | `spod-estimation` shall implement nonlinear WLS. | P0 | estimation | Synthetic OD converges. |
 | LR-016 | WLS shall output convergence report, covariance, residuals, and diagnostics. | P0 | estimation | Required fields present. |
 | LR-017 | QC shall group residuals by satellite, observable, epoch, elevation, and rejection status. | P0 | qc | QC schema validates. |
 | LR-018 | Products shall include hashes and provenance. | P0 | products | Manifest integrity tests pass. |
@@ -1582,7 +1582,7 @@ Deliverables:
 
 Exit criteria:
 
-- `siderust-pod run examples/configs/leo_gnss_mvp1.yaml` completes.
+- `spod run examples/configs/leo_gnss_mvp1.yaml` completes.
 - All required artifacts generated.
 - Re-run reproducibility test passes.
 
@@ -1653,7 +1653,7 @@ Exit criteria:
 
 | ID | Decision | Options | Recommendation |
 |---|---|---|---|
-| ODD-001 | Should `OrbitState` live in `affn` or `siderust-pod-core`? | `affn`, `siderust`, `siderust-pod-core` | Put POD semantics in `siderust-pod-core`; keep geometry primitives in `affn`. |
+| ODD-001 | Should `OrbitState` live in `affn` or `spod-core`? | `affn`, `siderust`, `spod-core` | Put POD semantics in `spod-core`; keep geometry primitives in `affn`. |
 | ODD-002 | Which linear algebra backend? | `nalgebra`, `faer`, `ndarray`, custom traits | Use backend traits; start with one pragmatic backend. |
 | ODD-003 | Which format parser strategy? | hand-written parsers, parser combinators, generated parsers | Hand-written robust parsers for MVP formats. |
 | ODD-004 | How strict should file parsing be? | strict only, permissive only, both modes | Support strict and permissive modes with diagnostics. |
@@ -1662,13 +1662,13 @@ Exit criteria:
 | ODD-007 | Should service/API be in first year? | yes/no | Only after CLI and library kernel are stable. |
 | ODD-008 | Should DORIS precede EKF? | yes/no | No. EKF/NRT path is more broadly useful. |
 | ODD-009 | Should integer ambiguity resolution be MVP? | yes/no | No. Start float; add integer fixing later. |
-| ODD-010 | Should `siderust-pod-io` be a general `siderust-formats` crate? | POD-specific vs general | Start POD-specific; extract general formats only after APIs stabilize. |
+| ODD-010 | Should `spod-io` be a general `siderust-formats` crate? | POD-specific vs general | Start POD-specific; extract general formats only after APIs stabilize. |
 
 ---
 
 ## 15. Recommended first GitHub issues
 
-1. Create `siderust-pod` workspace skeleton.
+1. Create `spod` workspace skeleton.
 2. Add architecture boundary document.
 3. Add dependency graph CI check.
 4. Define `OrbitState`, `SpacecraftState`, `ArcDefinition`, and `RunManifest`.
@@ -1694,7 +1694,7 @@ Exit criteria:
 ## 16. Appendix A — Proposed public module surface
 
 ```rust
-// siderust-pod-core
+// spod-core
 pub mod arc;
 pub mod config;
 pub mod context;
@@ -1704,14 +1704,14 @@ pub mod parameter;
 pub mod spacecraft;
 pub mod state;
 
-// siderust-pod-dynamics
+// spod-dynamics
 pub mod forces;
 pub mod gravity;
 pub mod integrators;
 pub mod propagation;
 pub mod variational;
 
-// siderust-pod-io
+// spod-io
 pub mod rinex;
 pub mod sp3;
 pub mod antex;
@@ -1719,20 +1719,20 @@ pub mod sinex;
 pub mod slr;
 pub mod ccsds;
 
-// siderust-pod-observations
+// spod-observations
 pub mod gnss;
 pub mod slr;
 pub mod corrections;
 pub mod simulation;
 
-// siderust-pod-estimation
+// spod-estimation
 pub mod batch;
 pub mod sequential;
 pub mod robust;
 pub mod covariance;
 pub mod multi_arc;
 
-// siderust-pod-qc
+// spod-qc
 pub mod residuals;
 pub mod orbit_compare;
 pub mod slr_validation;
@@ -1772,7 +1772,7 @@ out/leo-gnss-mvp1/
 MVP-1 is done when this command works from a clean checkout with fixtures installed:
 
 ```bash
-cargo run -p siderust-pod-cli -- run examples/configs/leo_gnss_mvp1.yaml
+cargo run -p spod -- run examples/configs/leo_gnss_mvp1.yaml
 ```
 
 and produces:
@@ -1802,7 +1802,7 @@ with all of the following true:
 
 ## 19. Final recommendation
 
-The next implementation step should not be another feature inside `siderust/src`. It should be the creation of a dedicated `siderust-pod` workspace with a minimal, test-first GNSS POD pipeline.
+The next implementation step should not be another feature inside `siderust/src`. It should be the creation of a dedicated `spod` workspace with a minimal, test-first GNSS POD pipeline.
 
 The first build target is:
 
@@ -1821,4 +1821,3 @@ Synthetic GNSS-only LEO batch POD
 After that, the project should add SLR validation, then EKF/NRT replay, then public-data benchmarks, then DORIS/VLBI/geodesy expansion, and only then service/UI/productization.
 
 This path gives Siderust the strongest chance to compete credibly: use its current strengths as a scientific kernel, avoid monolithic scope creep, and build a POD product layer with explicit validation and operational discipline.
-

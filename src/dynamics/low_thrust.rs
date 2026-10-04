@@ -47,7 +47,7 @@ pub struct LowThrustRecord {
 /// # Example
 ///
 /// ```
-/// use siderust_pod::dynamics::{LowThrustLog, ThrustArc};
+/// use spod::dynamics::{LowThrustLog, ThrustArc};
 /// use siderust::qtty::force::Newtons;
 /// use siderust::tempoch::{Time, UTC};
 /// use chrono::{TimeZone, Utc};

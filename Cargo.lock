@@ -1712,35 +1712,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "siderust-pod"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "approx",
- "axum",
- "cheby",
- "chrono",
- "clap",
- "env_logger",
- "faer",
- "hex",
- "log",
- "quick-xml",
- "serde",
- "serde_json",
- "serde_yaml",
- "sgp4",
- "sha2 0.10.9",
- "siderust",
- "thiserror 1.0.69",
- "tokio",
- "toml 0.8.23",
- "tower",
- "trybuild",
- "uuid",
-]
-
-[[package]]
 name = "slab"
 version = "0.4.12"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1767,6 +1738,35 @@ name = "spin"
 version = "0.10.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "023a211cb3138dbc438680b32560ad89f699977624c9f8dbb95a47d5b4c07dd3"
+
+[[package]]
+name = "spod"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "approx",
+ "axum",
+ "cheby",
+ "chrono",
+ "clap",
+ "env_logger",
+ "faer",
+ "hex",
+ "log",
+ "quick-xml",
+ "serde",
+ "serde_json",
+ "serde_yaml",
+ "sgp4",
+ "sha2 0.10.9",
+ "siderust",
+ "thiserror 1.0.69",
+ "tokio",
+ "toml 0.8.23",
+ "tower",
+ "trybuild",
+ "uuid",
+]
 
 [[package]]
 name = "strsim"

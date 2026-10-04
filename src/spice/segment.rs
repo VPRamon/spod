@@ -176,7 +176,7 @@ impl ChebSegment {
 /// # Examples
 ///
 /// ```rust
-/// use siderust_pod::spice::{daf::{Daf, Summary}, segment_for_summary, SpiceError};
+/// use spod::spice::{daf::{Daf, Summary}, segment_for_summary, SpiceError};
 /// // Build a synthetic single-record Type 2 segment with one
 /// // coefficient per axis (a constant polynomial).
 /// // rsize = 2 (mid,radius) + 3 components * 1 coeff = 5 doubles.

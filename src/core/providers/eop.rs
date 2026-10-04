@@ -13,7 +13,7 @@ use std::error::Error;
 /// # Examples
 ///
 /// ```
-/// use siderust_pod::core::providers::EarthOrientationProvider;
+/// use spod::core::providers::EarthOrientationProvider;
 ///
 /// struct ZeroEop;
 /// impl EarthOrientationProvider for ZeroEop {

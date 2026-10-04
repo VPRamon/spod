@@ -22,7 +22,7 @@ CelesTrak extensions documented at
 
 ## Owning crate
 
-`siderust::astro::satellite::tle` (and re-exported from `siderust-pod`
+`siderust::astro::satellite::tle` (and re-exported from `spod`
 when an OMM bundle is supplied as an alternative to a TLE file).
 
 ## Supported subset
@@ -44,7 +44,7 @@ when an OMM bundle is supplied as an alternative to a TLE file).
   not yet exposed as a typed covariance value in v0.0.x).
 - User-defined parameter blocks (`USER_DEFINED_*`) are carried verbatim
   but not parsed.
-- Writing OMM in any serialisation. siderust-pod produces orbital
+- Writing OMM in any serialisation. spod produces orbital
   products as SP3 or OEM, not OMM.
 
 ## Deviations

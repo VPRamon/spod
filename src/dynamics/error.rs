@@ -22,10 +22,10 @@ use super::thrust::ManeuverError;
 /// # Example
 ///
 /// ```
-/// use siderust_pod::dynamics::{DynamicsError, ManeuverError};
+/// use spod::dynamics::{DynamicsError, ManeuverError};
 ///
 /// fn check(isp: f64) -> Result<(), DynamicsError> {
-///     siderust_pod::dynamics::mass_flow_rate(siderust::qtty::force::Newtons::new(1.0), isp)?;
+///     spod::dynamics::mass_flow_rate(siderust::qtty::force::Newtons::new(1.0), isp)?;
 ///     Ok(())
 /// }
 /// assert!(matches!(check(0.0), Err(DynamicsError::Maneuver(ManeuverError::NonPositiveIsp(_)))));

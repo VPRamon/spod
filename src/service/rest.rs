@@ -15,7 +15,7 @@
 //!
 //! The public items are `JobStatus`, `AppState`, and `router`. The router
 //! exposes health and job-submission endpoints, while the worker path
-//! delegates actual arc generation and estimation to `siderust-pod-
+//! delegates actual arc generation and estimation to `spod-
 //! service`.
 //!
 //! Authentication, persistent storage, and arbitrary user-supplied datasets

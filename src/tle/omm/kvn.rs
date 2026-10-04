@@ -17,7 +17,7 @@ use crate::tle::{Classification, SatelliteNumber};
 /// # Examples
 ///
 /// ```
-/// use siderust_pod::tle::{omm::{Omm, kvn}, parse_3le};
+/// use spod::tle::{omm::{Omm, kvn}, parse_3le};
 /// let l1 = "1 25544U 98067A   08264.51782528 -.00002182  00000-0 -11606-4 0  2927";
 /// let l2 = "2 25544  51.6416 247.4627 0006703 130.5360 325.0288 15.72125391563537";
 /// let omm = Omm::from_tle(&parse_3le("ISS (ZARYA)", l1, l2).unwrap());
@@ -80,7 +80,7 @@ pub fn write(omm: &Omm) -> Result<String, TleError> {
 /// # Examples
 ///
 /// ```
-/// use siderust_pod::tle::omm::kvn;
+/// use spod::tle::omm::kvn;
 /// let text = "CCSDS_OMM_VERS = 2.0\nOBJECT_NAME = TEST\nOBJECT_ID = 1998-067A\n\
 ///              MEAN_ELEMENT_THEORY = SGP4\nEPOCH = 2008-09-20T12:25:40.104192\n\
 ///              MEAN_MOTION = 15.72125391\nECCENTRICITY = 0.0006703\n\

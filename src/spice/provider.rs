@@ -51,9 +51,9 @@ pub struct SpiceState<C: ReferenceCenter<Params = ()>> {
 /// # Examples
 ///
 /// ```rust,no_run
-/// use siderust_pod::spice::{SpkKernel, SpiceEphemerisProvider, well_known};
+/// use spod::spice::{SpkKernel, SpiceEphemerisProvider, well_known};
 /// use siderust::coordinates::centers::Barycentric;
-/// use siderust_pod::core::providers::EphemerisProvider;
+/// use spod::core::providers::EphemerisProvider;
 ///
 /// let kernel = SpkKernel::open("de440.bsp")?;
 /// let provider: SpiceEphemerisProvider<Barycentric> =
@@ -61,7 +61,7 @@ pub struct SpiceState<C: ReferenceCenter<Params = ()>> {
 /// // Earth state at J2000:
 /// let state = provider.state(well_known::EARTH, 0.0)?;
 /// let _x_km = state.position.x();
-/// # Ok::<_, siderust_pod::spice::SpiceError>(())
+/// # Ok::<_, spod::spice::SpiceError>(())
 /// ```
 pub struct SpiceEphemerisProvider<C: ReferenceCenter<Params = ()>> {
     kernel: Arc<SpkKernel>,

@@ -18,7 +18,7 @@
 //! provide already modelled residual values and receive a report object
 //! ready for QC JSON output or test assertions.
 //!
-//! Numerical light-time modelling is delegated to `siderust-pod-
+//! Numerical light-time modelling is delegated to `spod-
 //! observations::slr`.
 //!
 //! ## References

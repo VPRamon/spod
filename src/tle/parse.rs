@@ -18,7 +18,7 @@ use crate::tle::{Classification, InternationalDesignator, SatelliteNumber, Tle};
 /// # Examples
 ///
 /// ```
-/// use siderust_pod::tle::validate_tle_checksum;
+/// use spod::tle::validate_tle_checksum;
 /// let l1 = "1 25544U 98067A   08264.51782528 -.00002182  00000-0 -11606-4 0  2927";
 /// validate_tle_checksum(l1).unwrap();
 /// ```
@@ -62,7 +62,7 @@ pub fn validate_tle_checksum(line: &str) -> Result<(), TleError> {
 /// # Examples
 ///
 /// ```
-/// use siderust_pod::tle::compute_tle_checksum;
+/// use spod::tle::compute_tle_checksum;
 /// let l1 = "1 25544U 98067A   08264.51782528 -.00002182  00000-0 -11606-4 0  292";
 /// assert_eq!(compute_tle_checksum(l1), 7);
 /// ```
@@ -87,7 +87,7 @@ pub(crate) fn compute_checksum(prefix_68: &str) -> u8 {
 /// # Examples
 ///
 /// ```
-/// use siderust_pod::tle::parse_tle;
+/// use spod::tle::parse_tle;
 /// let tle = parse_tle(
 ///     "1 25544U 98067A   08264.51782528 -.00002182  00000-0 -11606-4 0  2927",
 ///     "2 25544  51.6416 247.4627 0006703 130.5360 325.0288 15.72125391563537",
@@ -106,7 +106,7 @@ pub fn parse_tle(line1: &str, line2: &str) -> Result<Tle, TleError> {
 /// # Examples
 ///
 /// ```
-/// use siderust_pod::tle::parse_3le;
+/// use spod::tle::parse_3le;
 /// let tle = parse_3le(
 ///     "ISS (ZARYA)",
 ///     "1 25544U 98067A   08264.51782528 -.00002182  00000-0 -11606-4 0  2927",

@@ -1,11 +1,11 @@
-# siderust-pod
+# spod
 
-[![CI](https://github.com/Siderust/siderust-pod/actions/workflows/ci.yml/badge.svg)](https://github.com/Siderust/siderust-pod/actions/workflows/ci.yml)
+[![CI](https://github.com/VPRamon/spod/actions/workflows/ci.yml/badge.svg)](https://github.com/VPRamon/spod/actions/workflows/ci.yml)
 [![License: AGPL-3.0-or-later](https://img.shields.io/badge/license-AGPL--3.0--or--later-blue.svg)](LICENSE)
 
 **Precise Orbit Determination and orbit-analysis tooling in Rust.**
 
-`siderust-pod` is an engineering-oriented toolkit for orbit propagation, observation modelling, state estimation, orbit-product handling, and quality control. It builds on released crates from the wider [Siderust](https://github.com/Siderust) ecosystem and aims to keep physical units, reference frames, time scales, and estimation primitives explicit in the type system.
+`spod` is an engineering-oriented toolkit for orbit propagation, observation modelling, state estimation, orbit-product handling, and quality control. It builds on released crates from the wider [Siderust](https://github.com/Siderust) ecosystem and aims to keep physical units, reference frames, time scales, and estimation primitives explicit in the type system.
 
 > **Status: engineering preview (pre-1.0).**
 > The synthetic end-to-end POD path is usable for development and validation. Real-data workflows and the REST surface are still evolving. This project is not yet intended for flight-critical or safety-critical operational use.
@@ -46,21 +46,32 @@ src/
 ## Quick start
 
 ```bash
-git clone https://github.com/Siderust/siderust-pod.git
-cd siderust-pod
+git clone https://github.com/VPRamon/spod.git
+cd spod
 cargo test
 ```
 
 ## Relationship with the Siderust ecosystem
 
-Foundational astrodynamics, typed quantities, time scales, frames, and reusable numerical mechanics live in the released Siderust ecosystem crates. `siderust-pod` focuses on precise orbit determination: estimation, observations, orbit products, quality control, and service orchestration. Some primitives first explored during POD development have since moved upstream and are consumed here through their public APIs.
+Foundational astrodynamics, typed quantities, time scales, frames, and reusable numerical mechanics live in the released Siderust ecosystem crates. `spod` focuses on precise orbit determination: estimation, observations, orbit products, quality control, and service orchestration. Some primitives first explored during POD development have since moved upstream and are consumed here through their public APIs.
 
 Validate and run the synthetic POD configuration:
 
 ```bash
-cargo run --bin siderust-pod -- validate-config examples/configs/leo_gnss_mvp1.yaml
-cargo run --bin siderust-pod -- run examples/configs/leo_gnss_mvp1.yaml
+cargo run --bin spod -- validate-config examples/configs/leo_gnss_mvp1.yaml
+cargo run --bin spod -- run examples/configs/leo_gnss_mvp1.yaml
 ```
+
+Run the experimental REST service in a container:
+
+```bash
+docker build -t spod:dev .
+docker run --rm -p 8080:8080 spod:dev
+```
+
+The service listens on `SPOD_REST_BIND` and writes job output below
+`SPOD_REST_OUT`. The former `SIDERUST_POD_REST_BIND` and
+`SIDERUST_POD_REST_OUT` variables remain supported as deprecated fallbacks.
 
 Four focused Rust examples cover typed propagation, estimation, Lambert transfer, and SGP4:
 
@@ -107,6 +118,6 @@ For security issues, see [SECURITY.md](SECURITY.md). For support and commercial-
 
 ## License
 
-`siderust-pod` is available under **AGPL-3.0-or-later**. See [LICENSE](LICENSE).
+`spod` is available under **AGPL-3.0-or-later**. See [LICENSE](LICENSE).
 
 Commercial licensing can be discussed separately; see [SUPPORT.md](SUPPORT.md).

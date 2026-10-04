@@ -3,7 +3,7 @@
 
 //! Process-noise (`Q`) matrix construction for the sequential filter.
 //!
-//! The sequential EKF in `siderust-pod-estimation` consumes a discrete-time
+//! The sequential EKF in `spod-estimation` consumes a discrete-time
 //! process-noise covariance `Q(Δt)` block-diagonal in:
 //!
 //! 1. Cartesian position/velocity (driven by white acceleration noise).
@@ -93,7 +93,7 @@ impl GaussMarkovParams {
 /// # Example
 ///
 /// ```
-/// use siderust_pod::dynamics::{ProcessNoiseModel, WhiteAccelPsd, GaussMarkovParams};
+/// use spod::dynamics::{ProcessNoiseModel, WhiteAccelPsd, GaussMarkovParams};
 /// use siderust::qtty::{KmPerSecondsSquared, Second};
 /// let m = ProcessNoiseModel {
 ///     position_velocity: WhiteAccelPsd::isotropic(KmPerSecondsSquared::new(1e-9)),
@@ -201,7 +201,7 @@ impl ProcessNoiseModel {
     /// # Example
     ///
     /// ```
-    /// use siderust_pod::dynamics::{ProcessNoiseModel, WhiteAccelPsd, GaussMarkovParams};
+    /// use spod::dynamics::{ProcessNoiseModel, WhiteAccelPsd, GaussMarkovParams};
     /// use siderust::qtty::{KmPerSecondsSquared, Second};
     /// let m = ProcessNoiseModel {
     ///     position_velocity: WhiteAccelPsd::isotropic(KmPerSecondsSquared::new(1e-9)),
@@ -273,7 +273,7 @@ fn matrix_is_psd(a: &[Vec<f64>]) -> bool {
 ///
 /// ```
 /// use siderust::qtty::Second;
-/// use siderust_pod::dynamics::process_noise::PiecewiseSegment;
+/// use spod::dynamics::process_noise::PiecewiseSegment;
 ///
 /// let seg = PiecewiseSegment {
 ///     duration: Second::new(300.0),
@@ -306,7 +306,7 @@ pub struct PiecewiseSegment {
 /// # Example
 ///
 /// ```
-/// use siderust_pod::dynamics::process_noise::{PiecewiseSegment, ProcessNoise};
+/// use spod::dynamics::process_noise::{PiecewiseSegment, ProcessNoise};
 /// use siderust::qtty::Second;
 ///
 /// // No process noise at all.
@@ -363,7 +363,7 @@ impl ProcessNoise {
     /// # Example
     ///
     /// ```
-    /// use siderust_pod::dynamics::process_noise::ProcessNoise;
+    /// use spod::dynamics::process_noise::ProcessNoise;
     /// assert!(!ProcessNoise::None.is_active());
     /// assert!(ProcessNoise::WhiteNoise { sigma_pos_m: 1.0, sigma_vel_mps: 0.01 }.is_active());
     /// ```
@@ -384,7 +384,7 @@ impl ProcessNoise {
     /// # Example
     ///
     /// ```
-    /// use siderust_pod::dynamics::process_noise::{PiecewiseSegment, ProcessNoise};
+    /// use spod::dynamics::process_noise::{PiecewiseSegment, ProcessNoise};
     /// use siderust::qtty::Second;
     ///
     /// let p = ProcessNoise::PiecewiseConstant {

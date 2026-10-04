@@ -16,7 +16,7 @@ use std::error::Error;
 /// # Examples
 ///
 /// ```
-/// use siderust_pod::core::providers::EphemerisProvider;
+/// use spod::core::providers::EphemerisProvider;
 ///
 /// struct DummyState;
 /// struct DummyProvider;

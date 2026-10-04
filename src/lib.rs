@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Vallés Puig, Ramon
 
-//! `siderust-pod` — Precise Orbit Determination toolkit.
+//! `spod` — Precise Orbit Determination toolkit.
 //!
 //! This crate provides a complete POD pipeline built on the
 //! [`siderust`] and its public scientific re-exports.
@@ -25,8 +25,8 @@
 //!
 //! ## Binary entry-points
 //!
-//! - `siderust-pod` — command-line interface
-//! - `siderust-pod-rest` — REST API server
+//! - `spod` — command-line interface
+//! - `spod-rest` — REST API server
 
 #![forbid(unsafe_code)]
 

@@ -53,7 +53,7 @@ const SPEED_OF_LIGHT_M_S: f64 = 299_792_458.0;
 /// # Examples
 ///
 /// ```
-/// use siderust_pod::io::crd::{CrdStation, parse_crd};
+/// use spod::io::crd::{CrdStation, parse_crd};
 /// let txt = "H2 GRAZ 7839 1 1 0\nH8\n";
 /// let f = parse_crd(txt).unwrap();
 /// assert_eq!(f.station.name, "GRAZ");
@@ -78,7 +78,7 @@ pub struct CrdStation {
 /// # Examples
 ///
 /// ```
-/// use siderust_pod::io::crd::{CrdTarget, parse_crd};
+/// use spod::io::crd::{CrdTarget, parse_crd};
 /// let txt = "H3 lageos1 1155 7603901 0 1\nH8\n";
 /// let f = parse_crd(txt).unwrap();
 /// assert_eq!(f.target.name, "lageos1");
@@ -112,7 +112,7 @@ pub struct CrdTarget {
 /// # Examples
 ///
 /// ```
-/// use siderust_pod::io::crd::parse_crd;
+/// use spod::io::crd::parse_crd;
 ///
 /// let txt = "\
 /// H1 CRD 2 2024 01 01 00\n\
@@ -169,7 +169,7 @@ pub struct NormalPoint {
 /// # Examples
 ///
 /// ```
-/// use siderust_pod::io::crd::parse_crd;
+/// use spod::io::crd::parse_crd;
 /// let txt = "H2 S 0 0 0 0\nH3 t 0 0 0 1\nH4 0 2024 1 1 0 0 0 0 0 0 0 0 0 0 1 0\n\
 ///            11 300.0 0.08 std 0 0 1 0\nH8\n";
 /// let f = parse_crd(txt).unwrap();
@@ -197,7 +197,7 @@ pub struct CrdRange {
 /// # Examples
 ///
 /// ```
-/// use siderust_pod::io::crd::parse_crd;
+/// use spod::io::crd::parse_crd;
 /// let txt = "H2 GRAZ 7839 1 1 0\nH3 lageos1 1155 7603901 0 1\nH8\n";
 /// let f = parse_crd(txt).unwrap();
 /// assert_eq!(f.station_name, "GRAZ");
@@ -238,7 +238,7 @@ pub struct CrdFile {
 /// # Examples
 ///
 /// ```no_run
-/// use siderust_pod::io::crd::read_crd;
+/// use spod::io::crd::read_crd;
 /// let f = read_crd("station.crd").unwrap();
 /// println!("{} normal points", f.normal_points.len());
 /// ```
@@ -252,7 +252,7 @@ pub fn read_crd<P: AsRef<Path>>(path: P) -> Result<CrdFile, PodIoError> {
 /// # Examples
 ///
 /// ```
-/// use siderust_pod::io::crd::parse_crd;
+/// use spod::io::crd::parse_crd;
 /// let f = parse_crd("H2 GRAZ 7839 1 1 0\nH8\n").unwrap();
 /// assert_eq!(f.station_name, "GRAZ");
 /// ```
@@ -268,7 +268,7 @@ pub fn parse_crd(text: &str) -> Result<CrdFile, PodIoError> {
 /// # Examples
 ///
 /// ```
-/// use siderust_pod::io::{ParseMode, crd::parse_crd_with_mode};
+/// use spod::io::{ParseMode, crd::parse_crd_with_mode};
 /// // Permissive: a broken "11" record is skipped rather than failing.
 /// let txt = "H2 GRAZ 7839 1 1 0\nH3 lageos1 1155 7603901 0 1\n11 BROKEN\nH8\n";
 /// let f = parse_crd_with_mode(txt, ParseMode::Permissive).unwrap();

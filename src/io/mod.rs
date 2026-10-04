@@ -1,4 +1,4 @@
-//! # siderust-pod I/O
+//! # spod I/O
 //!
 //! ## Scientific scope
 //!
@@ -62,7 +62,7 @@ pub mod vgosdb;
 /// # Examples
 ///
 /// ```
-/// use siderust_pod::io::FileLocation;
+/// use spod::io::FileLocation;
 /// let loc = FileLocation::new(Some("/data/igs.sp3".into()), Some(42), Some(7));
 /// assert_eq!(loc.line, Some(42));
 /// assert_eq!(loc.column, Some(7));
@@ -84,7 +84,7 @@ impl FileLocation {
     /// # Examples
     ///
     /// ```
-    /// use siderust_pod::io::FileLocation;
+    /// use spod::io::FileLocation;
     /// let loc = FileLocation::new(None, Some(1), None);
     /// assert!(loc.path.is_none());
     /// ```
@@ -97,7 +97,7 @@ impl FileLocation {
     /// # Examples
     ///
     /// ```
-    /// use siderust_pod::io::FileLocation;
+    /// use spod::io::FileLocation;
     /// let loc = FileLocation::at_line(17);
     /// assert_eq!(loc.line, Some(17));
     /// ```
@@ -136,7 +136,7 @@ impl std::fmt::Display for FileLocation {
 /// # Examples
 ///
 /// ```
-/// use siderust_pod::io::ParseMode;
+/// use spod::io::ParseMode;
 /// assert_eq!(ParseMode::default(), ParseMode::Strict);
 /// ```
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
@@ -157,7 +157,7 @@ pub enum ParseMode {
 /// # Examples
 ///
 /// ```
-/// use siderust_pod::io::{FileLocation, PodIoError};
+/// use spod::io::{FileLocation, PodIoError};
 /// let err = PodIoError::located(
 ///     "RINEX 3.05 §6.3",
 ///     FileLocation::at_line(42),
@@ -194,7 +194,7 @@ impl PodIoError {
     /// # Examples
     ///
     /// ```
-    /// use siderust_pod::io::{FileLocation, PodIoError};
+    /// use spod::io::{FileLocation, PodIoError};
     /// let _ = PodIoError::located("OEM v3 §5.2", FileLocation::at_line(3), "missing OBJECT_ID");
     /// ```
     pub fn located<M: Into<String>>(

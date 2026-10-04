@@ -32,7 +32,7 @@
 //! use siderust::qtty::GravitationalParameter;
 //! use siderust::qtty::unit::Kilometer;
 //! use siderust::qtty::Second;
-//! use siderust_pod::lambert::{lambert, LambertBranch};
+//! use spod::lambert::{lambert, LambertBranch};
 //!
 //! let r1 = Position::<(), ICRS, Kilometer>::new(15945.34, 0.0, 0.0);
 //! let r2 = Position::<(), ICRS, Kilometer>::new(12214.83899, 10249.46731, 0.0);

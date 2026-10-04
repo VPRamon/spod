@@ -60,7 +60,7 @@ de441                = []
 parquet              = ["dep:arrow", "dep:parquet"]
 ```
 
-Underscores are reserved for crate names (`siderust_pod_io`); user-facing
+Underscores are reserved for crate names (`spod_io`); user-facing
 flags use hyphens.
 
 ## Tests

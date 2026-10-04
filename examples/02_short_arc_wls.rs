@@ -17,7 +17,7 @@
 use siderust::qtty::unit::Kilometer;
 use siderust::qtty::KmPerSecond;
 use siderust::qtty::Quantity;
-use siderust_pod::estimation::{NormalEquations, ParameterKind};
+use spod::estimation::{NormalEquations, ParameterKind};
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let solve_for = [ParameterKind::Position(0), ParameterKind::Velocity(0)];

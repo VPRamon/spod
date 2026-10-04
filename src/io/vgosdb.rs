@@ -15,10 +15,10 @@ use super::PodIoError;
 /// # Examples
 ///
 /// ```
-/// use siderust_pod::io::vgosdb::VgosDb;
+/// use spod::io::vgosdb::VgosDb;
 /// // VgosDb cannot be constructed until the feature is implemented.
-/// let err = siderust_pod::io::vgosdb::read_vgosdb(std::path::Path::new("/none")).unwrap_err();
-/// assert!(matches!(err, siderust_pod::io::PodIoError::Unsupported(_)));
+/// let err = spod::io::vgosdb::read_vgosdb(std::path::Path::new("/none")).unwrap_err();
+/// assert!(matches!(err, spod::io::PodIoError::Unsupported(_)));
 /// ```
 #[derive(Debug)]
 pub struct VgosDb;
@@ -34,8 +34,8 @@ pub struct VgosDb;
 /// # Examples
 ///
 /// ```
-/// use siderust_pod::io::vgosdb::read_vgosdb;
-/// use siderust_pod::io::PodIoError;
+/// use spod::io::vgosdb::read_vgosdb;
+/// use spod::io::PodIoError;
 /// use std::path::Path;
 ///
 /// let err = read_vgosdb(Path::new("/nonexistent")).unwrap_err();

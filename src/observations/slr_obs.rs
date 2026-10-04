@@ -125,9 +125,9 @@ fn shapiro_slr_m(r_rx_km: f64, r_sat_km: f64, rho_km: f64) -> f64 {
 /// # Examples
 ///
 /// ```
-/// use siderust_pod::observations::slr_obs::SlrNormalPointObs;
-/// use siderust_pod::observations::obs_trait::{CartesianState, Observation};
-/// use siderust_pod::observations::provider_bundle::NullProviderBundle;
+/// use spod::observations::slr_obs::SlrNormalPointObs;
+/// use spod::observations::obs_trait::{CartesianState, Observation};
+/// use spod::observations::provider_bundle::NullProviderBundle;
 /// use siderust::astro::dynamics::{Position, Velocity};
 /// use siderust::coordinates::frames::GCRS;
 /// use siderust::time::JulianDate;

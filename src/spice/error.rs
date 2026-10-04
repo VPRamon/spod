@@ -15,7 +15,7 @@ use thiserror::Error;
 /// # Examples
 ///
 /// ```rust
-/// use siderust_pod::spice::SpiceError;
+/// use spod::spice::SpiceError;
 ///
 /// let e = SpiceError::OutOfCoverage {
 ///     target: 399,

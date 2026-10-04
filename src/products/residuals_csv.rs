@@ -63,7 +63,7 @@ pub struct ResidualRow {
 /// # Examples
 ///
 /// ```
-/// use siderust_pod::products::residuals_csv::{ResidualRow, write_residuals_csv};
+/// use spod::products::residuals_csv::{ResidualRow, write_residuals_csv};
 ///
 /// let rows = vec![ResidualRow {
 ///     jd_tt: 2_451_545.0,
@@ -105,7 +105,7 @@ pub fn write_residuals_csv<W: Write>(
 /// # Examples
 ///
 /// ```
-/// use siderust_pod::products::residuals_csv::{ResidualCsvWriter, ResidualRecord};
+/// use spod::products::residuals_csv::{ResidualCsvWriter, ResidualRecord};
 ///
 /// let mut buf = Vec::<u8>::new();
 /// let mut w = ResidualCsvWriter::new(&mut buf).unwrap();
@@ -137,7 +137,7 @@ impl<W: Write> ResidualCsvWriter<W> {
     /// # Examples
     ///
     /// ```
-    /// use siderust_pod::products::residuals_csv::ResidualCsvWriter;
+    /// use spod::products::residuals_csv::ResidualCsvWriter;
     ///
     /// let mut buf = Vec::<u8>::new();
     /// let w = ResidualCsvWriter::new(&mut buf).unwrap();
@@ -165,7 +165,7 @@ impl<W: Write> ResidualCsvWriter<W> {
     /// # Examples
     ///
     /// ```
-    /// use siderust_pod::products::residuals_csv::{ResidualCsvWriter, ResidualRecord};
+    /// use spod::products::residuals_csv::{ResidualCsvWriter, ResidualRecord};
     ///
     /// let mut buf = Vec::<u8>::new();
     /// let mut w = ResidualCsvWriter::new(&mut buf).unwrap();
@@ -197,7 +197,7 @@ impl<W: Write> ResidualCsvWriter<W> {
     /// # Examples
     ///
     /// ```
-    /// use siderust_pod::products::residuals_csv::ResidualCsvWriter;
+    /// use spod::products::residuals_csv::ResidualCsvWriter;
     ///
     /// let mut buf = Vec::<u8>::new();
     /// let mut w = ResidualCsvWriter::new(&mut buf).unwrap();

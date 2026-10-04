@@ -25,7 +25,7 @@ use super::registry::{ForceModelParams, ForceModelSpec};
 /// # Example
 ///
 /// ```
-/// use siderust_pod::dynamics::ForceModelConfig;
+/// use spod::dynamics::ForceModelConfig;
 /// let cfg = ForceModelConfig::default();
 /// assert!(cfg.two_body && cfg.j2);
 /// let specs = cfg.to_specs();
@@ -90,7 +90,7 @@ impl ForceModelConfig {
     /// # Example
     ///
     /// ```
-    /// use siderust_pod::dynamics::ForceModelConfig;
+    /// use spod::dynamics::ForceModelConfig;
     /// let mut cfg = ForceModelConfig::default();
     /// cfg.relativity = true;
     /// let specs = cfg.to_specs();

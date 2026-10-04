@@ -1,5 +1,5 @@
 #![allow(clippy::needless_range_loop, clippy::inconsistent_digit_grouping)]
-//! # siderust-pod estimation
+//! # spod estimation
 //!
 //! ## Scientific scope
 //!

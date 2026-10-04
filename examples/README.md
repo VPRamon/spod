@@ -37,8 +37,8 @@ cargo run --example 04_sgp4_from_tle
 The configuration-driven synthetic workflow remains the larger end-to-end demonstration. Its configuration lives at `examples/configs/leo_gnss_mvp1.yaml`:
 
 ```bash
-cargo run --bin siderust-pod -- validate-config examples/configs/leo_gnss_mvp1.yaml
-cargo run --bin siderust-pod -- run examples/configs/leo_gnss_mvp1.yaml
+cargo run --bin spod -- validate-config examples/configs/leo_gnss_mvp1.yaml
+cargo run --bin spod -- run examples/configs/leo_gnss_mvp1.yaml
 ```
 
 The project is pre-1.0. Real-data examples should be added when their inputs are reproducible, reasonably sized, and exercised by CI.

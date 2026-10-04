@@ -45,13 +45,13 @@ pub struct LoadedSegment {
 /// # Examples
 ///
 /// ```rust,no_run
-/// use siderust_pod::spice::SpkKernel;
+/// use spod::spice::SpkKernel;
 ///
 /// let kernel = SpkKernel::open("de440.bsp")?;
 /// // Earth (NAIF 399) relative to the Solar System Barycenter (NAIF 0):
 /// let state = kernel.state(399, 0, 0.0)?;
 /// assert!(state[0].abs() < 2.0e8); // ~1.5e8 km from SSB at J2000
-/// # Ok::<_, siderust_pod::spice::SpiceError>(())
+/// # Ok::<_, spod::spice::SpiceError>(())
 /// ```
 pub struct SpkKernel {
     bytes: Vec<u8>,

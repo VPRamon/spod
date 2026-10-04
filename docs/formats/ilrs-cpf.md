@@ -4,7 +4,7 @@
 
 The ILRS Consolidated Prediction Format (CPF) distributes target
 predictions (positions, optionally velocities) used by SLR stations to
-plan tracking passes. siderust-pod ingests CPF for SLR validation runs
+plan tracking passes. spod ingests CPF for SLR validation runs
 and target visibility planning.
 
 ## Authoritative spec
@@ -19,7 +19,7 @@ and target visibility planning.
 
 ## Owning crate
 
-`siderust-pod-io`
+`spod-io`
 
 ## Supported record subset
 

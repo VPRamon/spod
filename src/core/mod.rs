@@ -1,4 +1,4 @@
-//! # siderust-pod core
+//! # spod core
 //!
 //! POD-specific domain primitives. Geometric and physical types from
 //! `siderust`, `affn`, `qtty`, and `tempoch` are used directly throughout
