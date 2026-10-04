@@ -149,3 +149,35 @@ fn synthetic_service_rejects_unsupported_third_body_force() {
         "diagnostic did not identify the unsupported third-body force: {err}"
     );
 }
+
+#[test]
+fn invalid_configuration_fails_before_execution() {
+    let output_dir = std::env::temp_dir().join("spod-invalid-config-test");
+    let mut cfg = base_config(&output_dir);
+    cfg.schema_version = "9.9.9".into();
+
+    let err = run(&cfg, "unused-config.yaml").unwrap_err();
+    assert!(matches!(err, ServiceError::Configuration { .. }));
+}
+
+#[test]
+fn filesystem_failures_are_artifact_errors() {
+    let suffix = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .unwrap()
+        .as_nanos();
+    let root = std::env::temp_dir().join(format!(
+        "spod-artifact-error-{}-{suffix}",
+        std::process::id()
+    ));
+    fs::create_dir_all(&root).unwrap();
+    let config_path = root.join("run.yaml");
+    let output_path = root.join("output-file");
+    fs::write(&config_path, "configuration").unwrap();
+    fs::write(&output_path, "not a directory").unwrap();
+
+    let err = run(&base_config(&output_path), &config_path).unwrap_err();
+    assert!(matches!(err, ServiceError::Artifact { .. }));
+
+    fs::remove_dir_all(root).unwrap();
+}

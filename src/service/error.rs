@@ -1,6 +1,6 @@
 //! Errors exposed at the service boundary.
 
-use super::pipeline::PipelineError;
+use std::error::Error;
 use std::io;
 use thiserror::Error;
 
@@ -35,7 +35,7 @@ pub enum ServiceError {
     #[error("scientific execution failed: {source}")]
     Scientific {
         /// Underlying Siderust-backed pipeline error.
-        source: PipelineError,
+        source: Box<dyn Error + Send + Sync>,
     },
 }
 

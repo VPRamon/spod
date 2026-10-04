@@ -167,7 +167,7 @@ fn run_job(state: AppState, id: String, req: JobRequest) {
             rinex_nav: None,
             antex: None,
         },
-        output_dir: out.display().to_string(),
+        output_dir: ".".into(),
         forces: ForcesConfig {
             two_body: true,
             j2: req.enable_j2,
@@ -241,5 +241,34 @@ mod tests {
         assert_eq!(persisted.enable_j2, req.enable_j2);
 
         fs::remove_dir_all(root).unwrap();
+    }
+
+    #[test]
+    fn relative_job_output_resolves_to_the_job_directory() {
+        let root =
+            std::env::temp_dir().join(format!("spod-rest-relative-output-{}", std::process::id()));
+        let request_path = root.join("job-id/request.json");
+        let config = RunConfig {
+            schema_version: "1.0.0".into(),
+            run_id: "job-id".into(),
+            workflow: Workflow::Synthetic,
+            inputs: InputsConfig {
+                sp3: None,
+                rinex_obs: None,
+                rinex_nav: None,
+                antex: None,
+            },
+            output_dir: ".".into(),
+            forces: ForcesConfig {
+                two_body: true,
+                j2: false,
+                third_body: false,
+            },
+        };
+
+        assert_eq!(
+            config.output_dir_relative_to(&request_path),
+            root.join("job-id")
+        );
     }
 }

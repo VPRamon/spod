@@ -1,6 +1,6 @@
 //! High-level service orchestration boundary.
 
-use super::artifacts::Artifacts;
+use super::artifacts::{ArtifactLayout, Artifacts};
 use super::error::ServiceError;
 use super::job::{RunReport, RunRequest};
 use super::pipeline::run_synth;
@@ -49,6 +49,7 @@ impl Runner {
         provenance: RunProvenance,
     ) -> Result<RunReport, ServiceError> {
         let output_dir = request.config.output_dir_relative_to(&request.config_path);
+        let layout = ArtifactLayout::new(&output_dir);
         let arc = generate(&SyntheticArcConfig::default());
         let t0 = arc.truth_states[0];
         let initial = OrbitState::new(
@@ -68,16 +69,13 @@ impl Runner {
             &arc,
             initial,
             0.0,
-            &output_dir,
+            &layout,
             &request.config.run_id,
             request.config.forces.j2,
             provenance.clone(),
         )
-        .map_err(|source| match source {
-            super::pipeline::PipelineError::Io(source) => ServiceError::Artifact { source },
-            source => ServiceError::Scientific { source },
-        })?;
-        let artifacts = Artifacts::from_output_dir(&output_dir).map_err(ServiceError::artifact)?;
+        .map_err(map_pipeline_error)?;
+        let artifacts = Artifacts::from_layout(&layout).map_err(ServiceError::artifact)?;
         Ok(RunReport {
             run_id: request.config.run_id,
             workflow: Workflow::Synthetic,
@@ -100,4 +98,37 @@ pub fn run(
         config: config.clone(),
         config_path: config_path.into(),
     })
+}
+
+fn map_pipeline_error(source: super::pipeline::PipelineError) -> ServiceError {
+    match source {
+        super::pipeline::PipelineError::Io(source) => ServiceError::Artifact { source },
+        super::pipeline::PipelineError::Product(message) => ServiceError::Artifact {
+            source: std::io::Error::other(message),
+        },
+        source => ServiceError::Scientific {
+            source: Box::new(source),
+        },
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn propagation_failures_are_scientific() {
+        let error = map_pipeline_error(super::super::pipeline::PipelineError::Propagation(
+            siderust::pod::propagation::PodDynamicsError::UnknownModel("test".into()),
+        ));
+        assert!(matches!(error, ServiceError::Scientific { .. }));
+    }
+
+    #[test]
+    fn product_failures_are_artifact_errors() {
+        let error = map_pipeline_error(super::super::pipeline::PipelineError::Product(
+            "serialization failed".into(),
+        ));
+        assert!(matches!(error, ServiceError::Artifact { .. }));
+    }
 }

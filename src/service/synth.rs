@@ -15,9 +15,8 @@
 //!
 //! ## Technical scope
 //!
-//! The public items are `SyntheticArcConfig`, `SyntheticArc`, and
-//! `generate`. Callers supply simple scenario controls and receive a fully
-//! populated synthetic dataset ready for the estimation and QC pipeline.
+//! The synthetic types are internal workflow data. External callers select
+//! this workflow through [`super::Runner`] rather than constructing arcs.
 //!
 //! Real data ingestion, richer force models, and product writing are
 //! delegated elsewhere.
@@ -45,7 +44,7 @@ use siderust::time::JulianDate;
 
 /// Configuration for a synthetic arc.
 #[derive(Debug, Clone)]
-pub struct SyntheticArcConfig {
+pub(super) struct SyntheticArcConfig {
     /// Truth LEO state at the arc start (epoch in TT).
     pub truth_initial: OrbitState,
     /// Step size, seconds.
@@ -87,15 +86,11 @@ impl Default for SyntheticArcConfig {
 
 /// Synthetic arc bundle: truth states + per-epoch observations.
 #[derive(Debug, Clone)]
-pub struct SyntheticArc {
+pub(super) struct SyntheticArc {
     /// Truth states at every epoch.
-    pub truth_states: Vec<OrbitState>,
+    pub(super) truth_states: Vec<OrbitState>,
     /// One bundle per epoch.
-    pub epochs: Vec<ArcEpoch>,
-    /// GPS satellites used.
-    pub gps_sats: Vec<GpsSatellite>,
-    /// Truth receiver clock bias used.
-    pub truth_clock_bias_m: f64,
+    pub(super) epochs: Vec<ArcEpoch>,
 }
 
 #[derive(Clone, Copy)]
@@ -172,7 +167,7 @@ impl Lcg {
 }
 
 /// Generate the synthetic arc.
-pub fn generate(cfg: &SyntheticArcConfig) -> SyntheticArc {
+pub(super) fn generate(cfg: &SyntheticArcConfig) -> SyntheticArc {
     let force = TwoBody::new(siderust::astro::dynamics::GM_EARTH);
     let truth = rk4_propagate_series(
         &force,
@@ -249,7 +244,5 @@ pub fn generate(cfg: &SyntheticArcConfig) -> SyntheticArc {
     SyntheticArc {
         truth_states: truth,
         epochs,
-        gps_sats,
-        truth_clock_bias_m: cfg.clock_bias_m,
     }
 }
