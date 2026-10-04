@@ -7,7 +7,7 @@ set -euo pipefail
 
 cd "$(dirname "$0")/.."
 
-pattern='SIDERUST_POD_REST_(BIND|OUT)|siderust[-_]pod[-_](core|dynamics|io|observations|estimation|qc|products|service)|spod::(core|dynamics|estimation|observations|products|qc)'
+pattern='SIDERUST_POD_REST_(BIND|OUT)|siderust[-_]pod|spod::(core|dynamics|estimation|observations|products|qc)'
 matches="$(git grep -n -I -E "$pattern" -- ':!target/**' || true)"
 unexpected=()
 
