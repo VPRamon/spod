@@ -80,7 +80,7 @@ See [examples/README.md](examples/README.md) for the purpose of each example and
 
 - **Type safety for physical quantities.** Units, epochs, frames and states should be difficult to mix accidentally.
 - **Traceable numerical behaviour.** Scientific algorithms should have explicit assumptions and validation tests.
-- **Separation of concerns.** Dynamics, observations, estimation, formats and orchestration remain independently testable.
+- **Separation of concerns.** Reusable dynamics, observations, estimation, and QC remain independently testable in Siderust; `spod` keeps format adapters and service orchestration at the application boundary.
 - **No unsafe Rust.** The library forbids `unsafe_code`.
 - **Standards-oriented interoperability.** Common astrodynamics and geodesy formats are treated as first-class interfaces.
 
