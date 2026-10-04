@@ -80,7 +80,7 @@ impl AppState {
     }
 }
 
-#[derive(Debug, Deserialize, Default)]
+#[derive(Debug, Serialize, Deserialize, Default)]
 struct JobRequest {
     #[serde(default)]
     enable_j2: bool,
@@ -111,7 +111,7 @@ async fn submit_job(
     let id_clone = id.clone();
     let state_clone = state.clone();
     tokio::task::spawn_blocking(move || {
-        run_job(state_clone, id_clone, req.enable_j2);
+        run_job(state_clone, id_clone, req);
     });
     (StatusCode::ACCEPTED, Json(JobAccepted { id }))
 }
@@ -124,7 +124,7 @@ async fn job_status(State(state): State<AppState>, Path(id): Path<String>) -> im
     }
 }
 
-fn run_job(state: AppState, id: String, enable_j2: bool) {
+fn run_job(state: AppState, id: String, req: JobRequest) {
     {
         let mut t = state.inner.lock().unwrap();
         t.insert(id.clone(), JobStatus::Running);
@@ -146,7 +146,33 @@ fn run_job(state: AppState, id: String, enable_j2: bool) {
         ),
     );
     let out = state.output_root.join(&id);
-    let result = run_synth(&arc, init, 0.0, &out, &id, enable_j2);
+    let request_bytes = match serde_json::to_vec(&req) {
+        Ok(bytes) => bytes,
+        Err(e) => {
+            let mut t = state.inner.lock().unwrap();
+            t.insert(
+                id,
+                JobStatus::Failed {
+                    error: e.to_string(),
+                },
+            );
+            return;
+        }
+    };
+    let request_ref = siderust::pod::run::dataset::DatasetRef::from_bytes(
+        format!("requests/{id}.json"),
+        "configuration",
+        &request_bytes,
+    );
+    let result = run_synth(
+        &arc,
+        init,
+        0.0,
+        &out,
+        &id,
+        req.enable_j2,
+        crate::service::RunProvenance::from_config(request_ref, Vec::new()),
+    );
     let mut t = state.inner.lock().unwrap();
     match result {
         Ok(report) => {

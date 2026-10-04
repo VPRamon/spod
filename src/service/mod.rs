@@ -42,7 +42,9 @@ pub mod runner;
 pub mod synth;
 
 pub use config::RunConfig;
-pub use pipeline::{run_synth, ArcEpoch, GpsSatellite, PipelineError, PipelineReport};
+pub use pipeline::{
+    run_synth, ArcEpoch, GpsSatellite, PipelineError, PipelineReport, RunProvenance,
+};
 pub use runner::{run, RunReport};
 pub use synth::{generate, SyntheticArc, SyntheticArcConfig};
 

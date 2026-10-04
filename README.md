@@ -65,8 +65,7 @@ docker run --rm -p 8080:8080 spod:dev
 ```
 
 The service listens on `SPOD_REST_BIND` and writes job output below
-`SPOD_REST_OUT`. The former `SIDERUST_POD_REST_BIND` and
-`SIDERUST_POD_REST_OUT` variables remain supported as deprecated fallbacks.
+`SPOD_REST_OUT`.
 
 The remaining Rust examples cover Lambert transfer and SGP4 integration:
 
@@ -114,12 +113,8 @@ docker run --rm -p 8080:8080 spod:dev
 ```
 
 The REST container defaults to `0.0.0.0:8080`, so the published port is
-reachable from outside the container. Docker supplies this through the
-internal `SPOD_REST_DEFAULT_BIND` setting; it is not the normal user-facing
-configuration API. `SPOD_REST_BIND` and `SPOD_REST_OUT`
-take precedence over the deprecated `SIDERUST_POD_REST_BIND` and
-`SIDERUST_POD_REST_OUT` aliases; when neither is set, the service uses its
-defaults.
+reachable from outside the container. Set `SPOD_REST_BIND` and
+`SPOD_REST_OUT` to override the defaults.
 
 ## Contributing
 

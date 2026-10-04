@@ -60,8 +60,6 @@ pub struct SyntheticArcConfig {
     pub carrier_sigma_m: f64,
     /// Receiver clock bias (truth), metres.
     pub clock_bias_m: f64,
-    /// Carrier float ambiguity per satellite (truth), metres.
-    pub ambiguity_m: f64,
     /// Random seed.
     pub seed: u64,
 }
@@ -82,7 +80,6 @@ impl Default for SyntheticArcConfig {
             code_sigma_m: 0.5,
             carrier_sigma_m: 0.005,
             clock_bias_m: 12_345.6,
-            ambiguity_m: 0.0,
             seed: 0xC0FFEE,
         }
     }
@@ -237,7 +234,7 @@ pub fn generate(cfg: &SyntheticArcConfig) -> SyntheticArc {
                 .expect("synthetic observation")
                 .residual_m;
             let measured_code = code_truth + cfg.code_sigma_m * rng.normal();
-            let measured_phase = phase_truth + cfg.ambiguity_m + cfg.carrier_sigma_m * rng.normal();
+            let measured_phase = phase_truth + cfg.carrier_sigma_m * rng.normal();
             code_obs.measured_m = Meters::new(measured_code);
             phase_obs.measured_m = Meters::new(measured_phase);
             code.push((sat.clone(), code_obs));

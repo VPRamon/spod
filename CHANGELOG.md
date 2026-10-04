@@ -12,9 +12,7 @@ crate (independent versioning).
 * Renamed the project to `spod`, including the Cargo package/library, the
   `spod` and `spod-rest` binaries, repository URLs, and Docker image examples.
 * Renamed REST configuration variables to `SPOD_REST_BIND` and
-  `SPOD_REST_OUT`. The former `SIDERUST_POD_REST_BIND` and
-  `SIDERUST_POD_REST_OUT` names remain supported as deprecated fallbacks.
-  Update scripts and deployments to use the `SPOD_*` namespace.
+  `SPOD_REST_OUT`; deployments must use the `SPOD_*` namespace.
 * Raised the MSRV to Rust 1.89 because the released `siderust` dependency
   graph requires it. The Docker builder and CI MSRV job use the same version.
 * Split CI into blocking format, build, lint, feature-test, doctest,
@@ -51,10 +49,8 @@ crate (independent versioning).
 * `siderust-pod-estimation::WlsSolverError`: new `Other(String)` variant
   + `WlsSolverError::other()` constructor so callers can wrap upstream
   propagation/STM failures during normal-equation assembly.
-* `siderust-pod-service::pipeline`: scoped `#[allow(deprecated)]`
-  around the legacy `finite_diff_stm_series` call site (upstream notes
-  explicitly preserve the series API for batch-LS use, since
-  `propagate_stm` only returns Φ at the terminal epoch).
+* Synthetic batch assembly now uses Siderust's variational propagator for
+  aligned per-epoch states and state-transition matrices.
 
 ### Fixed
 
@@ -62,14 +58,8 @@ crate (independent versioning).
   `OMEGA_EARTH_RAD_S` (`InverseSeconds`) to its scalar value before the
   km/(km·s⁻¹) division, restoring `cargo check` after the upstream
   `siderust` typed-constant migration.
-* `siderust-pod-service`: pipeline & synthetic-arc generation updated
-  to the new five-argument `rk4_propagate_series`/`finite_diff_stm_series`
-  signatures (which now take a `&DynamicsContext` and return
-  `Result<_, DynamicsError>`); errors are wrapped through
-  `WlsSolverError::Other`. EKF replay test migrated to the
-  `EncodedTime`-based `OrbitState::new` and to
-  `StateCovariance::diagonal_from_sigmas` with typed
-  `Kilometers`/`KmPerSecond` arguments.
+* The service runner now records canonical Siderust dataset references and
+  valid run-manifest provenance for CLI and REST-triggered jobs.
 
 ### Added
 

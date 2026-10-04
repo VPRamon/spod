@@ -183,16 +183,6 @@ jobs:
             sleep 1
           done
 
-          docker run -d --name spod-ci-legacy -p 18081:8080 \
-            -e SIDERUST_POD_REST_BIND=0.0.0.0:8080 spod:ci >/dev/null
-          for attempt in {1..30}; do
-            if curl --fail --silent "http://127.0.0.1:18081/healthz"; then
-              exit 0
-            fi
-            [[ "$attempt" -eq 30 ]] && exit 1
-            sleep 1
-          done
-
   coverage:
     name: Coverage
     runs-on: ubuntu-latest

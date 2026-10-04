@@ -33,6 +33,7 @@
 //!   Messages, CCSDS 502.0-B-2 / 502.0-B-3.
 use super::synth::SyntheticArc;
 use super::synth::SyntheticProviders;
+use chrono::{SecondsFormat, Utc};
 use siderust::astro::dynamics::context::DynamicsContext;
 use siderust::astro::dynamics::forces::{TwoBody, J2};
 use siderust::astro::dynamics::{OrbitState, Position, Velocity, EARTH_J2, GM_EARTH, R_EARTH};
@@ -44,19 +45,10 @@ use siderust::pod::observation::obs_trait::{ObsResidual, Observation};
 use siderust::pod::product::qc_json::{write_qc_json, QcDocument};
 use siderust::pod::product::residuals_csv::{ResidualCsvWriter, ResidualRecord};
 use siderust::pod::product::{write_oem_from_states, write_sp3_from_states};
+use siderust::pod::propagation::{PropagatedArc, VariationalPropagator};
 use siderust::pod::qc::ResidualsByGroup;
 use siderust::pod::run::dataset::DatasetRef;
 use siderust::pod::run::manifest::RunManifest;
-use siderust::principia::integrators::rk4_propagate_series;
-// `finite_diff_stm_series` is upstream-deprecated in favour of the
-// variational `propagate_stm`, but the latter only returns Φ at the final
-// epoch. Batch least-squares assembly here needs Φ at every measurement
-// epoch, which is exactly the use-case the upstream deprecation note
-// explicitly preserves the series API for ("no direct variational
-// equivalent ... retained for validation workflows that need the STM at
-// every intermediate step"). Switching to per-step `propagate_stm` calls
-// would re-do the same 12 perturbation propagations per epoch.
-use siderust::principia::finite_diff_stm_series;
 use siderust::qtty::Second;
 use std::fs;
 use std::path::{Path, PathBuf};
@@ -122,6 +114,29 @@ pub struct PipelineReport {
     pub output_dir: PathBuf,
 }
 
+/// Service provenance supplied to a synthetic run.
+#[derive(Debug, Clone)]
+pub struct RunProvenance {
+    /// SHA-256 of the configuration document used for the run.
+    pub config_sha256: String,
+    /// Configuration and external input references consumed by the run.
+    pub inputs: Vec<DatasetRef>,
+}
+
+impl RunProvenance {
+    /// Build provenance from the canonical configuration dataset reference.
+    pub fn from_config(config: DatasetRef, inputs: Vec<DatasetRef>) -> Self {
+        let config_sha256 = config.sha256.clone();
+        let mut all_inputs = Vec::with_capacity(inputs.len() + 1);
+        all_inputs.push(config);
+        all_inputs.extend(inputs);
+        Self {
+            config_sha256,
+            inputs: all_inputs,
+        }
+    }
+}
+
 /// Run MVP-1 against a synthetic arc and write all artifacts to `output_dir`.
 pub fn run_synth(
     arc: &SyntheticArc,
@@ -130,7 +145,9 @@ pub fn run_synth(
     output_dir: &Path,
     run_id: &str,
     enable_j2: bool,
+    provenance: RunProvenance,
 ) -> Result<PipelineReport, PipelineError> {
+    let started_at = Utc::now().to_rfc3339_opts(SecondsFormat::Nanos, true);
     let dt_s = step_size(arc);
     let n_steps = arc.epochs.len().saturating_sub(1);
     let n_params = 7; // state + receiver clock; carrier ambiguity is fixed in the service MVP
@@ -175,15 +192,10 @@ pub fn run_synth(
         ),
     );
     let clk = report.parameters[6];
-    let estimated_states = rk4_propagate_series(
-        &force,
-        estimated_initial,
-        Second::new(dt_s),
-        n_steps,
-        &DynamicsContext::empty(),
-    )
-    .map_err(|e| std::io::Error::other(format!("propagation failed: {e:?}")))?;
-    let estimated_final = *estimated_states.last().unwrap();
+    let estimated_arc = propagate_with_stm(&force, estimated_initial, dt_s, n_steps)
+        .map_err(|e| std::io::Error::other(format!("propagation failed: {e}")))?;
+    let estimated_states = states_with_initial(estimated_initial, &estimated_arc);
+    let estimated_final = *estimated_states.last().unwrap_or(&estimated_initial);
 
     // Postfit residuals.
     let residual_rows = postfit_residuals(arc, &estimated_states, &report.parameters);
@@ -242,16 +254,16 @@ pub fn run_synth(
     let mut manifest = RunManifest {
         run_id: run_id.into(),
         tool_version: env!("CARGO_PKG_VERSION").into(),
-        config_sha256: String::new(),
-        inputs: Vec::new(),
+        config_sha256: provenance.config_sha256,
+        inputs: provenance.inputs,
         outputs: vec![
             DatasetRef::from_file(output_dir.join("products/orbit.sp3"), "orbit-sp3")?,
             DatasetRef::from_file(output_dir.join("products/orbit.oem"), "orbit-oem")?,
             DatasetRef::from_file(output_dir.join("residuals/residuals.csv"), "residuals")?,
             DatasetRef::from_file(output_dir.join("qc/qc.json"), "qc")?,
         ],
-        started_at: String::new(),
-        finished_at: String::new(),
+        started_at,
+        finished_at: Utc::now().to_rfc3339_opts(SecondsFormat::Nanos, true),
     };
     manifest.canonicalize();
     let manifest_path = output_dir.join("run.manifest.json");
@@ -305,29 +317,10 @@ fn assemble_normal_equations<F: SiderustAccelerationModel>(
         Position::new(params[0], params[1], params[2]),
         Velocity::new(params[3], params[4], params[5]),
     );
-    let states = rk4_propagate_series(
-        force,
-        s0,
-        Second::new(dt_s),
-        n_steps,
-        &DynamicsContext::empty(),
-    )
-    .map_err(|e| {
-        siderust::pod::estimation::WlsSolverError::other(format!("propagation failed: {e:?}"))
+    let propagated = propagate_with_stm(force, s0, dt_s, n_steps).map_err(|e| {
+        siderust::pod::estimation::WlsSolverError::other(format!("propagation failed: {e}"))
     })?;
-    let stms = {
-        #[allow(deprecated)]
-        finite_diff_stm_series(
-            force,
-            s0,
-            Second::new(dt_s),
-            n_steps,
-            &DynamicsContext::empty(),
-        )
-        .map_err(|e| {
-            siderust::pod::estimation::WlsSolverError::other(format!("STM failed: {e:?}"))
-        })?
-    };
+    let states = states_with_initial(s0, &propagated);
     let n_params = 7;
     let mut ne = NormalEquations::new(n_params);
     let providers = SyntheticProviders {
@@ -336,12 +329,16 @@ fn assemble_normal_equations<F: SiderustAccelerationModel>(
 
     for ep in &arc.epochs {
         let s = &states[ep.state_index];
-        let phi = stms[ep.state_index].as_array();
+        let phi = if ep.state_index == 0 {
+            identity_stm()
+        } else {
+            *propagated.steps[ep.state_index - 1].1.as_array()
+        };
         for (_sat, obs) in &ep.code {
             let resid = obs
                 .residual(s, &providers)
                 .map_err(|e| siderust::pod::estimation::WlsSolverError::other(e.to_string()))?;
-            let row = observation_row(obs, s, &providers, phi, 6);
+            let row = observation_row(obs, s, &providers, &phi, 6);
             ne.add_row(&row, resid, obs.sigma.value())?;
         }
         for (_sat, obs) in &ep.carrier {
@@ -349,11 +346,41 @@ fn assemble_normal_equations<F: SiderustAccelerationModel>(
                 .residual(s, &providers)
                 .map_err(|e| siderust::pod::estimation::WlsSolverError::other(e.to_string()))?
                 .residual_m;
-            let row = observation_row(obs, s, &providers, phi, 6);
+            let row = observation_row(obs, s, &providers, &phi, 6);
             ne.add_row(&row, resid, obs.sigma.value())?;
         }
     }
     Ok(ne)
+}
+
+fn propagate_with_stm<F: SiderustAccelerationModel>(
+    force: &F,
+    initial: OrbitState,
+    dt_s: f64,
+    n_steps: usize,
+) -> Result<PropagatedArc, siderust::pod::propagation::PodDynamicsError> {
+    VariationalPropagator {
+        step: Second::new(dt_s),
+    }
+    .propagate(force, initial, n_steps, &DynamicsContext::empty())
+}
+
+fn states_with_initial(initial: OrbitState, propagated: &PropagatedArc) -> Vec<OrbitState> {
+    let mut states = Vec::with_capacity(propagated.steps.len() + 1);
+    states.push(initial);
+    states.extend(propagated.steps.iter().map(|(state, _)| *state));
+    states
+}
+
+fn identity_stm() -> [[f64; 6]; 6] {
+    [
+        [1.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+        [0.0, 1.0, 0.0, 0.0, 0.0, 0.0],
+        [0.0, 0.0, 1.0, 0.0, 0.0, 0.0],
+        [0.0, 0.0, 0.0, 1.0, 0.0, 0.0],
+        [0.0, 0.0, 0.0, 0.0, 1.0, 0.0],
+        [0.0, 0.0, 0.0, 0.0, 0.0, 1.0],
+    ]
 }
 
 fn observation_row<O: Observation>(
