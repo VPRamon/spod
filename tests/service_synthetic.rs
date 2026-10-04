@@ -3,10 +3,30 @@
 use chrono::DateTime;
 use siderust::pod::run::dataset::DatasetRef;
 use siderust::pod::run::manifest::{RunManifest, RUN_MANIFEST_SCHEMA_V1};
+use spod::service::config::{ForcesConfig, InputsConfig};
 use spod::service::{run, RunConfig};
 use std::fs;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::time::{SystemTime, UNIX_EPOCH};
+
+fn base_config(output_dir: &Path) -> RunConfig {
+    RunConfig {
+        schema_version: "1.0.0".into(),
+        run_id: "integration-test".into(),
+        inputs: InputsConfig {
+            sp3: None,
+            rinex_obs: None,
+            rinex_nav: None,
+            antex: None,
+        },
+        output_dir: output_dir.display().to_string(),
+        forces: ForcesConfig {
+            two_body: true,
+            j2: false,
+            third_body: false,
+        },
+    }
+}
 
 #[test]
 fn synthetic_service_produces_valid_manifest_and_products() {
@@ -43,7 +63,14 @@ fn synthetic_service_produces_valid_manifest_and_products() {
         .all(|c| c.is_ascii_hexdigit() && !c.is_ascii_uppercase()));
     assert!(DateTime::parse_from_rfc3339(&manifest.started_at).is_ok());
     assert!(DateTime::parse_from_rfc3339(&manifest.finished_at).is_ok());
-    assert!(!manifest.inputs.is_empty());
+
+    assert_eq!(manifest.inputs.len(), 1);
+    let config_input = &manifest.inputs[0];
+    assert_eq!(config_input.kind, "configuration");
+    assert_eq!(config_input.sha256, manifest.config_sha256);
+    let actual_config = DatasetRef::from_file(&config_path, "configuration").unwrap();
+    assert_eq!(config_input.bytes, actual_config.bytes);
+    assert_eq!(config_input.sha256, actual_config.sha256);
 
     let schema: serde_json::Value = serde_json::from_str(RUN_MANIFEST_SCHEMA_V1).unwrap();
     for field in [
@@ -74,4 +101,27 @@ fn synthetic_service_produces_valid_manifest_and_products() {
     }
 
     fs::remove_dir_all(root).unwrap();
+}
+
+#[test]
+fn synthetic_service_rejects_every_real_data_input() {
+    let output_dir = std::env::temp_dir().join("spod-unsupported-input-test");
+
+    for input_name in ["sp3", "rinex_obs", "rinex_nav", "antex"] {
+        let mut cfg = base_config(&output_dir);
+        match input_name {
+            "sp3" => cfg.inputs.sp3 = Some("unused.sp3".into()),
+            "rinex_obs" => cfg.inputs.rinex_obs = Some("unused.obs".into()),
+            "rinex_nav" => cfg.inputs.rinex_nav = Some("unused.nav".into()),
+            "antex" => cfg.inputs.antex = Some("unused.atx".into()),
+            _ => unreachable!(),
+        }
+
+        let err = run(&cfg, "unused-config.yaml").unwrap_err();
+        assert_eq!(err.kind(), std::io::ErrorKind::Unsupported);
+        assert!(
+            err.to_string().contains(input_name),
+            "diagnostic for {input_name} did not identify the unsupported input: {err}"
+        );
+    }
 }
