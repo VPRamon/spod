@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Architectural consolidation should reduce code ownership without accidentally shrinking the product. This policy applies whenever a local implementation is removed, replaced, or moved upstream.
+Architectural consolidation should reduce code ownership without accidentally shrinking the product. This policy applies whenever a local implementation is removed, replaced, moved upstream, or reclassified as a reference example.
 
 Tracking: [#19](https://github.com/VPRamon/spod/issues/19).
 
@@ -12,25 +12,25 @@ Tracking: [#19](https://github.com/VPRamon/spod/issues/19).
 
 ### Implementation
 
-A local file such as `src/io/sp3.rs` can disappear when Siderust provides the canonical parser.
+A local parser or scientific algorithm can disappear when Siderust provides the canonical implementation.
 
 ### Rust API compatibility
 
-An old namespace such as `spod::io::sp3::*` does not have to remain. Broad compatibility reexports are discouraged because they recreate ambiguous ownership.
+An old module path does not have to remain. Broad compatibility reexports are discouraged because they recreate ambiguous ownership.
 
 ### Product capability
 
-A supported workflow being able to consume SP3 may still be a required product capability even after both the implementation and old namespace disappear.
+A supported workflow being able to consume a format, run a validation, or produce an artifact may remain required even after the local implementation and old namespace disappear.
 
 ## Required classifications
 
 ### KEEP IN SPOD
 
-Operational/application behavior such as job lifecycle, input resolution, mission profiles, processing baselines, QC thresholds, REST/CLI, and reprocessing.
+Operational/application behavior such as job lifecycle, input resolution, mission profiles, processing baselines, QC policy, human-readable reporting, REST/CLI, and reprocessing.
 
 ### MIGRATE TO SIDERUST
 
-The feature remains available to workflows, but the reusable implementation is canonical upstream. Typical examples are standard format parsing, observation models, estimators, and product serialization.
+The capability remains available to workflows, but the reusable implementation is canonical upstream. Typical examples are standard format parsing, observation models, estimators, orbit comparison, SLR validation primitives, and product serialization.
 
 ### UPSTREAM GAP FIRST
 
@@ -42,26 +42,35 @@ Full Vallado-style SGP4/SDP4 is the current example; see [#29](https://github.co
 
 The capability does not belong in the target product and is deliberately removed. This requires rationale, impact assessment, changelog/documentation, and confirmation that no supported workflow depends on it.
 
-Lambert may become an example of this category, but that decision must be explicit.
+Lambert is currently classified this way for the core POD service unless a concrete operational use case changes that decision.
+
+### REFERENCE EXAMPLE
+
+Some mission-specific functionality is valuable as a demonstration of extensibility but should not become permanent core API or Cargo-feature surface.
+
+LISA is the current example; see [#34](https://github.com/VPRamon/spod/issues/34).
 
 ## Migration checklist
 
 Every deletion/replacement PR should answer:
 
 1. What user-visible capability existed?
-2. Is it still part of the product?
-3. Where will the implementation live?
+2. Is it still part of the core product, a reference example, or intentionally retired?
+3. Where will the reusable implementation live?
 4. Is the replacement semantically equivalent for the supported workflow?
 5. Which product-level test proves the workflow still works?
 6. Which algorithm/parser tests can move upstream?
 7. Are dependencies/features removed only after the last product consumer migrates?
 8. Does documentation describe ownership correctly?
+9. Did any presentation/reporting/application logic get swept away together with scientific code?
 
 ## Testing policy
 
 Tests that may move upstream include parser conformance, numerical verification, estimator kernels, SPICE segment evaluation, generic format round-trips, and generic SGP4 reference cases once upstream owns that backend.
 
-Tests that stay in `spod` include real workflow ingestion, configuration mapping, provenance, artifact generation, QC policy, unsupported-combination failures, CLI/REST parity, and end-to-end reference datasets.
+Tests that stay in `spod` include real workflow ingestion, configuration mapping, provenance, artifact/report generation, QC policy, unsupported-combination failures, CLI/REST parity, and end-to-end reference datasets.
+
+Reference examples may carry small deterministic integration tests without becoming core product features.
 
 ## No silent downgrade
 
