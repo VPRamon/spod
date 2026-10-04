@@ -14,9 +14,9 @@
 
 #![allow(clippy::print_stdout)]
 
-use qtty::length::Kilometer;
-use qtty::KmPerSecond;
-use qtty::Quantity;
+use siderust::qtty::unit::Kilometer;
+use siderust::qtty::KmPerSecond;
+use siderust::qtty::Quantity;
 use siderust_pod::estimation::{NormalEquations, ParameterKind};
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {

@@ -29,9 +29,9 @@
 //!   Determination. Elsevier Academic Press.
 //! - Vallado, D. A. (2013). Fundamentals of Astrodynamics and Applications
 //!   (4th ed.). Microcosm Press.
-use affn::matrix3::{FrameMatrix3, SymmetricFrameMatrix3};
 use faer::linalg::solvers::Solve;
 use faer::{Mat, Side};
+use siderust::affn::matrix3::{FrameMatrix3, SymmetricFrameMatrix3};
 use siderust::astro::dynamics::covariance::StateCovariance;
 use siderust::coordinates::frames::GCRS;
 use thiserror::Error;

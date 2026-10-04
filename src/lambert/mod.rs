@@ -12,8 +12,8 @@
 //! ## Public API
 //!
 //! - [`lambert`] / [`lambert_n_rev`] — **typed** entry-points operating
-//!   on [`affn::cartesian::Position`] / [`affn::cartesian::Velocity`]
-//!   and [`qtty::Second`]. These are the documented public interface.
+//!   on [`siderust::affn::cartesian::Position`] / [`siderust::affn::cartesian::Velocity`]
+//!   and [`siderust::qtty::Second`]. These are the documented public interface.
 //! - [`solve_lambert`] / [`solve_lambert_n_rev`] — low-level numeric
 //!   backend on plain `[f64; 3]` km / km/s arrays. Useful for FFI and
 //!   for inner loops in mission-design search where allocating typed
@@ -26,12 +26,12 @@
 //! Ex. 7-5, 4th ed., p. 467):
 //!
 //! ```
-//! use affn::cartesian::Position;
-//! use affn::centers::ReferenceCenter;
-//! use affn::frames::ICRS;
-//! use qtty::GravitationalParameter;
-//! use qtty::length::Kilometer;
-//! use qtty::Second;
+//! use siderust::affn::cartesian::Position;
+//! use siderust::affn::centers::ReferenceCenter;
+//! use siderust::affn::frames::ICRS;
+//! use siderust::qtty::GravitationalParameter;
+//! use siderust::qtty::unit::Kilometer;
+//! use siderust::qtty::Second;
 //! use siderust_pod::lambert::{lambert, LambertBranch};
 //!
 //! let r1 = Position::<(), ICRS, Kilometer>::new(15945.34, 0.0, 0.0);

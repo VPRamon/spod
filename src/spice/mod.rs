@@ -32,8 +32,8 @@
 //! # Time semantics
 //!
 //! All epochs are **TDB seconds past J2000**, matching the convention of
-//! NAIF SPK files and [`tempoch::J2000s`]. The provider trait method
-//! exposes the same numeric convention; the typed `tempoch::EncodedTime`
+//! NAIF SPK files and [`siderust::tempoch::J2000s`]. The provider trait method
+//! exposes the same numeric convention; the typed `siderust::tempoch::EncodedTime`
 //! constructor is available via [`SpiceEphemerisProvider::state_at`].
 //!
 //! # Validation gate

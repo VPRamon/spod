@@ -1715,7 +1715,6 @@ dependencies = [
 name = "siderust-pod"
 version = "0.1.0"
 dependencies = [
- "affn",
  "anyhow",
  "approx",
  "axum",
@@ -1726,9 +1725,6 @@ dependencies = [
  "faer",
  "hex",
  "log",
- "parquet",
- "principia",
- "qtty",
  "quick-xml",
  "serde",
  "serde_json",
@@ -1736,7 +1732,6 @@ dependencies = [
  "sgp4",
  "sha2 0.10.9",
  "siderust",
- "tempoch",
  "thiserror 1.0.69",
  "tokio",
  "toml 0.8.23",

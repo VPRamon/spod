@@ -17,7 +17,7 @@ homepage     = "https://github.com/Siderust/siderust-pod"
 keywords     = ["satellite", "pod", "orbit-determination", "geodesy", "gnss"]
 categories   = ["science", "aerospace"]
 publish      = false
-description  = "Precise Orbit Determination toolkit (POD) built on siderust, qtty, tempoch, and affn."
+description  = "Precise Orbit Determination toolkit (POD) service built on Siderust."
 
 [lib]
 name = "siderust_pod"
@@ -58,16 +58,12 @@ lisa    = []
 ## Integration tests that load a JPL DE kernel from disk (de440/de441).
 de440   = []
 ## Parquet residuals support, shared with Siderust's POD feature.
-parquet = ["dep:parquet", "siderust/pod-parquet"]
+parquet = ["siderust/pod-parquet"]
 
 [dependencies]
 # ── Baseline crates ───────────────────────────────────────────────────────────
-qtty      = { version = "0.8", features = ["astro"] }
-tempoch   = { version = "0.7", features = ["std"] }
-affn      = { version = "0.10", features = ["astro"] }
 cheby     = "0.4.2"
 siderust  = { version = "0.12", features = ["pod"] }
-principia = { version = "0.3", features = ["std"] }
 
 # ── SGP4 propagation backend ──────────────────────────────────────────────────
 sgp4 = { version = "2.4", default-features = false, features = ["std"] }
@@ -107,9 +103,6 @@ clap = { version = "4.5", features = ["derive"] }
 # ── Logging ────────────────────────────────────────────────────────────────────
 log        = "0.4"
 env_logger = "0.11"
-
-# ── Optional: Parquet residuals ────────────────────────────────────────────────
-parquet = { version = "59", default-features = false, optional = true }
 
 [dev-dependencies]
 approx   = "0.5"

@@ -32,7 +32,7 @@
 //!   Bundesamts fur Kartographie und Geodasie.
 //! - Vallado, D. A. (2013). Fundamentals of Astrodynamics and Applications
 //!   (4th ed.). Microcosm Press.
-use affn::Rotation3;
+use siderust::affn::Rotation3;
 use siderust::time::JulianDate;
 use thiserror::Error;
 

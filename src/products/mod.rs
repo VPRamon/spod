@@ -19,7 +19,7 @@
 //! | [`orbit`] | `write_sp3_from_states`, `write_oem_from_states`, `write_oem_from_spacecraft_states`, `Sp3ProductWriter`, `OemProductWriter` |
 //! | [`naming`] | IGS Long File Name helpers: `igs_lfn`, `sp3_filename`, `sp3_lfn`, `sp3_short_filename`, `clk_filename`, … |
 //! | [`residuals_csv`] | `ResidualRecord`, `ResidualCsvWriter` (streaming); `ResidualRow`, `write_residuals_csv` (batch legacy) |
-//! | `residuals_parquet` | `ResidualParquetWriter` (feature `parquet`) |
+//! | `residuals_parquet` | Siderust's `ResidualParquetWriter` (feature `parquet`) |
 //! | [`manifest`] | `ManifestWriter` for [`RunManifest`][crate::core::manifest::RunManifest] |
 //! | [`qc_json`] | `QcDocument`, `write_qc_json` |
 //! | [`error`] | [`PodProductsError`] |

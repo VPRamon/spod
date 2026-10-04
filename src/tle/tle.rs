@@ -3,9 +3,9 @@
 
 //! Core typed record produced by every parser in `siderust-tle`.
 
-use qtty::angular::Degrees;
+use siderust::qtty::angular::Degrees;
 use siderust::qtty::{angular::Turn, angular_rate::AngularRate, time::Day};
-use tempoch::{Time, UTC};
+use siderust::tempoch::{Time, UTC};
 
 use super::TleError;
 

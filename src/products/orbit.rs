@@ -33,16 +33,15 @@
 use crate::io::oem::{write_oem, OemMetadata, OemState};
 use crate::io::sp3::{write_sp3, EarthCenter, Sp3Epoch, Sp3Position, Sp3Record};
 use crate::io::PodIoError;
-use affn::cartesian;
-use qtty::time::Microseconds;
-use qtty::unit::Kilometer;
-use qtty::Day;
+use siderust::affn::cartesian;
 use siderust::astro::dynamics::state::SpacecraftState;
 use siderust::astro::dynamics::OrbitState;
 use siderust::coordinates::frames::GCRS;
+use siderust::qtty::time::Microseconds;
+use siderust::qtty::{unit::Kilometer, Days};
+use siderust::tempoch::{JulianDate, Time, TT, UTC};
 use std::io::Write;
 use std::path::Path;
-use tempoch::{JulianDate, Time, TT, UTC};
 
 use super::error::PodProductsError;
 
@@ -96,7 +95,7 @@ pub fn write_sp3_from_states<W: Write>(
             // Bridge the two tempoch versions (siderust uses crates.io tempoch,
             // siderust-pod-io uses the local path version) via the raw f64 JD.
             let epoch_utc: Time<UTC> =
-                JulianDate::<TT>::try_new(Day::new(s.epoch.to::<tempoch::JD>().value()))
+                JulianDate::<TT>::try_new(Days::new(s.epoch.to::<siderust::tempoch::JD>().value()))
                     .expect("OrbitState epoch must be finite")
                     .to_j2000s()
                     .to_scale::<UTC>();
@@ -162,7 +161,7 @@ pub fn write_oem_from_states<W: Write>(
         .iter()
         .map(|s| {
             OemState::new(
-                s.epoch.to::<tempoch::JD>().value(),
+                s.epoch.to::<siderust::tempoch::JD>().value(),
                 [
                     s.position.x().value(),
                     s.position.y().value(),

@@ -4,7 +4,7 @@
 //! and observational hypothesis is fitted. Per design §6.1 the arc is
 //! identified by a stable opaque [`ArcId`] string and bounded by typed
 //! [`Time<TT>`] start/stop instants, with an optional integration step
-//! hint expressed as a typed [`qtty::Second`].
+//! hint expressed as a typed [`siderust::qtty::Second`].
 //!
 //! Arcs are deliberately TT-anchored so downstream propagation code does
 //! not have to disambiguate which time scale `start`/`stop` are expressed
@@ -12,8 +12,8 @@
 
 use serde::{Deserialize, Serialize};
 
-use qtty::Second;
-use tempoch::{Time, TT};
+use siderust::qtty::Second;
+use siderust::tempoch::{Time, TT};
 
 /// Opaque identifier for an arc.
 ///
@@ -78,8 +78,8 @@ impl std::fmt::Display for ArcId {
 ///
 /// ```
 /// use siderust_pod::core::arc::{ArcDefinition, ArcId};
-/// use tempoch::{J2000Seconds, TT};
-/// use qtty::Second;
+/// use siderust::tempoch::{J2000Seconds, TT};
+/// use siderust::qtty::Second;
 ///
 /// let start = J2000Seconds::<TT>::try_new(Second::new(0.0)).unwrap().to_j2000s();
 /// let stop  = J2000Seconds::<TT>::try_new(Second::new(86_400.0)).unwrap().to_j2000s();
@@ -114,8 +114,8 @@ impl ArcDefinition {
     ///
     /// ```
     /// use siderust_pod::core::arc::{ArcDefinition, ArcId};
-    /// use tempoch::{J2000Seconds, TT};
-    /// use qtty::Second;
+    /// use siderust::tempoch::{J2000Seconds, TT};
+    /// use siderust::qtty::Second;
     /// let arc = ArcDefinition {
     ///     id: ArcId::new("a"),
     ///     start: J2000Seconds::<TT>::try_new(Second::new(0.0)).unwrap().to_j2000s(),
@@ -134,8 +134,8 @@ impl ArcDefinition {
     ///
     /// ```
     /// use siderust_pod::core::arc::{ArcDefinition, ArcId};
-    /// use tempoch::{J2000Seconds, TT};
-    /// use qtty::Second;
+    /// use siderust::tempoch::{J2000Seconds, TT};
+    /// use siderust::qtty::Second;
     /// let arc = ArcDefinition {
     ///     id: ArcId::new("a"),
     ///     start: J2000Seconds::<TT>::try_new(Second::new(0.0)).unwrap().to_j2000s(),
@@ -152,7 +152,7 @@ impl ArcDefinition {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use tempoch::J2000Seconds;
+    use siderust::tempoch::J2000Seconds;
 
     fn at(secs: f64) -> Time<TT> {
         J2000Seconds::<TT>::try_new(Second::new(secs))

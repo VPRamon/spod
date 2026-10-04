@@ -2,8 +2,8 @@
 //!
 //! These functions are the **public API** of the crate. They operate on
 //! `affn` typed positions and `affn` typed velocities, with the time of
-//! flight expressed as a `qtty::Second` (chosen over
-//! [`tempoch::Period`](https://docs.rs/tempoch) because Lambert ToF is
+//! flight expressed as a `siderust::qtty::Second` (chosen over
+//! [`siderust::tempoch::Period`](https://docs.rs/tempoch) because Lambert ToF is
 //! semantically a *duration*, not a half-open instant interval — see the
 //! design note at the bottom of this module).
 //!
@@ -11,12 +11,12 @@
 //! loops, FFI bridges, ...) the numeric kernel is exposed via
 //! [`crate::solve_lambert`] / [`crate::solve_lambert_n_rev`].
 
-use affn::cartesian::{Position, Velocity};
-use affn::centers::ReferenceCenter;
-use affn::frames::ReferenceFrame;
-use qtty::length::Kilometer;
-use qtty::Second;
-use qtty::{GravitationalParameter, KmPerSecond};
+use siderust::affn::cartesian::{Position, Velocity};
+use siderust::affn::centers::ReferenceCenter;
+use siderust::affn::frames::ReferenceFrame;
+use siderust::qtty::unit::Kilometer;
+use siderust::qtty::Second;
+use siderust::qtty::{GravitationalParameter, KmPerSecond};
 
 use super::error::LambertError;
 use super::izzo::{
@@ -28,7 +28,7 @@ use super::izzo::{
 ///
 /// Velocities are tagged with the same reference frame `F` as the input
 /// positions. They are *free vectors*, so no [`ReferenceCenter`] tag is
-/// attached (cf. `affn::cartesian::Velocity = Vector<F, U>`).
+/// attached (cf. `siderust::affn::cartesian::Velocity = Vector<F, U>`).
 ///
 /// # Examples
 ///
@@ -36,7 +36,7 @@ use super::izzo::{
 /// use siderust_pod::lambert::TypedLambertSolution;
 /// // The struct just bundles the two velocities and diagnostics; see
 /// // [`siderust_pod::lambert::lambert`] for end-to-end usage.
-/// fn assert_solution_layout<F: affn::frames::ReferenceFrame>(
+/// fn assert_solution_layout<F: siderust::affn::frames::ReferenceFrame>(
 ///     sol: TypedLambertSolution<F>,
 /// ) {
 ///     let _v1 = sol.v1;
@@ -57,7 +57,7 @@ pub struct TypedLambertSolution<F: ReferenceFrame> {
 /// Solve Lambert's problem (single revolution) on typed inputs.
 ///
 /// `r1`, `r2` are typed [`Position`]s in the same reference frame `F`
-/// and reference center `C`; `tof` is a [`qtty::Second`] duration; `mu`
+/// and reference center `C`; `tof` is a [`siderust::qtty::Second`] duration; `mu`
 /// is a typed [`GravitationalParameter`] (km³/s²). The function returns
 /// the corresponding free-vector velocities at `r1` and `r2`.
 ///
@@ -74,11 +74,11 @@ pub struct TypedLambertSolution<F: ReferenceFrame> {
 ///
 /// ```
 /// // no extra center import — () implements ReferenceCenter
-/// use affn::frames::ICRS;
-/// use affn::cartesian::Position;
-/// use qtty::GravitationalParameter;
-/// use qtty::length::Kilometer;
-/// use qtty::{Quantity, Second};
+/// use siderust::affn::frames::ICRS;
+/// use siderust::affn::cartesian::Position;
+/// use siderust::qtty::GravitationalParameter;
+/// use siderust::qtty::unit::Kilometer;
+/// use siderust::qtty::{Quantity, Second};
 /// use siderust_pod::lambert::{lambert, LambertBranch};
 ///
 /// let r1 = Position::<(), ICRS, Kilometer>::new(15945.34, 0.0, 0.0);
@@ -136,11 +136,11 @@ where
 ///
 /// ```
 /// // no extra center import — () implements ReferenceCenter
-/// use affn::frames::ICRS;
-/// use affn::cartesian::Position;
-/// use qtty::GravitationalParameter;
-/// use qtty::length::Kilometer;
-/// use qtty::Second;
+/// use siderust::affn::frames::ICRS;
+/// use siderust::affn::cartesian::Position;
+/// use siderust::qtty::GravitationalParameter;
+/// use siderust::qtty::unit::Kilometer;
+/// use siderust::qtty::Second;
 /// use siderust_pod::lambert::{lambert_n_rev, LambertBranch, NRevBranch};
 ///
 /// let r1 = Position::<(), ICRS, Kilometer>::new(15945.34, 0.0, 0.0);
@@ -201,7 +201,7 @@ where
 // Design note: Period vs. Second for the time-of-flight argument
 // ─────────────────────────────────────────────────────────────────────────────
 //
-// `tempoch::Period<S> = Interval<Time<S>>` is a *half-open instant
+// `siderust::tempoch::Period<S> = Interval<Time<S>>` is a *half-open instant
 // interval*, i.e. `[start, end)` on a particular time scale. Lambert's
 // problem is invariant under translation of the boundary epochs: only
 // the duration `Δt = end − start` enters the dynamics. Forcing callers
@@ -209,17 +209,17 @@ where
 // choice the algorithm does not need, and (b) break callers that work
 // in elapsed-time form (mission-design grids, porkchop searches).
 //
-// Conversely, `qtty::Second` is exactly the dimensioned duration the
+// Conversely, `siderust::qtty::Second` is exactly the dimensioned duration the
 // algorithm needs: a `Quantity<unit::Second>` with no axis tag. Callers
 // holding a `Period<S>` can trivially convert via `period.end -
 // period.start`, which already yields a `Second` per
-// `tempoch::time::Time<S>::Sub`.
+// `siderust::tempoch::time::Time<S>::Sub`.
 
 #[cfg(test)]
 mod tests {
     use super::*;
     // no extra center import — () implements ReferenceCenter
-    use affn::frames::ICRS;
+    use siderust::affn::frames::ICRS;
 
     #[test]
     fn typed_zero_rev_matches_array_kernel() {

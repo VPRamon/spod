@@ -10,9 +10,9 @@
 //! Position records (type `10`) are mapped to typed
 //! [`CpfEphemerisEntry`] values carrying:
 //!
-//! - A [`tempoch::Time<UTC>`] epoch computed from the MJD + seconds-of-day.
+//! - A [`siderust::tempoch::Time<UTC>`] epoch computed from the MJD + seconds-of-day.
 //! - A Cartesian position in the ITRF frame expressed in kilometres as
-//!   [`affn::cartesian::Position<GeocentricCenter, ITRF, Kilometer>`].
+//!   [`siderust::affn::cartesian::Position<GeocentricCenter, ITRF, Kilometer>`].
 //!
 //! Velocity records (type `20`), manoeuvre records, and other optional
 //! sections are outside the current scope.
@@ -36,18 +36,17 @@
 //!   International Laser Ranging Service. Advances in Space Research,
 //!   30(2), 135–143.
 use super::{FileLocation, ParseMode, PodIoError};
-use affn::cartesian;
-use affn::centers::{AffineCenter, ReferenceCenter};
-use affn::frames::ITRF;
 use chrono::{DateTime, NaiveDate, Utc as ChronoUtc};
-use qtty::length::Meters;
-use qtty::time::Seconds;
-use qtty::unit::Kilometer;
-use qtty::Day;
+use siderust::affn::cartesian;
+use siderust::affn::centers::{AffineCenter, ReferenceCenter};
+use siderust::affn::frames::ITRF;
+use siderust::qtty::length::Meters;
+use siderust::qtty::time::Seconds;
+use siderust::qtty::{unit::Kilometer, Days};
+use siderust::tempoch::{ModifiedJulianDate, Time, UTC};
 use std::fs;
 use std::io::Write;
 use std::path::Path;
-use tempoch::{ModifiedJulianDate, Time, UTC};
 
 // ── GeocentricCenter ──────────────────────────────────────────────────────────
 
@@ -61,7 +60,7 @@ use tempoch::{ModifiedJulianDate, Time, UTC};
 ///
 /// ```
 /// use siderust_pod::io::cpf::GeocentricCenter;
-/// use affn::centers::ReferenceCenter;
+/// use siderust::affn::centers::ReferenceCenter;
 /// assert_eq!(GeocentricCenter::center_name(), "Geocentric");
 /// ```
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Default)]
@@ -90,7 +89,7 @@ type CpfCartesian = cartesian::Position<GeocentricCenter, ITRF, Kilometer>;
 ///
 /// ```
 /// use siderust_pod::io::cpf::{parse_cpf, GeocentricCenter};
-/// use affn::centers::ReferenceCenter;
+/// use siderust::affn::centers::ReferenceCenter;
 ///
 /// let txt = "H1 CPF 2 HTS 2024 01 01 00 1\n\
 ///            H2 lageos1 1155 7603901 2024 1 1 0 0 0 2024 1 1 1 0 0 60 0 ITRF2014\n\
@@ -448,7 +447,7 @@ fn parse_cpf_impl(
                         }
                     };
 
-                let mjd = ModifiedJulianDate::<UTC>::try_new(Day::new(mjd_i as f64))
+                let mjd = ModifiedJulianDate::<UTC>::try_new(Days::new(mjd_i as f64))
                     .map_err(|_| PodIoError::Format(format!("CPF 10: invalid MJD {mjd_i}")))?;
 
                 // Backward-compatible record (metres).
@@ -562,7 +561,7 @@ H2 lageos1 1155 7603901 2024 01 01 00 00 00 0 0 ITRF2014\n\
 
     #[test]
     fn geocentric_center_name() {
-        use affn::centers::ReferenceCenter;
+        use siderust::affn::centers::ReferenceCenter;
         assert_eq!(GeocentricCenter::center_name(), "Geocentric");
     }
 

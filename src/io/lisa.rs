@@ -49,18 +49,17 @@
 
 use super::{oem::read_oem, PodIoError};
 use crate::core::providers::EphemerisProvider;
-use affn::cartesian;
-use affn::centers::{AffineCenter, ReferenceCenter};
-use affn::frames::EME2000;
-use qtty::unit::Kilometer;
-use qtty::Day;
+use siderust::affn::cartesian;
+use siderust::affn::centers::{AffineCenter, ReferenceCenter};
+use siderust::affn::frames::EME2000;
+use siderust::qtty::unit::Kilometer;
+use siderust::tempoch::{JulianDate, Time, TDB};
 use std::io::Read;
-use tempoch::{JulianDate, Time, TDB};
 
 // ── KmPerSecond local alias ───────────────────────────────────────────────────
 
 /// Velocity unit: kilometres per second.
-type KmPerSecond = qtty::Per<Kilometer, qtty::unit::Second>;
+type KmPerSecond = siderust::qtty::Per<Kilometer, siderust::qtty::unit::Second>;
 
 // ── HeliocentricCenter ────────────────────────────────────────────────────────
 
@@ -73,7 +72,7 @@ type KmPerSecond = qtty::Per<Kilometer, qtty::unit::Second>;
 ///
 /// ```
 /// use siderust_pod::io::lisa::HeliocentricCenter;
-/// use affn::centers::ReferenceCenter;
+/// use siderust::affn::centers::ReferenceCenter;
 /// assert_eq!(HeliocentricCenter::center_name(), "Heliocentric");
 /// ```
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Default)]
@@ -328,14 +327,14 @@ impl LisaOrbitReader {
                 let [x, y, z] = state.position_km;
                 let [vx, vy, vz] = state.velocity_km_s;
                 let position = LisaPosition::new(
-                    qtty::Kilometer::new(x),
-                    qtty::Kilometer::new(y),
-                    qtty::Kilometer::new(z),
+                    siderust::qtty::Kilometers::new(x),
+                    siderust::qtty::Kilometers::new(y),
+                    siderust::qtty::Kilometers::new(z),
                 );
                 let velocity = LisaVelocity::new(
-                    qtty::Quantity::<KmPerSecond>::new(vx),
-                    qtty::Quantity::<KmPerSecond>::new(vy),
-                    qtty::Quantity::<KmPerSecond>::new(vz),
+                    siderust::qtty::Quantity::<KmPerSecond>::new(vx),
+                    siderust::qtty::Quantity::<KmPerSecond>::new(vy),
+                    siderust::qtty::Quantity::<KmPerSecond>::new(vz),
                 );
                 points.push(LisaOrbitPoint {
                     epoch,
@@ -621,14 +620,14 @@ fn hermite_interp(orbit: &LisaOrbit, t: f64) -> Result<LisaOrbitPoint, LisaProvi
     );
 
     let position = LisaPosition::new(
-        qtty::Kilometer::new(x),
-        qtty::Kilometer::new(y),
-        qtty::Kilometer::new(z),
+        siderust::qtty::Kilometers::new(x),
+        siderust::qtty::Kilometers::new(y),
+        siderust::qtty::Kilometers::new(z),
     );
     let velocity = LisaVelocity::new(
-        qtty::Quantity::<KmPerSecond>::new(vx),
-        qtty::Quantity::<KmPerSecond>::new(vy),
-        qtty::Quantity::<KmPerSecond>::new(vz),
+        siderust::qtty::Quantity::<KmPerSecond>::new(vx),
+        siderust::qtty::Quantity::<KmPerSecond>::new(vy),
+        siderust::qtty::Quantity::<KmPerSecond>::new(vz),
     );
 
     // Epoch: linearly interpolate between the two bracketing epochs for the
@@ -666,7 +665,7 @@ fn j2000_seconds_to_jd(s: f64) -> f64 {
 ///
 /// Returns [`PodIoError::Format`] if `jd` is not finite or the conversion fails.
 fn jd_to_time_tdb(jd: f64) -> Result<Time<TDB>, PodIoError> {
-    JulianDate::<TDB>::try_new(Day::new(jd))
+    JulianDate::<TDB>::try_new(siderust::qtty::Days::new(jd))
         .map(|enc| enc.to_j2000s())
         .map_err(|e| PodIoError::Format(format!("lisa: cannot convert JD {jd} to TDB Time: {e}")))
 }

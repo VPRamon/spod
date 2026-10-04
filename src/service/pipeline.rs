@@ -33,11 +33,11 @@
 //!   Messages, CCSDS 502.0-B-2 / 502.0-B-3.
 use super::manifest::{canonical_json, DatasetRef, RunManifest};
 use super::synth::SyntheticArc;
-use principia::integrators::rk4_propagate_series;
 use siderust::astro::dynamics::context::DynamicsContext;
 use siderust::astro::dynamics::forces::{TwoBody, J2};
 use siderust::astro::dynamics::{OrbitState, Position, Velocity, EARTH_J2, GM_EARTH, R_EARTH};
 use siderust::pod::force::{SiderustAccelerationModel, SiderustCompositeModel};
+use siderust::principia::integrators::rk4_propagate_series;
 // `finite_diff_stm_series` is upstream-deprecated in favour of the
 // variational `propagate_stm`, but the latter only returns Φ at the final
 // epoch. Batch least-squares assembly here needs Φ at every measurement
@@ -56,8 +56,8 @@ use crate::products::{
     write_oem_from_states, write_qc_json, write_residuals_csv, write_sp3_from_states, ResidualRow,
 };
 use crate::qc::ResidualsByGroup;
-use principia::finite_diff_stm_series;
-use qtty::Second;
+use siderust::principia::finite_diff_stm_series;
+use siderust::qtty::Second;
 use std::fs;
 use std::path::{Path, PathBuf};
 use thiserror::Error;
@@ -274,8 +274,14 @@ fn step_size(arc: &SyntheticArc) -> f64 {
     if arc.truth_states.len() < 2 {
         return 30.0;
     }
-    let dt_jd = arc.truth_states[1].epoch.to::<tempoch::JD>().value()
-        - arc.truth_states[0].epoch.to::<tempoch::JD>().value();
+    let dt_jd = arc.truth_states[1]
+        .epoch
+        .to::<siderust::tempoch::JD>()
+        .value()
+        - arc.truth_states[0]
+            .epoch
+            .to::<siderust::tempoch::JD>()
+            .value();
     dt_jd * 86_400.0
 }
 
@@ -384,7 +390,7 @@ fn postfit_residuals(
             };
             let p = model.predict(s, extras);
             out.push(ResidualRow {
-                jd_tt: s.epoch.to::<tempoch::JD>().value(),
+                jd_tt: s.epoch.to::<siderust::tempoch::JD>().value(),
                 kind: format!("code-{}", sat.id),
                 measured_m: obs.measured_m,
                 predicted_m: p.value,
@@ -400,7 +406,7 @@ fn postfit_residuals(
             };
             let p = model.predict(s, extras);
             out.push(ResidualRow {
-                jd_tt: s.epoch.to::<tempoch::JD>().value(),
+                jd_tt: s.epoch.to::<siderust::tempoch::JD>().value(),
                 kind: format!("phase-{}", sat.id),
                 measured_m: obs.measured_m,
                 predicted_m: p.value,

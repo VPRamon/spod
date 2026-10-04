@@ -48,8 +48,8 @@ pub struct LowThrustRecord {
 ///
 /// ```
 /// use siderust_pod::dynamics::{LowThrustLog, ThrustArc};
-/// use qtty::force::Newtons;
-/// use tempoch::{Time, UTC};
+/// use siderust::qtty::force::Newtons;
+/// use siderust::tempoch::{Time, UTC};
 /// use chrono::{TimeZone, Utc};
 ///
 /// let t0 = Time::<UTC>::try_from_chrono(Utc.timestamp_opt(946_728_000, 0).single().unwrap()).unwrap();
@@ -169,8 +169,8 @@ fn duration_seconds(arc: &ThrustArc) -> Result<f64, ManeuverError> {
 mod tests {
     use super::*;
     use chrono::{TimeZone, Utc};
-    use qtty::force::Newtons;
-    use tempoch::{Time, UTC};
+    use siderust::qtty::force::Newtons;
+    use siderust::tempoch::{Time, UTC};
 
     fn epoch(secs: i64) -> Time<UTC> {
         Time::<UTC>::try_from_chrono(Utc.timestamp_opt(946_728_000 + secs, 0).single().unwrap())

@@ -28,12 +28,12 @@
 //!   Specification.
 //! - Montenbruck, O., Steigenberger, P., & Khachikyan, R. (2017). GNSS
 //!   satellite geometry and ephemeris products. GPS Solutions, 21, 101-111.
-use affn::cartesian;
-use affn::centers::{AffineCenter, ReferenceCenter};
-use affn::frames::GCRS;
 use chrono::{DateTime, NaiveDate, Utc as ChronoUtc};
-use qtty::time::Microseconds;
-use qtty::unit::Kilometer;
+use siderust::affn::cartesian;
+use siderust::affn::centers::{AffineCenter, ReferenceCenter};
+use siderust::affn::frames::GCRS;
+use siderust::qtty::time::Microseconds;
+use siderust::qtty::unit::Kilometer;
 
 /// Geocentric center marker for SP3 positions.
 #[derive(Debug, Copy, Clone)]
@@ -50,8 +50,8 @@ impl AffineCenter for EarthCenter {}
 
 /// Local type alias for SP3 positions: geocentric, GCRS-framed, km.
 type Position<F = GCRS, U = Kilometer> = cartesian::Position<EarthCenter, F, U>;
+use siderust::tempoch::{Time, UTC};
 use std::io::{BufRead, BufReader, Read, Write};
-use tempoch::{Time, UTC};
 use thiserror::Error;
 
 /// SP3 parse / write errors.

@@ -63,7 +63,6 @@ pub use variational::{
 };
 
 // Convenience re-exports from the upstream canonical siderust types
-pub use principia::propagate_stm;
 #[doc(no_inline)]
 pub use siderust::astro::dynamics::{
     forces::{TwoBody, J2},
@@ -73,3 +72,4 @@ pub use siderust::astro::dynamics::{
 pub use siderust::pod::force::{
     SiderustAccelerationModel as SiderustForceModel, SiderustCompositeModel as CompositeForce,
 };
+pub use siderust::principia::propagate_stm;

@@ -12,9 +12,9 @@
 //! No new integrator math is invented here — every call delegates to the
 //! upstream propagator.
 
-use qtty::Second;
 use siderust::astro::dynamics::{DynamicsContext, OrbitState, SpacecraftState};
 use siderust::pod::force::SiderustAccelerationModel;
+use siderust::qtty::Second;
 
 use crate::dynamics::Integrator;
 
@@ -32,7 +32,7 @@ use super::pod_error::PodDynamicsError;
 /// use siderust::astro::dynamics::{Position, Velocity};
 /// use siderust::coordinates::frames::GCRS;
 /// use siderust::time::JulianDate;
-/// use qtty::Second;
+/// use siderust::qtty::Second;
 ///
 /// let s0 = OrbitState::new(
 ///     JulianDate::new(2_451_545.0).to_j2000s(),
@@ -76,7 +76,7 @@ where
 /// use siderust::astro::dynamics::{Position, Velocity};
 /// use siderust::coordinates::frames::GCRS;
 /// use siderust::time::JulianDate;
-/// use qtty::Second;
+/// use siderust::qtty::Second;
 ///
 /// let orbit = OrbitState::new(
 ///     JulianDate::new(2_451_545.0).to_j2000s(),

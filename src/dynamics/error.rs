@@ -25,7 +25,7 @@ use super::thrust::ManeuverError;
 /// use siderust_pod::dynamics::{DynamicsError, ManeuverError};
 ///
 /// fn check(isp: f64) -> Result<(), DynamicsError> {
-///     siderust_pod::dynamics::mass_flow_rate(qtty::force::Newtons::new(1.0), isp)?;
+///     siderust_pod::dynamics::mass_flow_rate(siderust::qtty::force::Newtons::new(1.0), isp)?;
 ///     Ok(())
 /// }
 /// assert!(matches!(check(0.0), Err(DynamicsError::Maneuver(ManeuverError::NonPositiveIsp(_)))));
@@ -42,14 +42,14 @@ pub enum DynamicsError {
     Maneuver(#[from] ManeuverError),
 }
 
-impl From<principia::PrincipiaError> for DynamicsError {
-    fn from(err: principia::PrincipiaError) -> Self {
+impl From<siderust::principia::PrincipiaError> for DynamicsError {
+    fn from(err: siderust::principia::PrincipiaError) -> Self {
         Self::Upstream(err.into())
     }
 }
 
-impl From<principia::PropagationError> for DynamicsError {
-    fn from(err: principia::PropagationError) -> Self {
+impl From<siderust::principia::PropagationError> for DynamicsError {
+    fn from(err: siderust::principia::PropagationError) -> Self {
         let upstream: siderust::astro::dynamics::errors::DynamicsError = err.into();
         Self::Upstream(upstream)
     }

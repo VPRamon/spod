@@ -9,14 +9,14 @@
 //! The wrapper takes responsibility for:
 //!
 //! * mapping [`crate::tle::Tle`] into the SGP4 backend's element record,
-//! * converting [`tempoch::JulianDate<tempoch::UTC>`] target epochs into
+//! * converting [`siderust::tempoch::JulianDate<siderust::tempoch::UTC>`] target epochs into
 //!   minutes-since-epoch (the propagator's natural argument), and
 //! * tagging the resulting Cartesian arrays with their TEME / geocentric /
 //!   km / km·s⁻¹ types from `affn`, `siderust`, and `qtty`.
 
 use crate::tle::Tle;
 use sgp4::{Constants, Elements, Geopotential, MinutesSinceEpoch};
-use tempoch::{JulianDate, UTC};
+use siderust::tempoch::{JulianDate, UTC};
 
 use super::elements::tle_to_elements;
 use super::state::TemeState;
@@ -186,7 +186,7 @@ impl Sgp4Propagator {
                 })?
             }
         };
-        let epoch_jd_utc: JulianDate<UTC> = tle.epoch.to::<tempoch::JD>();
+        let epoch_jd_utc: JulianDate<UTC> = tle.epoch.to::<siderust::tempoch::JD>();
         Ok(Self {
             constants,
             elements,
@@ -337,8 +337,8 @@ impl Sgp4Propagator {
 }
 
 fn jd_offset_minutes(epoch: JulianDate<UTC>, minutes: f64) -> JulianDate<UTC> {
-    use qtty::time::Day;
-    use qtty::Quantity;
+    use siderust::qtty::unit::Day;
+    use siderust::qtty::Quantity;
     let days = minutes / 1_440.0;
     let raw = epoch.raw().value() + days;
     JulianDate::<UTC>::try_new(Quantity::<Day>::new(raw))

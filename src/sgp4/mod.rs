@@ -8,7 +8,7 @@
 //!
 //! * A type-preserving wrapper around the public-domain SGP4/SDP4 mean-element
 //!   propagator. Inputs are typed [`crate::tle::Tle`] records and target
-//!   epochs are typed [`tempoch::JulianDate<tempoch::UTC>`]. Outputs are
+//!   epochs are typed [`siderust::tempoch::JulianDate<siderust::tempoch::UTC>`]. Outputs are
 //!   typed [`TemeState`] values: a geocentric **TEME** position in
 //!   kilometres and a velocity in km·s⁻¹.
 //! * Validated against Vallado's "SGP4-VER" reference test set: the

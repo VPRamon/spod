@@ -19,9 +19,9 @@ use thiserror::Error;
 ///   large `|Δt|` on decayed objects, or when Lyddane choice fails on a
 ///   geostationary regime — see Vallado 2006).
 /// * **Time conversion** ([`TimeConversion`](Sgp4Error::TimeConversion)) — the
-///   target epoch supplied as a [`tempoch::JulianDate<tempoch::UTC>`] cannot be
+///   target epoch supplied as a [`siderust::tempoch::JulianDate<siderust::tempoch::UTC>`] cannot be
 ///   represented as a calendar instant, e.g. it falls outside the leap-second
-///   table covered by the active [`tempoch::TimeContext`].
+///   table covered by the active [`siderust::tempoch::TimeContext`].
 ///
 /// # Examples
 ///
@@ -53,7 +53,7 @@ pub enum Sgp4Error {
         details: String,
     },
 
-    /// Conversion between [`tempoch::JulianDate`] and a calendar instant failed.
+    /// Conversion between [`siderust::tempoch::JulianDate`] and a calendar instant failed.
     #[error("UTC time conversion failed: {0}")]
     TimeConversion(String),
 }

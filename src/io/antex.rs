@@ -30,9 +30,9 @@
 //!   versus precise ephemerides for GNSS orbit determination. GPS
 //!   Solutions, 19(2), 321-330.
 use super::PodIoError;
-use affn::cartesian::Displacement;
-use affn::frames::ReferenceFrame;
-use qtty::length::Millimeter;
+use siderust::affn::cartesian::Displacement;
+use siderust::affn::frames::ReferenceFrame;
+use siderust::qtty::length::Millimeter;
 use std::collections::HashMap;
 use std::io::{BufRead, BufReader, Read, Write};
 

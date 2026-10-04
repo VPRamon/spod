@@ -4,7 +4,7 @@
 //! `siderust-pod` — Precise Orbit Determination toolkit.
 //!
 //! This crate provides a complete POD pipeline built on the
-//! [`siderust`], [`qtty`], [`tempoch`], and [`affn`] baseline crates.
+//! [`siderust`] and its public scientific re-exports.
 //!
 //! ## Modules
 //!

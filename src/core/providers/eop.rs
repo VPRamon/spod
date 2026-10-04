@@ -1,6 +1,6 @@
 //! [`EarthOrientationProvider`] trait.
 //!
-//! Concrete implementations typically wrap `tempoch::eop` or
+//! Concrete implementations typically wrap `siderust::tempoch::eop` or
 //! `siderust::astro::eop`.
 
 use std::error::Error;

@@ -42,9 +42,9 @@ use siderust::astro::dynamics::{Position, Velocity};
 use siderust::coordinates::frames::GCRS;
 use siderust::time::JulianDate;
 
-use qtty::unit::{Kilometer, Second};
-use qtty::velocity::C;
-use qtty::Per;
+use siderust::qtty::unit::{Kilometer, Second};
+use siderust::qtty::velocity::C;
+use siderust::qtty::Per;
 
 use super::error::PodObservationsError;
 use super::obs_trait::{CartesianState, ObsType, Observation, PhaseResidual};

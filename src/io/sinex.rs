@@ -12,10 +12,10 @@
 //! - IERS/IGS SINEX Format Description Version 2.10.
 
 use super::{FileLocation, ParseMode, PodIoError};
-use affn::cartesian;
-use affn::centers::{AffineCenter, ReferenceCenter};
-use affn::frames::ITRF;
-use qtty::unit::Meter;
+use siderust::affn::cartesian;
+use siderust::affn::centers::{AffineCenter, ReferenceCenter};
+use siderust::affn::frames::ITRF;
+use siderust::qtty::unit::Meter;
 use std::collections::HashMap;
 use std::io::{BufRead, BufReader, Read};
 
@@ -25,7 +25,7 @@ use std::io::{BufRead, BufReader, Read};
 ///
 /// ```
 /// use siderust_pod::io::sinex::GeoCenterItrf;
-/// use affn::centers::ReferenceCenter;
+/// use siderust::affn::centers::ReferenceCenter;
 /// assert_eq!(GeoCenterItrf::center_name(), "Geocentric ITRF");
 /// ```
 #[derive(Debug, Copy, Clone)]
@@ -53,7 +53,8 @@ pub type SinexPosition = cartesian::Position<GeoCenterItrf, ITRF, Meter>;
 /// Velocity unit: meters per year.
 ///
 /// Used for VELX/VELY/VELZ estimates in SINEX files.
-pub type MeterPerYear = qtty::Per<qtty::unit::Meter, qtty::unit::Year>;
+pub type MeterPerYear =
+    siderust::qtty::Per<siderust::qtty::unit::Meter, siderust::qtty::unit::Year>;
 
 /// A station solution extracted from a SINEX file.
 ///
