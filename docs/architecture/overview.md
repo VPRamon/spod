@@ -68,3 +68,12 @@ The REST adapter is intentionally asynchronous and experimental. It does not
 provide durable persistence, scheduling, retries, or distributed workers.
 Those concerns are deferred to later service/API work, including the stable
 artifact API tracked by #28.
+
+## Testing boundary
+
+`spod` integration tests validate product and service behavior: configuration,
+dispatch, lifecycle, interfaces, artifacts, and provenance. Reusable
+scientific correctness belongs in Siderust. The full Vallado SGP4/SDP4 path
+is the explicit temporary exception and remains covered by local parity tests
+until spod #29 and Siderust #98 are resolved. See
+[Testing architecture](testing.md) for the test pyramid and CI guardrails.

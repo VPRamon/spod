@@ -289,6 +289,25 @@ mod tests {
         let mut status = JobStatus::pending("job-1".into(), Workflow::Synthetic);
         assert!(status.start().is_ok());
         assert_eq!(status.state, JobState::Running);
+        let artifact = |path: &str, kind: &str| {
+            siderust::pod::run::dataset::DatasetRef::from_bytes(path, kind, b"x")
+        };
+        let result = JobResult {
+            run_id: "job-1".into(),
+            workflow: Workflow::Synthetic,
+            artifacts: Artifacts {
+                orbit_sp3: artifact("orbit.sp3", "orbit-sp3"),
+                orbit_oem: artifact("orbit.oem", "orbit-oem"),
+                residuals_csv: artifact("residuals.csv", "residuals"),
+                qc_json: artifact("qc.json", "qc"),
+                manifest: artifact("manifest.json", "manifest"),
+            },
+        };
+        assert!(status.succeed(result).is_ok());
+        assert_eq!(status.state, JobState::Succeeded);
+        assert!(status.result.is_some());
+        assert!(status.error.is_none());
+        assert_eq!(serde_json::to_value(status).unwrap()["state"], "succeeded");
     }
 
     #[test]
@@ -306,6 +325,26 @@ mod tests {
         assert!(status.result.is_none());
         assert!(status.error.is_some());
         assert!(status.start().is_err());
+    }
+
+    #[test]
+    fn failed_terminal_state_has_error_and_stable_state_name() {
+        let mut status = JobStatus::pending("job-2".into(), Workflow::Synthetic);
+        status.start().unwrap();
+        status
+            .fail(JobError {
+                code: JobErrorCode::Unsupported,
+                message: "unsupported input".into(),
+            })
+            .unwrap();
+
+        assert_eq!(status.state, JobState::Failed);
+        assert!(status.result.is_none());
+        assert_eq!(
+            status.error.as_ref().unwrap().code,
+            JobErrorCode::Unsupported
+        );
+        assert_eq!(serde_json::to_value(status).unwrap()["state"], "failed");
     }
 
     #[test]

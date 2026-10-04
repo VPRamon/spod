@@ -271,7 +271,20 @@ mod tests {
 
         let status = poll_status(&app, id).await;
         assert_eq!(status["state"], "succeeded");
-        assert!(status["result"]["artifacts"]["manifest"].is_object());
+        assert_eq!(status["workflow"], "synthetic");
+        assert_eq!(status["result"]["run_id"], id);
+        for artifact in [
+            "orbit_sp3",
+            "orbit_oem",
+            "residuals_csv",
+            "qc_json",
+            "manifest",
+        ] {
+            assert!(
+                status["result"]["artifacts"][artifact].is_object(),
+                "missing artifact metadata for {artifact}"
+            );
+        }
         fs::remove_dir_all(root).unwrap();
     }
 
